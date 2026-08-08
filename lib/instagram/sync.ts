@@ -29,6 +29,11 @@ const DATA_FILE = path.join(process.cwd(), "data", "instagram.json");
 
 const DOWNLOAD_TIMEOUT_MS = Number(process.env.IG_DOWNLOAD_TIMEOUT_MS) || 15_000;
 
+/** 이 시각 이전 게시물은 사이트에서 제외한다 (IG_SINCE 로 재정의 가능).
+ *  기본값 = 키딩성수 오픈 공지("OPENING SOON") 게시물 시각 — 계정 리브랜딩 이전
+ *  (구 23도씨 스튜디오 시절) 게시물 510개를 걸러낸다. */
+const SINCE_MS = Date.parse(process.env.IG_SINCE?.trim() || "2026-03-11T05:58:22Z");
+
 /** URL 끝의 /WIDTH/HEIGHT 패턴에서 치수 추정 (placeholder 크기용). */
 function guessDims(url: string): { width: number; height: number } {
   const m = url.match(/(\d{2,5})\/(\d{2,5})(?:\?|$)/);
@@ -188,7 +193,11 @@ export async function syncInstagram(): Promise<InstagramData> {
 
   const fixture = live ? null : loadFixture();
   const rawProfile = live ? await fetchProfile() : fixture!.profile;
-  const rawMedia = live ? await fetchMedia() : fixture!.media;
+  const allMedia = live ? await fetchMedia() : fixture!.media;
+  const rawMedia = allMedia.filter((m) => Date.parse(m.timestamp) >= SINCE_MS);
+  if (rawMedia.length < allMedia.length) {
+    console.log(`  − 기준 시각 이전 게시물 ${allMedia.length - rawMedia.length}개 제외`);
+  }
 
   const profile = await normalizeProfile(rawProfile);
   const posts: Post[] = [];
@@ -205,7 +214,8 @@ export async function syncInstagram(): Promise<InstagramData> {
   posts.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
 
   const data: InstagramData = {
-    profile,
+    // 게시물 수 표기는 API 전체 수가 아니라 사이트에 실제 노출되는 수와 일치시킨다.
+    profile: { ...profile, mediaCount: posts.length },
     posts,
     syncedAt: new Date().toISOString(),
   };
