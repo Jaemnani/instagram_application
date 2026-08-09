@@ -67,6 +67,11 @@ export const siteConfig = {
     addressRegion: env("BIZ_REGION"), // 도/주
     postalCode: env("BIZ_POSTAL"),
     addressCountry: env("BIZ_COUNTRY", "KR"),
+    /**
+     * 지도 검색어. 도로명주소가 지도에서 엉뚱한 곳에 잡히면 지번 주소를 여기 넣는다.
+     * 비우면 위 주소를 조합해 쓴다.
+     */
+    mapQuery: env("BIZ_MAP_QUERY"),
     telephone: env("BIZ_PHONE"),
     /** 위도/경도 (지역 검색 핵심). 숫자 문자열. */
     latitude: env("BIZ_LAT"),
@@ -81,6 +86,29 @@ export type SiteConfig = typeof siteConfig;
 
 export function instagramUrl(handle = siteConfig.instagramHandle): string {
   return `https://www.instagram.com/${handle.replace(/^@/, "")}/`;
+}
+
+/** 화면·지도에 그대로 쓸 수 있는 한 줄 주소. 번역하지 않는다. */
+export function fullAddress(): string {
+  const b = siteConfig.business;
+  return [b.addressRegion, b.addressLocality, b.streetAddress].filter(Boolean).join(" ");
+}
+
+/**
+ * 구글지도 링크.
+ *
+ * 좌표로 링크하면 좌표의 오차가 그대로 핀 위치가 된다(수십 m 만 틀려도 옆 건물을 가리킨다).
+ * 주소 문자열을 넘겨 구글이 건물을 직접 찾게 하고, 주소가 아예 없을 때만 좌표로 떨어진다.
+ */
+export function googleMapsUrl(): string | null {
+  const b = siteConfig.business;
+  const query =
+    b.mapQuery ||
+    fullAddress() ||
+    (b.latitude && b.longitude ? `${b.latitude},${b.longitude}` : "");
+  return query
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+    : null;
 }
 
 /** LocalBusiness JSON-LD를 출력할 만큼 주소/좌표 정보가 충분한지 */

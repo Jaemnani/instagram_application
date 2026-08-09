@@ -1,4 +1,4 @@
-import { hasLocalBusinessData, instagramUrl, siteConfig } from "@/lib/config";
+import { googleMapsUrl, hasLocalBusinessData, instagramUrl, siteConfig } from "@/lib/config";
 import { getDictionary, htmlLang, localizedPath, locales, type Locale } from "@/lib/i18n";
 import type { Post, Profile } from "@/lib/instagram/types";
 
@@ -131,8 +131,10 @@ export function localBusinessLd(locale: Locale, profile: Profile): Json | null {
       latitude: Number(b.latitude),
       longitude: Number(b.longitude),
     };
-    ld.hasMap = `https://www.google.com/maps/search/?api=1&query=${b.latitude},${b.longitude}`;
   }
+  // 좌표가 아니라 주소로 링크한다 — 이유는 googleMapsUrl 주석 참고.
+  const mapUrl = googleMapsUrl();
+  if (mapUrl) ld.hasMap = mapUrl;
   if (booking) ld.potentialAction = { "@type": "ReserveAction", target: booking };
   if (b.telephone) ld.telephone = b.telephone;
   if (b.priceRange) ld.priceRange = b.priceRange;
