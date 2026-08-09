@@ -83,6 +83,18 @@ export interface Post {
   commentsCount?: number;
   /** 댓글 본문 (UGC) */
   comments: Comment[];
+  /**
+   * 언어별 번역. 동기화 때 채워지며, 없으면 화면은 원문(한국어)으로 폴백한다.
+   * 원문이 이미 영어인 게시물은 en 을 만들지 않고 원문을 그대로 쓴다.
+   */
+  translations?: Partial<Record<string, PostTranslation>>;
+}
+
+/** 게시물 본문의 한 언어 버전 */
+export interface PostTranslation {
+  title: string;
+  excerpt: string;
+  caption: string;
 }
 
 export interface Profile {

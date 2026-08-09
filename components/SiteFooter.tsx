@@ -1,27 +1,38 @@
 import Link from "next/link";
 
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { instagramUrl, siteConfig } from "@/lib/config";
+import { localizedPath, type Dictionary, type Locale } from "@/lib/i18n";
 import type { Profile } from "@/lib/instagram/types";
 
-export function SiteFooter({ profile }: { profile: Profile }) {
+export function SiteFooter({
+  lang,
+  dict,
+  profile,
+}: {
+  lang: Locale;
+  dict: Dictionary;
+  profile: Profile;
+}) {
   const b = siteConfig.business;
+  // 주소는 번역하지 않는다 — 지도·내비게이션에 그대로 쓸 수 있어야 한다.
   const address = [b.addressRegion, b.addressLocality, b.streetAddress].filter(Boolean).join(" ");
   const bookingUrl = siteConfig.bookingUrl || profile.website;
 
   return (
     <footer className="border-t border-ivory-200 bg-ivory-100">
       <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8">
-        <div className="grid gap-10 sm:grid-cols-[1.2fr_1fr_1fr]">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <p className="wordmark text-lg text-ink-900">{siteConfig.name}</p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-600">
-              {siteConfig.description}
+              {dict.meta.description}
             </p>
           </div>
 
           <div>
             <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">
-              스튜디오
+              {dict.footer.studio}
             </h2>
             <address className="mt-3 space-y-1 text-sm not-italic text-ink-600">
               {address && <p>{address}</p>}
@@ -32,21 +43,23 @@ export function SiteFooter({ profile }: { profile: Profile }) {
                   </a>
                 </p>
               )}
-              <p>월–금 10:00–19:00 · 토·일 10:00–18:00</p>
+              <p>{dict.location.hoursShort}</p>
             </address>
           </div>
 
           <div>
-            <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">바로가기</h2>
+            <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">
+              {dict.footer.links}
+            </h2>
             <ul className="mt-3 space-y-2 text-sm text-ink-600">
               <li>
-                <Link href="/#story" className="hover:text-ink-900">
-                  스튜디오 소개
+                <Link href={`${localizedPath(lang)}#story`} className="hover:text-ink-900">
+                  {dict.footer.about}
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="hover:text-ink-900">
-                  개인정보처리방침
+                <Link href={localizedPath(lang, "/privacy")} className="hover:text-ink-900">
+                  {dict.footer.privacy}
                 </Link>
               </li>
               <li>
@@ -67,16 +80,18 @@ export function SiteFooter({ profile }: { profile: Profile }) {
                     rel="noopener noreferrer"
                     className="hover:text-ink-900"
                   >
-                    카카오톡 예약 문의
+                    {dict.footer.kakao}
                   </a>
                 </li>
               )}
             </ul>
           </div>
+
+          <LanguageSwitcher lang={lang} dict={dict} />
         </div>
 
         <p className="mt-12 border-t border-ivory-200 pt-6 text-xs text-ink-400">
-          © {siteConfig.name}. 게시물은 공식 인스타그램에서 자동 동기화됩니다.
+          © {siteConfig.name}. {dict.footer.syncNote}
         </p>
       </div>
     </footer>

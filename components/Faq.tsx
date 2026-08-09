@@ -1,13 +1,13 @@
-import { faqs } from "@/lib/content";
+import type { Dictionary } from "@/lib/i18n";
 
 /**
  * 자주 묻는 질문. <details>/<summary> 라 JS 없이 접힘이 동작하고,
- * 접힌 상태에서도 답변 텍스트가 DOM에 있어 크롤러가 전부 읽는다.
+ * 접힌 상태에서도 답변 텍스트가 DOM 에 있어 크롤러가 전부 읽는다.
  */
-export function Faq() {
+export function Faq({ dict }: { dict: Dictionary }) {
   return (
     <div className="mt-10 divide-y divide-ivory-200 border-y border-ivory-200">
-      {faqs.map((f) => (
+      {dict.faq.items.map((f) => (
         <details key={f.q} className="group py-5">
           <summary className="flex cursor-pointer list-none items-start justify-between gap-6 text-left">
             <h3 className="font-serif text-lg font-semibold leading-snug text-ink-900">{f.q}</h3>

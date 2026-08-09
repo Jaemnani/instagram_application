@@ -1,16 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { formatDate } from "@/lib/format";
+import { formatDate, formatNumber } from "@/lib/format";
+import { localizedPath, type Dictionary, type Locale } from "@/lib/i18n";
 import type { Post } from "@/lib/instagram/types";
 
 /** 캐러셀·영상 배지 (이미지 위 좌상단) */
-function MediaBadge({ post }: { post: Post }) {
+function MediaBadge({ post, dict }: { post: Post; dict: Dictionary }) {
   const label =
     post.type === "CAROUSEL_ALBUM"
-      ? `사진 ${post.images.length}장`
+      ? dict.ui.photoCount(post.images.length)
       : post.type === "VIDEO"
-        ? "영상"
+        ? dict.ui.video
         : null;
   if (!label) return null;
   return (
@@ -22,12 +23,24 @@ function MediaBadge({ post }: { post: Post }) {
 
 /**
  * 에디토리얼 게시물 카드.
- * `featured`는 갤러리 첫 항목용 대형 가로 레이아웃, 기본은 그리드용 세로 레이아웃.
- * 사진 스튜디오이므로 이미지를 크게 쓰고 텍스트는 부제 역할만 한다.
+ * `featured` 는 갤러리 첫 항목용 대형 가로 레이아웃, 기본은 그리드용 세로 레이아웃.
  */
-export function PostCard({ post, featured = false }: { post: Post; featured?: boolean }) {
+export function PostCard({
+  post,
+  lang,
+  dict,
+  featured = false,
+}: {
+  post: Post;
+  lang: Locale;
+  dict: Dictionary;
+  featured?: boolean;
+}) {
   const cover = post.coverImage;
-  const href = `/posts/${post.slug}`;
+  const href = localizedPath(lang, `/posts/${post.slug}`);
+  const text = post.translations?.[lang];
+  const title = text?.title || post.title;
+  const excerpt = text?.excerpt ?? post.excerpt;
 
   return (
     <article className={featured ? "group" : "group flex flex-col"}>
@@ -53,16 +66,14 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
               }
               className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
             />
-            <MediaBadge post={post} />
+            <MediaBadge post={post} dict={dict} />
           </Link>
         )}
 
         <div className={featured ? "" : "mt-5"}>
           <div className="flex items-center gap-3 text-xs text-ink-400">
-            <time dateTime={post.timestamp}>{formatDate(post.timestamp)}</time>
-            {post.likeCount !== undefined && (
-              <span>♡ {post.likeCount.toLocaleString("ko-KR")}</span>
-            )}
+            <time dateTime={post.timestamp}>{formatDate(post.timestamp, lang)}</time>
+            {post.likeCount !== undefined && <span>♡ {formatNumber(post.likeCount, lang)}</span>}
           </div>
 
           <h3
@@ -71,17 +82,17 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
             }`}
           >
             <Link href={href} className="transition-colors hover:text-clay-600">
-              {post.title}
+              {title}
             </Link>
           </h3>
 
-          {post.excerpt && (
+          {excerpt && (
             <p
               className={`mt-3 leading-[1.85] text-ink-600 ${
                 featured ? "text-[15px] sm:text-base" : "line-clamp-3 text-sm"
               }`}
             >
-              {post.excerpt}
+              {excerpt}
             </p>
           )}
 

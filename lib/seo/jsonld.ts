@@ -1,5 +1,5 @@
 import { hasLocalBusinessData, instagramUrl, siteConfig } from "@/lib/config";
-import { amenities, faqs, services } from "@/lib/content";
+import { getDictionary, htmlLang, localizedPath, locales, type Locale } from "@/lib/i18n";
 import type { Post, Profile } from "@/lib/instagram/types";
 
 /** 절대 URL 생성 */
@@ -8,10 +8,19 @@ export function abs(pathname: string): string {
   return `${siteConfig.url}${pathname.startsWith("/") ? "" : "/"}${pathname}`;
 }
 
+/** 언어별 절대 URL */
+function absLocalized(locale: Locale, path = "/"): string {
+  return abs(localizedPath(locale, path));
+}
+
 type Json = Record<string, unknown>;
 
-/** Organization / WebSite — 모든 페이지 공통 (브랜드 엔티티: GEO 핵심) */
-export function organizationLd(profile: Profile): Json {
+/**
+ * Organization / WebSite — 모든 페이지 공통 (브랜드 엔티티: GEO 핵심).
+ * @id 는 언어와 무관하게 하나로 유지해야 여러 언어 페이지가 같은 업체로 묶인다.
+ */
+export function organizationLd(locale: Locale, profile: Profile): Json {
+  const d = getDictionary(locale);
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -21,20 +30,21 @@ export function organizationLd(profile: Profile): Json {
     ...(siteConfig.nameKo && { alternateName: siteConfig.nameKo }),
     url: siteConfig.url,
     ...(profile.profilePicture && { logo: abs(profile.profilePicture.src) }),
-    ...(profile.biography && { description: profile.biography }),
+    description: d.meta.description,
     sameAs: [instagramUrl(profile.username || siteConfig.instagramHandle)],
   };
 }
 
-export function webSiteLd(): Json {
+export function webSiteLd(locale: Locale): Json {
+  const d = getDictionary(locale);
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": `${siteConfig.url}/#website`,
-    url: siteConfig.url,
+    url: absLocalized(locale),
     name: siteConfig.name,
-    description: siteConfig.description,
-    inLanguage: siteConfig.locale.replace("_", "-"),
+    description: d.meta.description,
+    inLanguage: htmlLang[locale],
   };
 }
 
@@ -52,7 +62,7 @@ const DAY_ORDER = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 /**
  * "Mo-Fr 10:00-19:00" 형식을 OpeningHoursSpecification 으로 변환.
  * 구글은 문자열 openingHours 보다 이 구조화 형식을 정확히 해석한다.
- * 해석에 실패한 항목은 조용히 버리지 않고 null 로 표시해 호출부가 문자열 폴백을 쓰게 한다.
+ * 해석에 실패하면 null 을 돌려 호출부가 문자열 폴백을 쓰게 한다.
  */
 function parseOpeningHours(spec: string): Json[] | null {
   const out: Json[] = [];
@@ -75,12 +85,10 @@ function parseOpeningHours(spec: string): Json[] | null {
   return out.length ? out : null;
 }
 
-/**
- * LocalBusiness — 지역(Geographic) SEO. NAP + geo 좌표 + 영업시간 + 서비스 카탈로그.
- * businessType 은 schema.org LocalBusiness 하위 타입(사진 전용 타입은 없어 ProfessionalService 권장).
- */
-export function localBusinessLd(profile: Profile): Json | null {
+/** LocalBusiness — 지역(Geographic) SEO. NAP + geo 좌표 + 영업시간 + 서비스 카탈로그. */
+export function localBusinessLd(locale: Locale, profile: Profile): Json | null {
   if (!hasLocalBusinessData()) return null;
+  const d = getDictionary(locale);
   const b = siteConfig.business;
 
   const address: Json = { "@type": "PostalAddress", addressCountry: b.addressCountry };
@@ -99,16 +107,17 @@ export function localBusinessLd(profile: Profile): Json | null {
     "@id": `${siteConfig.url}/#localbusiness`,
     name: siteConfig.name,
     ...(siteConfig.nameKo && { alternateName: siteConfig.nameKo }),
-    url: siteConfig.url,
+    url: absLocalized(locale),
     image: profile.profilePicture ? abs(profile.profilePicture.src) : undefined,
-    description: profile.biography || siteConfig.description,
+    description: d.meta.description,
     address,
     sameAs,
-    knowsLanguage: "ko",
+    // 응대 가능 언어 — 외국인 방문객에게 실질적인 정보다.
+    knowsLanguage: locales.map((l) => htmlLang[l]),
     ...(siteConfig.areaServed.length && {
       areaServed: siteConfig.areaServed.map((name) => ({ "@type": "Place", name })),
     }),
-    amenityFeature: amenities.map((name) => ({
+    amenityFeature: d.location.amenityItems.map((name) => ({
       "@type": "LocationFeatureSpecification",
       name,
       value: true,
@@ -135,14 +144,16 @@ export function localBusinessLd(profile: Profile): Json | null {
   return ld;
 }
 
-/** 서비스 카탈로그 — "돌사진", "가족사진" 등 제공 항목을 구조화 (GEO 인용 근거). */
-export function offerCatalogLd(): Json {
+/** 서비스 카탈로그 — 제공 항목을 구조화 (GEO 인용 근거) */
+export function offerCatalogLd(locale: Locale): Json {
+  const d = getDictionary(locale);
   return {
     "@context": "https://schema.org",
     "@type": "OfferCatalog",
     "@id": `${siteConfig.url}/#services`,
-    name: `${siteConfig.name} 촬영 서비스`,
-    itemListElement: services.map((s, i) => ({
+    name: `${siteConfig.name} — ${d.services.title}`,
+    inLanguage: htmlLang[locale],
+    itemListElement: d.services.items.map((s, i) => ({
       "@type": "Offer",
       position: i + 1,
       itemOffered: {
@@ -160,13 +171,15 @@ export function offerCatalogLd(): Json {
 }
 
 /** FAQPage — AI 생성형 엔진이 질문·답변 쌍을 그대로 인용하기 가장 좋은 형식. */
-export function faqPageLd(): Json | null {
-  if (!faqs.length) return null;
+export function faqPageLd(locale: Locale): Json | null {
+  const d = getDictionary(locale);
+  if (!d.faq.items.length) return null;
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "@id": `${siteConfig.url}/#faq`,
-    mainEntity: faqs.map((f) => ({
+    "@id": `${absLocalized(locale)}#faq`,
+    inLanguage: htmlLang[locale],
+    mainEntity: d.faq.items.map((f) => ({
       "@type": "Question",
       name: f.q,
       acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -175,8 +188,10 @@ export function faqPageLd(): Json | null {
 }
 
 /** 게시물 상세 — SocialMediaPosting + 대표 ImageObject + 공개 참여지표/댓글 */
-export function postLd(post: Post): Json {
+export function postLd(locale: Locale, post: Post): Json {
   const images = post.images.map((im) => abs(im.src));
+  const url = absLocalized(locale, `/posts/${post.slug}`);
+  const t = post.translations?.[locale];
 
   const interaction: Json[] = [];
   if (post.likeCount !== undefined) {
@@ -197,13 +212,14 @@ export function postLd(post: Post): Json {
   return {
     "@context": "https://schema.org",
     "@type": "SocialMediaPosting",
-    "@id": `${siteConfig.url}/posts/${post.slug}#post`,
-    headline: post.title,
-    articleBody: post.caption,
+    "@id": `${url}#post`,
+    headline: t?.title || post.title,
+    articleBody: t?.caption || post.caption,
     datePublished: post.timestamp,
-    url: `${siteConfig.url}/posts/${post.slug}`,
-    mainEntityOfPage: `${siteConfig.url}/posts/${post.slug}`,
-    inLanguage: siteConfig.locale.replace("_", "-"),
+    url,
+    mainEntityOfPage: url,
+    // 번역본이 있으면 그 언어, 없으면 원문 언어를 정직하게 밝힌다.
+    inLanguage: t ? htmlLang[locale] : "ko-KR",
     sameAs: post.permalink,
     keywords: post.hashtags.join(", "),
     author: { "@id": `${siteConfig.url}/#organization` },
@@ -245,12 +261,13 @@ export function imageObjectLd(post: Post): Json | null {
 }
 
 /** 홈 — ImageGallery (게시물 이미지 모음) */
-export function imageGalleryLd(posts: Post[]): Json {
+export function imageGalleryLd(locale: Locale, posts: Post[]): Json {
+  const d = getDictionary(locale);
   return {
     "@context": "https://schema.org",
     "@type": "ImageGallery",
-    name: `${siteConfig.name} 갤러리`,
-    url: siteConfig.url,
+    name: `${siteConfig.name} — ${d.gallery.title}`,
+    url: absLocalized(locale),
     associatedMedia: posts
       .filter((p) => p.coverImage)
       .map((p) => ({

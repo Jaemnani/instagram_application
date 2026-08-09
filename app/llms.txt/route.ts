@@ -1,22 +1,26 @@
 import { siteConfig, instagramUrl } from "@/lib/config";
-import { amenities, directions, faqs, services, targetKeywords } from "@/lib/content";
+import { getDictionary, localizedPath, locales, localeLabels } from "@/lib/i18n";
 import { getInstagramData } from "@/lib/data";
 
 /**
  * /llms.txt — AI 생성형 엔진(GEO)용 사이트 요약.
+ *
+ * ⚠️ 2026년 기준 주요 AI 업체 중 이 파일을 실제로 읽는다고 밝힌 곳은 Perplexity 뿐이다.
+ *    유지 비용이 0이라 남겨두지만 GEO 의 핵심은 robots.txt·구조화 데이터·제3자 인용이다.
+ *
  * 게시물 목록만이 아니라 "무슨 서비스를, 어디서, 언제, 어떻게 예약하는지"를 담아야
- * AI가 실제 질문("성수동 돌사진 스튜디오 알려줘")에 이 사이트를 근거로 답할 수 있다.
+ * AI 가 실제 질문("성수동 돌사진 스튜디오 알려줘")에 이 사이트를 근거로 답할 수 있다.
  */
 export async function GET() {
   const { profile, posts } = await getInstagramData();
-  const name = siteConfig.name;
+  const d = getDictionary("ko");
   const b = siteConfig.business;
   const booking = siteConfig.bookingUrl || profile.website;
 
   const lines: string[] = [
-    `# ${name} — 성수동 베이비 스튜디오`,
+    `# ${siteConfig.name} — ${d.meta.siteTagline}`,
     "",
-    `> ${siteConfig.description}`,
+    `> ${d.meta.description}`,
     "",
     "## 기본 정보",
     "",
@@ -24,6 +28,7 @@ export async function GET() {
     `- 인스타그램: ${instagramUrl(profile.username || siteConfig.instagramHandle)}`,
   ];
 
+  if (siteConfig.nameKo) lines.push(`- 한국어 상호: ${siteConfig.nameKo}`);
   if (booking) lines.push(`- 예약·문의: ${booking} (카카오톡 채널)`);
   if (b.streetAddress || b.addressLocality) {
     lines.push(
@@ -32,22 +37,30 @@ export async function GET() {
   }
   if (b.latitude && b.longitude) lines.push(`- 좌표: ${b.latitude}, ${b.longitude}`);
   if (b.telephone) lines.push(`- 전화: ${b.telephone}`);
-  lines.push("- 영업시간: 월–금 10:00–19:00, 토·일 10:00–18:00 (예약제)");
-  lines.push(`- 편의시설: ${amenities.join(", ")}`);
-  lines.push(`- 주요 키워드: ${targetKeywords.join(", ")}`);
+  lines.push(`- 영업시간: ${d.location.hoursShort}`);
+  lines.push(`- 편의시설: ${d.location.amenityItems.join(", ")}`);
+  lines.push(`- 주요 키워드: ${d.meta.keywords.join(", ")}`);
+
+  // 각 언어판 주소 — AI 가 사용자의 언어에 맞는 페이지를 인용할 수 있게 한다.
+  lines.push("", "## 언어별 페이지", "");
+  for (const l of locales) {
+    lines.push(`- ${localeLabels[l]}: ${siteConfig.url}${localizedPath(l)}`);
+  }
 
   lines.push("", "## 촬영 서비스", "");
-  for (const s of services) lines.push(`- **${s.name}**: ${s.description}`);
+  for (const s of d.services.items) lines.push(`- **${s.name}**: ${s.description}`);
 
   lines.push("", "## 찾아오시는 길", "");
-  for (const d of directions) lines.push(`- ${d}`);
+  for (const x of d.location.directionsItems) lines.push(`- ${x}`);
 
   lines.push("", "## 자주 묻는 질문", "");
-  for (const f of faqs) lines.push(`### ${f.q}`, "", f.a, "");
+  for (const f of d.faq.items) lines.push(`### ${f.q}`, "", f.a, "");
 
   lines.push("## 촬영 기록 (인스타그램 동기화)", "");
   for (const p of posts) {
-    lines.push(`- [${p.title}](${siteConfig.url}/posts/${p.slug}): ${p.excerpt}`);
+    lines.push(
+      `- [${p.title}](${siteConfig.url}${localizedPath("ko", `/posts/${p.slug}`)}): ${p.excerpt}`,
+    );
   }
   lines.push("");
 

@@ -6,6 +6,19 @@ import { useCallback, useEffect, useState } from "react";
 import type { SiteImage } from "@/lib/instagram/types";
 
 /**
+ * 라이트박스 라벨. 사전을 통째로 넘기면 그 안의 함수가 서버→클라이언트 경계를
+ * 넘지 못해 빌드가 실패한다 → 서버에서 미리 문자열로 만들어 전달한다.
+ */
+export type GalleryLabels = {
+  /** 이미지 순서대로 미리 만들어 둔 "크게 보기" 라벨 */
+  enlarge: string[];
+  lightbox: string;
+  close: string;
+  prev: string;
+  next: string;
+};
+
+/**
  * 게시물 사진 + 전체화면 뷰어(라이트박스).
  *
  * 서버에서도 그대로 렌더되므로 <img>/alt 는 HTML 에 남고 색인에 영향이 없다.
@@ -14,7 +27,13 @@ import type { SiteImage } from "@/lib/instagram/types";
  * small 로 떨어져 하단에 띠가 생긴다. → 바깥 fixed 는 배경 없이 짧게 두고,
  * 안쪽 div 가 100vh + 배경을 담당한다.
  */
-export function PostGallery({ images, title }: { images: SiteImage[]; title: string }) {
+export function PostGallery({
+  images,
+  labels,
+}: {
+  images: SiteImage[];
+  labels: GalleryLabels;
+}) {
   const [index, setIndex] = useState<number | null>(null);
   const isOpen = index !== null;
 
@@ -53,7 +72,7 @@ export function PostGallery({ images, title }: { images: SiteImage[]; title: str
             <button
               type="button"
               onClick={() => setIndex(i)}
-              aria-label={`${title} 사진 ${i + 1} 크게 보기`}
+              aria-label={labels.enlarge[i]}
               className="block w-full cursor-zoom-in"
             >
               <Image
@@ -77,7 +96,7 @@ export function PostGallery({ images, title }: { images: SiteImage[]; title: str
           <div
             role="dialog"
             aria-modal="true"
-            aria-label={`${title} 사진 보기`}
+            aria-label={labels.lightbox}
             onClick={close}
             // relative 필수: 아래 컨텐츠가 absolute 로 이 100vh 박스를 기준 삼는다.
             // 없으면 바깥 fixed 래퍼(48px)가 기준이 돼 사진이 납작하게 접힌다.
@@ -99,7 +118,7 @@ export function PostGallery({ images, title }: { images: SiteImage[]; title: str
                   <button
                     type="button"
                     onClick={close}
-                    aria-label="닫기"
+                    aria-label={labels.close}
                     className="rounded-full px-3 py-1 text-2xl leading-none transition-colors hover:text-ivory-50"
                   >
                     ×
@@ -131,7 +150,7 @@ export function PostGallery({ images, title }: { images: SiteImage[]; title: str
                           e.stopPropagation();
                           step(-1);
                         }}
-                        aria-label="이전 사진"
+                        aria-label={labels.prev}
                         className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-ink-900/60 px-4 py-3 text-xl text-ivory-50 transition-colors hover:bg-ink-900"
                       >
                         ‹
@@ -142,7 +161,7 @@ export function PostGallery({ images, title }: { images: SiteImage[]; title: str
                           e.stopPropagation();
                           step(1);
                         }}
-                        aria-label="다음 사진"
+                        aria-label={labels.next}
                         className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-ink-900/60 px-4 py-3 text-xl text-ivory-50 transition-colors hover:bg-ink-900"
                       >
                         ›

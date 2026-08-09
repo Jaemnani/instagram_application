@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
 import { Noto_Sans_KR, Noto_Serif_KR, Poppins } from "next/font/google";
-import "./globals.css";
+import { notFound } from "next/navigation";
+import "../globals.css";
 
 import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/SiteFooter";
-import { siteConfig } from "@/lib/config";
+import { getDictionary, htmlLang, isLocale, locales, type Locale } from "@/lib/i18n";
 import { getInstagramData } from "@/lib/data";
 import { baseMetadata } from "@/lib/seo/metadata";
-// FAQPage 는 FAQ 가 실제로 보이는 /about 에서만 출력한다 (모든 페이지에 뿌리면 스팸 신호).
+// FAQPage 는 FAQ 가 실제로 보이는 홈에서만 출력한다 (모든 페이지에 뿌리면 스팸 신호).
 import { localBusinessLd, organizationLd, webSiteLd } from "@/lib/seo/jsonld";
 
 /**
- * 국문 웹폰트. `subsets`는 preload 대상만 정하고 한글 글리프는 항상 self-host 되므로
- * (next/font의 findFontFilesInCss가 CSS의 모든 파일을 받는다) latin만 지정해도 한글이 나온다.
+ * 국문 웹폰트. `subsets` 는 preload 대상만 정하고 한글 글리프는 항상 self-host 되므로
+ * (next/font 의 findFontFilesInCss 가 CSS 의 모든 파일을 받는다) latin 만 지정해도 한글이 나온다.
  */
 const serif = Noto_Serif_KR({
   variable: "--font-noto-serif-kr",
@@ -28,7 +29,7 @@ const sans = Noto_Sans_KR({
   display: "swap",
 });
 
-/** 워드마크 전용. 로고의 기하학적 산세리프에 가장 가까워 선택. 두 굵기만 받는다. */
+/** 워드마크 전용. 로고 서체(Geo Sans Light) 가 없을 때의 폴백. */
 const brand = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
@@ -36,22 +37,40 @@ const brand = Poppins({
   display: "swap",
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { profile } = await getInstagramData();
-  return baseMetadata(profile);
+type Props = { children: React.ReactNode; params: Promise<{ lang: string }> };
+
+export function generateStaticParams() {
+  return locales.map((lang) => ({ lang }));
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  if (!isLocale(lang)) return {} as Metadata;
   const { profile } = await getInstagramData();
-  const lang = siteConfig.locale.split("_")[0] || "ko";
+  return baseMetadata(lang, profile);
+}
+
+export default async function LocaleLayout({ children, params }: Props) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+
+  const locale = lang as Locale;
+  const dict = getDictionary(locale);
+  const { profile } = await getInstagramData();
 
   return (
     <html
-      lang={lang}
+      lang={htmlLang[locale]}
       className={`${serif.variable} ${sans.variable} ${brand.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-ivory-50 text-ink-800">
-        <JsonLd data={[organizationLd(profile), webSiteLd(), localBusinessLd(profile)]} />
+        <JsonLd
+          data={[
+            organizationLd(locale, profile),
+            webSiteLd(locale),
+            localBusinessLd(locale, profile),
+          ]}
+        />
 
         {/* JS 가 없으면 스크롤 등장 요소가 숨은 채로 남는다 → 보이도록 되돌린다 */}
         <noscript>
@@ -60,13 +79,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
         {/*
           상단 고정 헤더 없음 — 히어로 사진이 화면 맨 위부터 온전히 보이게 한다.
-          이동 경로는 각 페이지가 스스로 갖는다:
-          하위 페이지는 상단 브레드크럼(첫 항목이 워드마크 = 홈 링크),
-          예약 동선은 히어로·본문 CTA 와 푸터가 담당한다.
+          이동은 하위 페이지 상단의 워드마크(홈 링크)와 푸터가 담당한다.
         */}
         <main className="flex-1">{children}</main>
 
-        <SiteFooter profile={profile} />
+        <SiteFooter lang={locale} dict={dict} profile={profile} />
       </body>
     </html>
   );
