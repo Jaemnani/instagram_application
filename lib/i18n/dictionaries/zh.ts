@@ -3,10 +3,10 @@ import type { Dictionary } from "./ko";
 /** 简体中文。事实信息（地址、交通、停车、设施、营业时间）与韩文版一致。 */
 export const zh: Dictionary = {
   meta: {
-    siteTagline: "首尔圣水洞儿童摄影studio｜周岁照 · 全家福",
+    siteTagline: "首尔圣水洞儿童摄影工作室｜周岁照 · 全家福",
     description:
-      "「No posed, Just Kidding!」首尔圣水洞的儿童摄影studio。不摆拍，在孩子玩耍的瞬间记录自然的表情。周岁照、全家福、宝宝写真。",
-    titleSuffix: "圣水洞儿童摄影studio",
+      "「No posed, Just Kidding!」首尔圣水洞的儿童摄影工作室。不摆拍，在孩子玩耍的瞬间记录自然的表情。周岁照、全家福、宝宝写真。",
+    titleSuffix: "圣水洞儿童摄影工作室",
     keywords: [
       "首尔儿童摄影",
       "圣水洞 写真",
@@ -45,12 +45,12 @@ export const zh: Dictionary = {
   story: {
     eyebrow: "Story",
     title: "我们怎么拍",
-    intro: " 是位于首尔城东区圣水洞的儿童摄影studio。",
+    intro: " 是位于首尔城东区圣水洞的儿童摄影工作室。",
     lead: "我们不说「看这里、笑一个」这样让人别扭的话，而是决定就这么陪着玩。不强求完美的照片。孩子玩闹的时候，相机在旁边等着那个自然而然的瞬间。",
     items: [
       {
         heading: "名字就是拍法",
-        body: "kidding 是「顽皮、闹着玩」的意思。这既是studio取这个名字的理由，也是我们唯一的想法。与其指挥孩子「看这里、笑一个」，不如让他自己玩——相机在一旁等着。",
+        body: "kidding 是「顽皮、闹着玩」的意思。这既是工作室取这个名字的理由，也是我们唯一的想法。与其指挥孩子「看这里、笑一个」，不如让他自己玩——相机在一旁等着。",
       },
       {
         heading: "不强求完美的照片",
@@ -58,7 +58,7 @@ export const zh: Dictionary = {
       },
       {
         heading: "像游乐场一样的空间",
-        body: "我们不想做一个换上漂亮衣服、拍完照就走的地方，而想做一个孩子能像在自己最喜欢的玩具房里一样尽情笑、尽情闹的地方。圣水洞这间几乎由我们亲手布置的studio，就是从这个想法开始的。",
+        body: "我们不想做一个换上漂亮衣服、拍完照就走的地方，而想做一个孩子能像在自己最喜欢的玩具房里一样尽情笑、尽情闹的地方。圣水洞这间几乎由我们亲手布置的工作室，就是从这个想法开始的。",
       },
     ],
   },
@@ -83,7 +83,7 @@ export const zh: Dictionary = {
       },
       {
         name: "场地租赁",
-        description: "出租圣水洞的studio空间。有自然光的拍摄空间，可用于您自己的拍摄。",
+        description: "出租圣水洞的工作室空间。有自然光的拍摄空间，可用于您自己的拍摄。",
       },
     ],
   },
@@ -103,8 +103,8 @@ export const zh: Dictionary = {
     lead: "预约、位置、停车——拍摄前大家最常确认的内容。",
     items: [
       {
-        q: "kidding seongsu 是一家怎样的studio？",
-        a: "位于首尔城东区圣水洞的儿童摄影studio。正如「No posed, Just Kidding!」这个名字，我们不会说「看这里、笑一个」，而是让孩子尽情玩，拍下其间自然的瞬间。提供周岁照、全家福、百日及成长记录拍摄，也出租场地。",
+        q: "kidding seongsu 是一家怎样的工作室？",
+        a: "位于首尔城东区圣水洞的儿童摄影工作室。正如「No posed, Just Kidding!」这个名字，我们不会说「看这里、笑一个」，而是让孩子尽情玩，拍下其间自然的瞬间。提供周岁照、全家福、百日及成长记录拍摄，也出租场地。",
       },
       {
         q: "怎么预约和咨询？",
@@ -164,9 +164,9 @@ export const zh: Dictionary = {
   },
 
   footer: {
-    studio: "studio",
+    studio: "工作室",
     links: "快速链接",
-    about: "关于studio",
+    about: "关于工作室",
     privacy: "隐私政策",
     kakao: "KakaoTalk 预约",
     syncNote: "帖子由官方 Instagram 自动同步。",
@@ -192,14 +192,14 @@ export const zh: Dictionary = {
       {
         title: "2. 网站上的内容",
         body: [
-          "本网站显示的照片与文字，来自studio运营的官方 Instagram 账号，通过 Instagram 官方 API 获取后展示。拍摄照片的发布均在被拍摄者同意的范围内进行。",
+          "本网站显示的照片与文字，来自工作室运营的官方 Instagram 账号，通过 Instagram 官方 API 获取后展示。拍摄照片的发布均在被拍摄者同意的范围内进行。",
           "如希望删除已发布的照片，请通过下方联系方式联系我们，核实后会尽快撤下。",
         ],
       },
       {
         title: "3. Cookie 与分析工具",
         body: [
-          "本网站不使用广告或追踪用途的 Cookie。托管服务可能出于运营与安全目的临时记录访问日志（IP 地址、浏览器类型等），studio不会单独查阅或保存这些记录。",
+          "本网站不使用广告或追踪用途的 Cookie。托管服务可能出于运营与安全目的临时记录访问日志（IP 地址、浏览器类型等），工作室不会单独查阅或保存这些记录。",
         ],
       },
       {

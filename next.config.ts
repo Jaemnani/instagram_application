@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   // 서버리스 배포 시 런타임에 fs로 읽는 동기화 데이터를 함수 번들에 포함시킨다
   // (/llms.txt, revalidate된 페이지가 빈 데이터로 렌더되는 것 방지).
   outputFileTracingIncludes: {
-    "/*": ["./data/instagram.json"],
+    "/*": ["./data/instagram.json", "./data/translations.json"],
   },
   images: {
     // 자체 호스팅 이미지는 /public/media 정적 파일. 운영 이미지는 jpg.
