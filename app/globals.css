@@ -1,14 +1,33 @@
 @import "tailwindcss";
 
 /**
+ * 로고 서체 Geo Sans Light.
+ * 파일이 없으면 이 @font-face 는 그냥 무시되고 스택의 다음 폰트(Poppins)로 넘어간다.
+ * → 파일을 넣지 않아도 빌드·화면이 깨지지 않고, 넣는 순간 자동 적용된다.
+ * 넣는 위치와 라이선스 주의사항은 public/fonts/README.md 참조.
+ */
+@font-face {
+  font-family: "Geo Sans Light";
+  src:
+    url("/fonts/GeoSansLight.woff2") format("woff2"),
+    url("/fonts/GeoSansLight.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/**
  * 에디토리얼 매거진 디자인 시스템.
  * 웜 뉴트럴(ivory/ink/clay) 팔레트 + 국문 세리프 헤드라인 + 산세리프 본문.
  */
 @theme {
   --font-sans: var(--font-noto-sans-kr), system-ui, sans-serif;
   --font-serif: var(--font-noto-serif-kr), Georgia, serif;
-  /* 워드마크 전용 — 로고의 기하학적 산세리프에 가장 가까운 무료 서체.
-     라틴 전용이라 한글에는 쓰지 않는다(한글은 자동으로 --font-sans 로 폴백). */
+  /* 워드마크 — 라틴 전용이라 한글은 자동으로 국문 폰트로 폴백된다.
+     display 는 로고 서체(있으면) 우선, 작은 굵은 표기는 Poppins 를 쓴다.
+     Geo Sans Light 는 굵은 웨이트가 없어 700 을 주면 브라우저가 가짜 볼드를 만든다. */
+  --font-brand-display: "Geo Sans Light", var(--font-poppins), var(--font-noto-sans-kr),
+    system-ui, sans-serif;
   --font-brand: var(--font-poppins), var(--font-noto-sans-kr), system-ui, sans-serif;
 
   /* 종이 느낌의 웜 뉴트럴 */
@@ -48,17 +67,20 @@ body {
  */
 .wordmark,
 .wordmark-lg {
-  font-family: var(--font-brand);
   white-space: nowrap;
 }
 
+/* 작게 쓰는 곳(헤더·푸터) — hairline 은 작은 크기에서 너무 흐려 Poppins Bold 로 또렷하게 */
 .wordmark {
+  font-family: var(--font-brand);
   font-weight: 700;
   letter-spacing: -0.005em;
 }
 
+/* 크게 쓰는 곳(히어로·소개) — 로고 서체를 그 본래 굵기로. 자간을 넓혀 로고 감도를 살린다 */
 .wordmark-lg {
-  font-weight: 200;
+  font-family: var(--font-brand-display);
+  font-weight: 300;
   letter-spacing: 0.14em;
 }
 

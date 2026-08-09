@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
 
 import { getInstagramData } from "@/lib/data";
 
-export const alt = "KIDDING SEONGSU — 성수동 베이비 스튜디오 (돌사진·가족사진)";
+export const alt = "kidding seongsu — 성수동 베이비 스튜디오 (돌사진·가족사진)";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -87,28 +87,29 @@ export default async function OpengraphImage() {
           <div style={{ fontSize: 21, letterSpacing: 7, color: "#b4694e" }}>
             NO POSED, JUST KIDDING
           </div>
+          {/* 워드마크는 로고와 같이 전부 소문자 */}
           <div
             style={{
               marginTop: 20,
-              fontSize: 68,
-              fontWeight: 700,
-              letterSpacing: -1.5,
+              fontSize: 72,
+              fontWeight: 400,
+              letterSpacing: 2,
               color: "#1c1917",
-              lineHeight: 1.1,
+              lineHeight: 1.15,
             }}
           >
-            KIDDING
+            kidding
           </div>
           <div
             style={{
-              fontSize: 68,
-              fontWeight: 700,
-              letterSpacing: -1.5,
+              fontSize: 72,
+              fontWeight: 400,
+              letterSpacing: 2,
               color: "#1c1917",
-              lineHeight: 1.1,
+              lineHeight: 1.15,
             }}
           >
-            SEONGSU
+            seongsu
           </div>
           <div style={{ marginTop: 24, fontSize: 26, color: "#5a534b", lineHeight: 1.45 }}>
             Baby &amp; Family Photo Studio

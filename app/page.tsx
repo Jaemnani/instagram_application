@@ -69,7 +69,7 @@ export default async function HomePage() {
               id="gallery-heading"
               eyebrow="Gallery"
               title="최근 촬영"
-              lead="KIDDING SEONGSU 인스타그램에 올라온 촬영 기록입니다."
+              lead="kidding seongsu 인스타그램에 올라온 촬영 기록입니다."
             />
           </Reveal>
 
