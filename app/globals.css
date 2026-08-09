@@ -65,23 +65,49 @@ body {
  * .wordmark  — 헤더·푸터처럼 작게 쓰는 곳. Bold 로 또렷하게.
  * .wordmark-lg — 크게 쓰는 곳. 로고 원본이 hairline 이라 얇게 + 자간을 넓혀 감도를 살린다.
  */
+/**
+ * 워드마크 — 크기와 무관하게 항상 로고 서체로 통일한다.
+ *
+ * ⚠️ Geo Sans Light 는 웨이트가 하나뿐이라 굵게(700) 지정하면 브라우저가 가짜 볼드를
+ *    합성해 획이 뭉갠다. 그래서 굵기는 로고 본래 값(300)으로 고정하고,
+ *    존재감은 크기·자간·색 대비로 만든다.
+ */
 .wordmark,
-.wordmark-lg {
+.wordmark-hero {
+  font-family: var(--font-brand-display);
+  font-weight: 300;
   white-space: nowrap;
 }
 
-/* 작게 쓰는 곳(헤더·푸터) — hairline 은 작은 크기에서 너무 흐려 Poppins Bold 로 또렷하게 */
 .wordmark {
-  font-family: var(--font-brand);
-  font-weight: 700;
-  letter-spacing: -0.005em;
+  letter-spacing: 0.05em;
 }
 
-/* 크게 쓰는 곳(히어로·소개) — 로고 서체를 그 본래 굵기로. 자간을 넓혀 로고 감도를 살린다 */
-.wordmark-lg {
-  font-family: var(--font-brand-display);
-  font-weight: 300;
-  letter-spacing: 0.14em;
+.wordmark-hero {
+  letter-spacing: 0.08em;
+}
+
+/* 스크롤 신호 — 선이 아래로 흘러내리는 정도의 최소한의 움직임 */
+@media (prefers-reduced-motion: no-preference) {
+  .scroll-cue {
+    transform-origin: top;
+    animation: scroll-cue 2.2s ease-in-out infinite;
+  }
+
+  @keyframes scroll-cue {
+    0% {
+      transform: scaleY(0.2);
+      opacity: 0.25;
+    }
+    45% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scaleY(0.2);
+      opacity: 0.25;
+    }
+  }
 }
 
 /* 세리프 헤드라인은 국문에서 자간이 벌어져 보이므로 더 조인다 */

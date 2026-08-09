@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // /about 내용을 홈 한 페이지로 합쳤다. 이미 색인·공유된 주소가 깨지지 않게 영구 이전.
+  async redirects() {
+    return [{ source: "/about", destination: "/", permanent: true }];
+  },
   // 서버리스 배포 시 런타임에 fs로 읽는 동기화 데이터를 함수 번들에 포함시킨다
   // (/llms.txt, revalidate된 페이지가 빈 데이터로 렌더되는 것 방지).
   outputFileTracingIncludes: {

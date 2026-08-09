@@ -40,7 +40,7 @@ export function SiteFooter({ profile }: { profile: Profile }) {
             <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">바로가기</h2>
             <ul className="mt-3 space-y-2 text-sm text-ink-600">
               <li>
-                <Link href="/about" className="hover:text-ink-900">
+                <Link href="/#story" className="hover:text-ink-900">
                   스튜디오 소개
                 </Link>
               </li>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Breadcrumb } from "@/components/Breadcrumb";
+import { HomeLink } from "@/components/HomeLink";
 import { JsonLd } from "@/components/JsonLd";
 import { hasLocalBusinessData, siteConfig } from "@/lib/config";
 import { breadcrumbLd } from "@/lib/seo/jsonld";
@@ -35,7 +35,7 @@ export default function PrivacyPage() {
         ])}
       />
 
-      <Breadcrumb current="개인정보처리방침" />
+      <HomeLink />
 
       <h1 className="mt-8 font-serif text-3xl font-bold text-ink-900">개인정보처리방침</h1>
       <p className="mt-4 text-[15px] leading-[1.9] text-ink-600">

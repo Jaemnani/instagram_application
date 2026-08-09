@@ -16,18 +16,12 @@ export default function NotFound() {
       <p className="mt-4 text-[15px] leading-relaxed text-ink-600">
         주소가 잘못되었거나, 게시물이 삭제·변경되었을 수 있습니다.
       </p>
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
+      <div className="mt-8">
         <Link
           href="/"
-          className="rounded-full bg-ink-900 px-6 py-3 text-sm font-medium text-ivory-50 transition-colors hover:bg-clay-600"
+          className="inline-block rounded-full bg-ink-900 px-6 py-3 text-sm font-medium text-ivory-50 transition-colors hover:bg-clay-600"
         >
           홈으로 돌아가기
-        </Link>
-        <Link
-          href="/about"
-          className="rounded-full border border-ivory-300 px-6 py-3 text-sm font-medium text-ink-800 transition-colors hover:border-ink-800"
-        >
-          스튜디오 소개
         </Link>
       </div>
     </div>

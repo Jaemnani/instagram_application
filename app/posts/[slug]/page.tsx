@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { HomeLink } from "@/components/HomeLink";
 import { JsonLd } from "@/components/JsonLd";
 import { PostCard } from "@/components/PostCard";
 import { PostGallery } from "@/components/PostGallery";
@@ -47,20 +47,7 @@ export default async function PostPage({ params }: Params) {
         ]}
       />
 
-      <nav aria-label="탐색 경로" className="flex items-baseline gap-3 text-sm">
-        <Link
-          href="/"
-          className="wordmark text-sm text-ink-900 transition-colors hover:text-clay-600"
-        >
-          {siteConfig.name}
-        </Link>
-        <span aria-hidden="true" className="text-ivory-300">
-          /
-        </span>
-        <Link href="/#gallery" className="text-ink-400 transition-colors hover:text-ink-900">
-          촬영 기록
-        </Link>
-      </nav>
+      <HomeLink />
 
       <article className="mx-auto mt-8 max-w-3xl">
         <header>
