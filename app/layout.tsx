@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Noto_Sans_KR, Noto_Serif_KR, Poppins } from "next/font/google";
-import Link from "next/link";
 import "./globals.css";
 
 import { JsonLd } from "@/components/JsonLd";
@@ -45,7 +44,6 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { profile } = await getInstagramData();
   const lang = siteConfig.locale.split("_")[0] || "ko";
-  const bookingUrl = siteConfig.bookingUrl || profile.website;
 
   return (
     <html
@@ -60,49 +58,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
         </noscript>
 
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ink-900 focus:px-4 focus:py-2 focus:text-sm focus:text-ivory-50"
-        >
-          본문으로 건너뛰기
-        </a>
-
-        <header className="sticky top-0 z-30 border-b border-ivory-200 bg-ivory-50/85 backdrop-blur-md">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
-            <Link href="/" className="wordmark text-base text-ink-900 sm:text-lg">
-              {siteConfig.name}
-            </Link>
-
-            <nav aria-label="주요 메뉴" className="flex items-center gap-1 sm:gap-2">
-              <Link
-                href="/"
-                className="rounded-full px-3 py-2 text-sm text-ink-600 transition-colors hover:bg-ivory-200 hover:text-ink-900"
-              >
-                홈
-              </Link>
-              <Link
-                href="/about"
-                className="rounded-full px-3 py-2 text-sm text-ink-600 transition-colors hover:bg-ivory-200 hover:text-ink-900"
-              >
-                소개
-              </Link>
-              {bookingUrl && (
-                <a
-                  href={bookingUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-1 rounded-full bg-ink-900 px-4 py-2 text-sm font-medium text-ivory-50 transition-colors hover:bg-clay-600"
-                >
-                  예약 문의
-                </a>
-              )}
-            </nav>
-          </div>
-        </header>
-
-        <main id="main" className="flex-1">
-          {children}
-        </main>
+        {/*
+          상단 고정 헤더 없음 — 히어로 사진이 화면 맨 위부터 온전히 보이게 한다.
+          이동 경로는 각 페이지가 스스로 갖는다:
+          하위 페이지는 상단 브레드크럼(첫 항목이 워드마크 = 홈 링크),
+          예약 동선은 히어로·본문 CTA 와 푸터가 담당한다.
+        */}
+        <main className="flex-1">{children}</main>
 
         <SiteFooter profile={profile} />
       </body>

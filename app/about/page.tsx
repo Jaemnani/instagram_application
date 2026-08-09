@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { Faq } from "@/components/Faq";
 import { JsonLd } from "@/components/JsonLd";
 import { LocationCard } from "@/components/LocationCard";
@@ -39,15 +40,7 @@ export default async function AboutPage() {
         ]}
       />
 
-      <nav aria-label="탐색 경로" className="text-sm text-ink-400">
-        <Link href="/" className="hover:text-ink-900">
-          홈
-        </Link>
-        <span className="mx-2" aria-hidden="true">
-          /
-        </span>
-        <span className="text-ink-600">스튜디오 소개</span>
-      </nav>
+      <Breadcrumb current="스튜디오 소개" />
 
       <header className="mt-8 max-w-3xl">
         <p className="text-xs font-medium uppercase tracking-[0.25em] text-clay-500">

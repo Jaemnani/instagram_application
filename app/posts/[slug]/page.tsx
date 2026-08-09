@@ -47,14 +47,17 @@ export default async function PostPage({ params }: Params) {
         ]}
       />
 
-      <nav aria-label="탐색 경로" className="text-sm text-ink-400">
-        <Link href="/" className="hover:text-ink-900">
-          홈
+      <nav aria-label="탐색 경로" className="flex items-baseline gap-3 text-sm">
+        <Link
+          href="/"
+          className="wordmark text-sm text-ink-900 transition-colors hover:text-clay-600"
+        >
+          {siteConfig.name}
         </Link>
-        <span className="mx-2" aria-hidden="true">
+        <span aria-hidden="true" className="text-ivory-300">
           /
         </span>
-        <Link href="/#gallery" className="hover:text-ink-900">
+        <Link href="/#gallery" className="text-ink-400 transition-colors hover:text-ink-900">
           촬영 기록
         </Link>
       </nav>

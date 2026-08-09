@@ -26,7 +26,8 @@ export function Hero({ posts, profile }: { posts: Post[]; profile: Profile }) {
   const cover = picked?.coverImage;
 
   return (
-    <section className="relative isolate flex min-h-[78svh] items-end overflow-hidden bg-ink-900 sm:min-h-[86svh]">
+    // 상단 헤더가 없으므로 화면 맨 위부터 사진이 온전히 보인다. 아래 섹션이 살짝 보일 만큼만 남긴다.
+    <section className="relative isolate flex min-h-[88svh] items-end overflow-hidden bg-ink-900 sm:min-h-[92svh]">
       {cover && (
         <Image
           src={cover.src}
@@ -45,7 +46,7 @@ export function Hero({ posts, profile }: { posts: Post[]; profile: Profile }) {
         className="absolute inset-0 bg-gradient-to-b from-ink-900/55 via-ink-900/35 to-ink-900/90"
       />
 
-      <div className="relative mx-auto w-full max-w-6xl px-5 pb-14 pt-28 sm:px-8 sm:pb-20 sm:pt-36">
+      <div className="relative mx-auto w-full max-w-6xl px-5 pb-14 pt-24 sm:px-8 sm:pb-20 sm:pt-32">
         {/* 워드마크를 크게 — 로고 원본처럼 얇고 자간을 넓혀서 */}
         <p className="wordmark-lg text-xl text-ivory-50 sm:text-3xl lg:text-4xl">
           {siteConfig.name}
