@@ -36,6 +36,9 @@ export const siteConfig = {
   /** 예약/문의 링크. 미설정 시 인스타 프로필의 website(카카오 채널 등)를 쓴다. */
   bookingUrl: env("BOOKING_URL"),
 
+  /** 히어로 배경으로 쓸 게시물 id. 미설정 시 좋아요가 가장 많은 게시물의 사진. */
+  heroPostId: env("HERO_POST_ID"),
+
   /** 지역 SEO: 주요 서비스 지역 (schema.org areaServed) */
   areaServed: env("BIZ_AREA_SERVED", "서울 성동구,성수동,서울숲,서울특별시")
     .split(",")

@@ -8,7 +8,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { siteConfig } from "@/lib/config";
 import { getInstagramData } from "@/lib/data";
 import { baseMetadata } from "@/lib/seo/metadata";
-import { faqPageLd, localBusinessLd, organizationLd, webSiteLd } from "@/lib/seo/jsonld";
+// FAQPage 는 FAQ 가 실제로 보이는 /about 에서만 출력한다 (모든 페이지에 뿌리면 스팸 신호).
+import { localBusinessLd, organizationLd, webSiteLd } from "@/lib/seo/jsonld";
 
 /**
  * 국문 웹폰트. `subsets`는 preload 대상만 정하고 한글 글리프는 항상 self-host 되므로
@@ -44,9 +45,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       className={`${serif.variable} ${sans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-ivory-50 text-ink-800">
-        <JsonLd
-          data={[organizationLd(profile), webSiteLd(), localBusinessLd(profile), faqPageLd()]}
-        />
+        <JsonLd data={[organizationLd(profile), webSiteLd(), localBusinessLd(profile)]} />
+
+        {/* JS 가 없으면 스크롤 등장 요소가 숨은 채로 남는다 → 보이도록 되돌린다 */}
+        <noscript>
+          <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
 
         <a
           href="#main"

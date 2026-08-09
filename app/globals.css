@@ -49,3 +49,28 @@ body {
     scroll-behavior: auto;
   }
 }
+
+/**
+ * 스크롤 등장 — 요소는 DOM 에 그대로 있고 opacity 만 다루므로 색인에 영향 없다.
+ * 움직임을 원치 않는 사용자에게는 규칙 자체를 적용하지 않아 항상 보인다.
+ * JS 가 없어 [data-reveal="shown"] 이 붙지 못하는 경우는 layout 의 <noscript> 가 되돌린다.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  [data-reveal="shown"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 라이트박스가 열린 동안 배경 스크롤 잠금 */
+body[data-lightbox-open="true"] {
+  overflow: hidden;
+}

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { JsonLd } from "@/components/JsonLd";
 import { PostCard } from "@/components/PostCard";
+import { PostGallery } from "@/components/PostGallery";
 import { siteConfig } from "@/lib/config";
 import { getInstagramData, getPostBySlug, getPosts } from "@/lib/data";
 import { formatDate } from "@/lib/format";
@@ -72,21 +72,8 @@ export default async function PostPage({ params }: Params) {
           </h1>
         </header>
 
-        <div className="mt-10 space-y-4">
-          {post.images.map((img, i) => (
-            <figure key={img.src} className="overflow-hidden rounded-sm bg-ivory-200">
-              <Image
-                src={img.src}
-                alt={img.alt}
-                width={img.width || 1080}
-                height={img.height || 1080}
-                preload={i === 0}
-                sizes="(max-width: 768px) 100vw, 768px"
-                className="h-auto w-full"
-              />
-              <figcaption className="sr-only">{img.alt}</figcaption>
-            </figure>
-          ))}
+        <div className="mt-10">
+          <PostGallery images={post.images} title={post.title} />
         </div>
 
         {post.caption && (
