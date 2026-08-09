@@ -9,8 +9,10 @@ import {
   deriveTitle,
   extractHashtags,
   extractMentions,
+  fallbackTitle,
   slugify,
 } from "./normalize";
+import { siteConfig } from "@/lib/config";
 import type {
   Comment,
   IgComment,
@@ -131,7 +133,11 @@ function normalizeComments(raw: IgComment[]): Comment[] {
 
 async function normalizeMedia(media: IgMedia, rawComments: IgComment[]): Promise<Post> {
   const caption = media.caption ?? "";
-  const title = deriveTitle(caption, "인스타그램 게시물");
+  const hashtags = extractHashtags(caption);
+  const title = deriveTitle(
+    caption,
+    fallbackTitle(hashtags, media.timestamp, siteConfig.name),
+  );
   const sources = imageSourcesOf(media);
 
   const images: SiteImage[] = [];
@@ -147,7 +153,7 @@ async function normalizeMedia(media: IgMedia, rawComments: IgComment[]): Promise
     title,
     caption,
     excerpt: deriveExcerpt(caption),
-    hashtags: extractHashtags(caption),
+    hashtags,
     mentions: extractMentions(caption),
     images,
     coverImage: images[0] ?? null,
@@ -212,6 +218,7 @@ export async function syncInstagram(): Promise<InstagramData> {
   }
 
   posts.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+  dedupeTitles(posts);
 
   const data: InstagramData = {
     // 게시물 수 표기는 API 전체 수가 아니라 사이트에 실제 노출되는 수와 일치시킨다.
@@ -224,6 +231,36 @@ export async function syncInstagram(): Promise<InstagramData> {
   await pruneOrphanMedia(data);
   console.log(`✔ ${posts.length}개 게시물 동기화 → ${path.relative(process.cwd(), DATA_FILE)}`);
   return data;
+}
+
+/**
+ * 같은 캡션을 재사용한 게시물끼리 제목이 겹치면 촬영 시기를 덧붙여 구분한다.
+ * 중복 <title>·<h1> 은 검색엔진이 페이지를 서로의 사본으로 보게 만든다.
+ * 제목이 바뀌면 슬러그도 다시 만들어 URL 과 제목을 일치시킨다.
+ */
+function dedupeTitles(posts: Post[]): void {
+  const counts = new Map<string, number>();
+  for (const p of posts) counts.set(p.title, (counts.get(p.title) ?? 0) + 1);
+
+  const used = new Set<string>();
+  for (const p of posts) {
+    if ((counts.get(p.title) ?? 0) < 2) {
+      used.add(p.title);
+      continue;
+    }
+    const d = new Date(p.timestamp);
+    const valid = !Number.isNaN(d.getTime());
+    // 촬영 시기로 구분하되, 같은 달에 또 겹치면 날짜까지 쓴다 ("… 2" 같은 순번보다 읽기 좋다).
+    const byMonth = valid ? ` (${d.getFullYear()}년 ${d.getMonth() + 1}월)` : "";
+    const byDay = valid ? ` (${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일)` : "";
+    let next = `${p.title}${byMonth}`;
+    if (used.has(next)) next = `${p.title}${byDay}`;
+    // 같은 날 같은 캡션까지 겹치는 경우에만 최후 수단으로 순번을 붙인다.
+    for (let n = 2; used.has(next); n++) next = `${p.title}${byDay} ${n}`;
+    used.add(next);
+    p.title = next;
+    p.slug = slugify(next, p.id);
+  }
 }
 
 /** data에서 더 이상 참조하지 않는 미디어 파일 삭제

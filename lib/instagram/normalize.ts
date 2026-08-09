@@ -31,14 +31,36 @@ export function cleanCaption(caption: string): string {
     .trim();
 }
 
-/** 제목: 캡션 첫 비어있지 않은 줄(해시태그 제거), 최대 length자. */
+/** 이모지·구두점을 뺀 실질 글자 수 (제목이 "🖤" 처럼 검색에 무의미한지 판정). */
+function meaningfulLength(text: string): number {
+  return Array.from(text.replace(/[^\p{L}\p{N}]/gu, "")).length;
+}
+
+/**
+ * 제목: 캡션 첫 비어있지 않은 줄(해시태그 제거), 최대 length자.
+ * 첫 줄이 이모지·기호뿐이라 검색 결과에서 의미가 없으면 fallback 을 쓴다
+ * ("🖤" 가 <title> 과 <h1> 이 되는 것을 막는다).
+ */
 export function deriveTitle(caption: string, fallback: string, length = 70): string {
   const firstLine = cleanCaption(caption)
     .split("\n")
     .map((l) => l.trim())
-    .find((l) => l.length > 0);
-  const title = (firstLine || fallback).trim();
+    .find((l) => meaningfulLength(l) >= 2);
+  const title = (firstLine && meaningfulLength(firstLine) >= 6 ? firstLine : fallback).trim();
   return truncate(title, length);
+}
+
+/** 해시태그·촬영 시기로 만드는 서술형 제목 (캡션에 쓸 만한 문장이 없을 때). */
+export function fallbackTitle(hashtags: string[], timestamp: string, brand: string): string {
+  const d = new Date(timestamp);
+  const when = Number.isNaN(d.getTime())
+    ? ""
+    : ` (${d.getFullYear()}년 ${d.getMonth() + 1}월)`;
+  // 너무 일반적인 태그는 제목에서 빼고, 촬영 종류를 나타내는 태그를 앞세운다.
+  const generic = new Set(["키딩성수", "kiddingseongsu", "육아템", "아기모델"]);
+  const picked = hashtags.filter((t) => !generic.has(t)).slice(0, 2);
+  const subject = picked.length ? picked.join(" · ") : "촬영 기록";
+  return `${subject} — ${brand}${when}`;
 }
 
 /** 메타 description / 요약: 본문에서 length자. */

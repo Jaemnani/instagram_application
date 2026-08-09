@@ -4,7 +4,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { JsonLd } from "@/components/JsonLd";
-import { getPostBySlug, getPosts } from "@/lib/data";
+import { PostCard } from "@/components/PostCard";
+import { siteConfig } from "@/lib/config";
+import { getInstagramData, getPostBySlug, getPosts } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 import { breadcrumbLd, imageObjectLd, postLd } from "@/lib/seo/jsonld";
 import { postMetadata } from "@/lib/seo/metadata";
@@ -27,99 +29,139 @@ export default async function PostPage({ params }: Params) {
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const published = formatDate(post.timestamp);
+  const { posts, profile } = await getInstagramData();
+  const related = posts.filter((p) => p.id !== post.id).slice(0, 3);
+  const bookingUrl = siteConfig.bookingUrl || profile.website;
 
   return (
-    <article className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
       <JsonLd
         data={[
           postLd(post),
           imageObjectLd(post),
           breadcrumbLd([
             { name: "홈", path: "/" },
+            { name: "촬영 기록", path: "/#gallery" },
             { name: post.title, path: `/posts/${post.slug}` },
           ]),
         ]}
       />
 
-      <nav aria-label="breadcrumb" className="mb-4 text-sm text-neutral-500">
-        <Link href="/" className="hover:text-neutral-900">홈</Link>
-        <span className="mx-2">/</span>
-        <span className="text-neutral-700">{post.title}</span>
+      <nav aria-label="탐색 경로" className="text-sm text-ink-400">
+        <Link href="/" className="hover:text-ink-900">
+          홈
+        </Link>
+        <span className="mx-2" aria-hidden="true">
+          /
+        </span>
+        <Link href="/#gallery" className="hover:text-ink-900">
+          촬영 기록
+        </Link>
       </nav>
 
-      <header className="mb-5">
-        <h1 className="text-2xl font-bold leading-snug tracking-tight">{post.title}</h1>
-        <div className="mt-1 flex items-center gap-3 text-sm text-neutral-500">
-          <time dateTime={post.timestamp}>{published}</time>
-          {post.likeCount !== undefined && (
-            <span aria-label="좋아요 수">♥ {post.likeCount.toLocaleString("ko-KR")}</span>
-          )}
-        </div>
-      </header>
+      <article className="mx-auto mt-8 max-w-3xl">
+        <header>
+          <div className="flex items-center gap-3 text-xs text-ink-400">
+            <time dateTime={post.timestamp}>{formatDate(post.timestamp)}</time>
+            {post.likeCount !== undefined && (
+              <span>♡ {post.likeCount.toLocaleString("ko-KR")}</span>
+            )}
+          </div>
+          <h1 className="mt-3 font-serif text-3xl font-bold leading-tight text-ink-900 sm:text-4xl">
+            {post.title}
+          </h1>
+        </header>
 
-      <div className="space-y-3">
-        {post.images.map((img, i) => (
-          <figure key={i} className="overflow-hidden rounded-lg bg-neutral-100">
-            <Image
-              src={img.src}
-              alt={img.alt}
-              width={img.width || 1080}
-              height={img.height || 1080}
-              preload={i === 0}
-              sizes="(max-width: 768px) 100vw, 672px"
-              className="h-auto w-full object-cover"
-            />
-            <figcaption className="sr-only">{img.alt}</figcaption>
-          </figure>
-        ))}
-      </div>
-
-      {post.caption && (
-        <div className="mt-6 whitespace-pre-line text-[15px] leading-relaxed text-neutral-800">
-          {post.caption}
-        </div>
-      )}
-
-      {post.hashtags.length > 0 && (
-        <ul className="mt-4 flex flex-wrap gap-2">
-          {post.hashtags.map((tag) => (
-            <li key={tag} className="rounded-full bg-neutral-100 px-3 py-1 text-xs text-neutral-600">
-              #{tag}
-            </li>
+        <div className="mt-10 space-y-4">
+          {post.images.map((img, i) => (
+            <figure key={img.src} className="overflow-hidden rounded-sm bg-ivory-200">
+              <Image
+                src={img.src}
+                alt={img.alt}
+                width={img.width || 1080}
+                height={img.height || 1080}
+                preload={i === 0}
+                sizes="(max-width: 768px) 100vw, 768px"
+                className="h-auto w-full"
+              />
+              <figcaption className="sr-only">{img.alt}</figcaption>
+            </figure>
           ))}
-        </ul>
-      )}
+        </div>
 
-      {post.comments.length > 0 && (
-        <section className="mt-8 border-t border-neutral-200 pt-6" aria-labelledby="comments-heading">
-          <h2 id="comments-heading" className="text-lg font-semibold">
-            댓글{post.commentsCount !== undefined ? ` (${post.commentsCount.toLocaleString("ko-KR")})` : ""}
-          </h2>
-          <ul className="mt-4 space-y-4">
-            {post.comments.map((c) => (
-              <li key={c.id} className="text-sm">
-                <span className="font-medium text-neutral-900">@{c.author}</span>
-                <span className="ml-2 whitespace-pre-line text-neutral-700">{c.text}</span>
-                {c.likeCount ? (
-                  <span className="ml-2 text-xs text-neutral-400">♥ {c.likeCount}</span>
-                ) : null}
-              </li>
+        {post.caption && (
+          <div className="mt-10 whitespace-pre-line text-[15px] leading-[1.9] text-ink-800">
+            {post.caption}
+          </div>
+        )}
+
+        {post.hashtags.length > 0 && (
+          <ul className="mt-6 flex flex-wrap gap-x-3 gap-y-1 text-sm text-ink-400">
+            {post.hashtags.map((tag) => (
+              <li key={tag}>#{tag}</li>
             ))}
           </ul>
+        )}
+
+        {post.comments.length > 0 && (
+          <section
+            className="mt-12 border-t border-ivory-200 pt-8"
+            aria-labelledby="comments-heading"
+          >
+            <h2 id="comments-heading" className="font-serif text-xl font-bold text-ink-900">
+              댓글
+              {post.commentsCount !== undefined
+                ? ` ${post.commentsCount.toLocaleString("ko-KR")}`
+                : ""}
+            </h2>
+            <ul className="mt-5 space-y-4">
+              {post.comments.map((c) => (
+                <li key={c.id} className="text-sm leading-relaxed">
+                  <span className="font-medium text-ink-900">@{c.author}</span>
+                  <span className="ml-2 whitespace-pre-line text-ink-600">{c.text}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <div className="mt-12 flex flex-wrap items-center gap-4 border-t border-ivory-200 pt-8">
+          {bookingUrl && (
+            <a
+              href={bookingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full bg-ink-900 px-6 py-3 text-sm font-medium text-ivory-50 transition-colors hover:bg-clay-600"
+            >
+              이런 촬영 예약 문의
+            </a>
+          )}
+          <a
+            href={post.permalink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-clay-600 hover:underline"
+          >
+            인스타그램에서 원본 보기 →
+          </a>
+        </div>
+      </article>
+
+      {related.length > 0 && (
+        <section
+          aria-labelledby="related-heading"
+          className="mt-20 border-t border-ivory-200 pt-14"
+        >
+          <h2 id="related-heading" className="font-serif text-2xl font-bold text-ink-900">
+            다른 촬영 기록
+          </h2>
+          <div className="mt-8 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((p) => (
+              <PostCard key={p.id} post={p} />
+            ))}
+          </div>
         </section>
       )}
-
-      <p className="mt-8 border-t border-neutral-200 pt-4 text-sm">
-        <a
-          href={post.permalink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-rose-600 hover:underline"
-        >
-          인스타그램에서 원본 보기 →
-        </a>
-      </p>
-    </article>
+    </div>
   );
 }

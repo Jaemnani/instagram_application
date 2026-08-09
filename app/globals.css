@@ -1,13 +1,51 @@
 @import "tailwindcss";
 
-@theme inline {
-  --font-sans: var(--font-geist-sans);
+/**
+ * 에디토리얼 매거진 디자인 시스템.
+ * 웜 뉴트럴(ivory/ink/clay) 팔레트 + 국문 세리프 헤드라인 + 산세리프 본문.
+ */
+@theme {
+  --font-sans: var(--font-noto-sans-kr), system-ui, sans-serif;
+  --font-serif: var(--font-noto-serif-kr), Georgia, serif;
+
+  /* 종이 느낌의 웜 뉴트럴 */
+  --color-ivory-50: #fdfcfa;
+  --color-ivory-100: #f8f5f0;
+  --color-ivory-200: #efe9e1;
+  --color-ivory-300: #ded4c8;
+
+  /* 본문/제목용 잉크 (순수 검정 대신 따뜻한 먹색) */
+  --color-ink-400: #8a8279;
+  --color-ink-600: #5a534b;
+  --color-ink-800: #2e2a26;
+  --color-ink-900: #1c1917;
+
+  /* 액센트 — 테라코타 (아기 사진의 살구빛과 충돌하지 않는 저채도) */
+  --color-clay-500: #b4694e;
+  --color-clay-600: #9a5640;
+  --color-clay-50: #fbf1ed;
 }
 
 html {
   scroll-behavior: smooth;
+  /* 콘텐츠 길이에 따른 스크롤바 유무로 중앙정렬이 흔들리는 것 방지 */
+  scrollbar-gutter: stable;
 }
 
 body {
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
+  /* 국문 가독성: 기본 자간을 살짝 좁혀 세리프 헤드라인과 밀도를 맞춘다 */
+  letter-spacing: -0.01em;
+}
+
+/* 세리프 헤드라인은 국문에서 자간이 벌어져 보이므로 더 조인다 */
+.font-serif {
+  letter-spacing: -0.02em;
+  word-break: keep-all; /* 한글 단어 중간 줄바꿈 방지 */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

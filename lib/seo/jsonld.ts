@@ -1,4 +1,5 @@
 import { hasLocalBusinessData, instagramUrl, siteConfig } from "@/lib/config";
+import { amenities, faqs, services } from "@/lib/content";
 import type { Post, Profile } from "@/lib/instagram/types";
 
 /** 절대 URL 생성 */
@@ -35,7 +36,47 @@ export function webSiteLd(): Json {
   };
 }
 
-/** LocalBusiness — 지역(Geographic) SEO. NAP + geo 좌표 + 영업시간. */
+const DAY_NAMES: Record<string, string> = {
+  Mo: "Monday",
+  Tu: "Tuesday",
+  We: "Wednesday",
+  Th: "Thursday",
+  Fr: "Friday",
+  Sa: "Saturday",
+  Su: "Sunday",
+};
+const DAY_ORDER = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+
+/**
+ * "Mo-Fr 10:00-19:00" 형식을 OpeningHoursSpecification 으로 변환.
+ * 구글은 문자열 openingHours 보다 이 구조화 형식을 정확히 해석한다.
+ * 해석에 실패한 항목은 조용히 버리지 않고 null 로 표시해 호출부가 문자열 폴백을 쓰게 한다.
+ */
+function parseOpeningHours(spec: string): Json[] | null {
+  const out: Json[] = [];
+  for (const raw of spec.split(",").map((s) => s.trim()).filter(Boolean)) {
+    const m = /^([A-Za-z]{2})(?:-([A-Za-z]{2}))?\s+(\d{2}:\d{2})-(\d{2}:\d{2})$/.exec(raw);
+    if (!m) return null;
+    const [, from, to, opens, closes] = m;
+    const start = DAY_ORDER.indexOf(from);
+    if (start < 0) return null;
+    const end = to ? DAY_ORDER.indexOf(to) : start;
+    if (end < 0 || end < start) return null;
+
+    out.push({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: DAY_ORDER.slice(start, end + 1).map((d) => DAY_NAMES[d]),
+      opens,
+      closes,
+    });
+  }
+  return out.length ? out : null;
+}
+
+/**
+ * LocalBusiness — 지역(Geographic) SEO. NAP + geo 좌표 + 영업시간 + 서비스 카탈로그.
+ * businessType 은 schema.org LocalBusiness 하위 타입(사진 전용 타입은 없어 ProfessionalService 권장).
+ */
 export function localBusinessLd(profile: Profile): Json | null {
   if (!hasLocalBusinessData()) return null;
   const b = siteConfig.business;
@@ -46,6 +87,10 @@ export function localBusinessLd(profile: Profile): Json | null {
   if (b.addressRegion) address.addressRegion = b.addressRegion;
   if (b.postalCode) address.postalCode = b.postalCode;
 
+  const sameAs = [instagramUrl(profile.username || siteConfig.instagramHandle)];
+  const booking = siteConfig.bookingUrl || profile.website;
+  if (booking) sameAs.push(booking);
+
   const ld: Json = {
     "@context": "https://schema.org",
     "@type": siteConfig.businessType,
@@ -55,7 +100,17 @@ export function localBusinessLd(profile: Profile): Json | null {
     image: profile.profilePicture ? abs(profile.profilePicture.src) : undefined,
     description: profile.biography || siteConfig.description,
     address,
-    sameAs: [instagramUrl(profile.username || siteConfig.instagramHandle)],
+    sameAs,
+    knowsLanguage: "ko",
+    ...(siteConfig.areaServed.length && {
+      areaServed: siteConfig.areaServed.map((name) => ({ "@type": "Place", name })),
+    }),
+    amenityFeature: amenities.map((name) => ({
+      "@type": "LocationFeatureSpecification",
+      name,
+      value: true,
+    })),
+    hasOfferCatalog: { "@id": `${siteConfig.url}/#services` },
   };
 
   if (b.latitude && b.longitude) {
@@ -64,13 +119,56 @@ export function localBusinessLd(profile: Profile): Json | null {
       latitude: Number(b.latitude),
       longitude: Number(b.longitude),
     };
+    ld.hasMap = `https://www.google.com/maps/search/?api=1&query=${b.latitude},${b.longitude}`;
   }
+  if (booking) ld.potentialAction = { "@type": "ReserveAction", target: booking };
   if (b.telephone) ld.telephone = b.telephone;
   if (b.priceRange) ld.priceRange = b.priceRange;
   if (b.openingHours) {
-    ld.openingHours = b.openingHours.split(",").map((s) => s.trim()).filter(Boolean);
+    const structured = parseOpeningHours(b.openingHours);
+    if (structured) ld.openingHoursSpecification = structured;
+    else ld.openingHours = b.openingHours.split(",").map((s) => s.trim()).filter(Boolean);
   }
   return ld;
+}
+
+/** 서비스 카탈로그 — "돌사진", "가족사진" 등 제공 항목을 구조화 (GEO 인용 근거). */
+export function offerCatalogLd(): Json {
+  return {
+    "@context": "https://schema.org",
+    "@type": "OfferCatalog",
+    "@id": `${siteConfig.url}/#services`,
+    name: `${siteConfig.name} 촬영 서비스`,
+    itemListElement: services.map((s, i) => ({
+      "@type": "Offer",
+      position: i + 1,
+      itemOffered: {
+        "@type": "Service",
+        name: s.name,
+        description: s.description,
+        serviceType: s.name,
+        provider: { "@id": `${siteConfig.url}/#localbusiness` },
+        ...(siteConfig.areaServed.length && {
+          areaServed: siteConfig.areaServed.map((name) => ({ "@type": "Place", name })),
+        }),
+      },
+    })),
+  };
+}
+
+/** FAQPage — AI 생성형 엔진이 질문·답변 쌍을 그대로 인용하기 가장 좋은 형식. */
+export function faqPageLd(): Json | null {
+  if (!faqs.length) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${siteConfig.url}/#faq`,
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
 }
 
 /** 게시물 상세 — SocialMediaPosting + 대표 ImageObject + 공개 참여지표/댓글 */

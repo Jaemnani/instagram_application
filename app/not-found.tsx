@@ -8,18 +8,28 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="mx-auto max-w-2xl py-16 text-center">
-      <p className="text-sm font-medium text-rose-600">404</p>
-      <h1 className="mt-2 text-2xl font-bold tracking-tight">페이지를 찾을 수 없습니다</h1>
-      <p className="mt-3 text-sm text-neutral-500">
+    <div className="mx-auto max-w-2xl px-5 py-24 text-center sm:px-8">
+      <p className="text-xs font-medium uppercase tracking-[0.25em] text-clay-500">404</p>
+      <h1 className="mt-4 font-serif text-3xl font-bold text-ink-900">
+        페이지를 찾을 수 없습니다
+      </h1>
+      <p className="mt-4 text-[15px] leading-relaxed text-ink-600">
         주소가 잘못되었거나, 게시물이 삭제·변경되었을 수 있습니다.
       </p>
-      <Link
-        href="/"
-        className="mt-6 inline-block rounded-full bg-neutral-900 px-5 py-2 text-sm font-medium text-white hover:bg-neutral-700"
-      >
-        홈으로 돌아가기
-      </Link>
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <Link
+          href="/"
+          className="rounded-full bg-ink-900 px-6 py-3 text-sm font-medium text-ivory-50 transition-colors hover:bg-clay-600"
+        >
+          홈으로 돌아가기
+        </Link>
+        <Link
+          href="/about"
+          className="rounded-full border border-ivory-300 px-6 py-3 text-sm font-medium text-ink-800 transition-colors hover:border-ink-800"
+        >
+          스튜디오 소개
+        </Link>
+      </div>
     </div>
   );
 }

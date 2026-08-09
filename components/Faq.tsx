@@ -1,0 +1,26 @@
+import { faqs } from "@/lib/content";
+
+/**
+ * 자주 묻는 질문. <details>/<summary> 라 JS 없이 접힘이 동작하고,
+ * 접힌 상태에서도 답변 텍스트가 DOM에 있어 크롤러가 전부 읽는다.
+ */
+export function Faq() {
+  return (
+    <div className="mt-10 divide-y divide-ivory-200 border-y border-ivory-200">
+      {faqs.map((f) => (
+        <details key={f.q} className="group py-5">
+          <summary className="flex cursor-pointer list-none items-start justify-between gap-6 text-left">
+            <h3 className="font-serif text-lg font-semibold leading-snug text-ink-900">{f.q}</h3>
+            <span
+              aria-hidden="true"
+              className="mt-1 shrink-0 text-ink-400 transition-transform group-open:rotate-45"
+            >
+              ＋
+            </span>
+          </summary>
+          <p className="mt-3 max-w-3xl pr-10 text-[15px] leading-[1.9] text-ink-600">{f.a}</p>
+        </details>
+      ))}
+    </div>
+  );
+}

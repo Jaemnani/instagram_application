@@ -33,6 +33,21 @@ export const siteConfig = {
   /** 기본 로케일 (html lang) */
   locale: env("SITE_LOCALE", "ko_KR"),
 
+  /** 예약/문의 링크. 미설정 시 인스타 프로필의 website(카카오 채널 등)를 쓴다. */
+  bookingUrl: env("BOOKING_URL"),
+
+  /** 지역 SEO: 주요 서비스 지역 (schema.org areaServed) */
+  areaServed: env("BIZ_AREA_SERVED", "서울 성동구,성수동,서울숲,서울특별시")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
+
+  /** 검색엔진 사이트 소유확인 (구글 서치콘솔 / 네이버 서치어드바이저) */
+  verification: {
+    google: env("GOOGLE_SITE_VERIFICATION"),
+    naver: env("NAVER_SITE_VERIFICATION"),
+  },
+
   /** LocalBusiness 스키마 타입 (예: Restaurant, Store, CafeOrCoffeeShop ...) */
   businessType: env("BUSINESS_TYPE", "LocalBusiness"),
 
