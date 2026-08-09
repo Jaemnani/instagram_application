@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
 
 import { getInstagramData } from "@/lib/data";
 
-export const alt = "키딩성수 — 성수동 베이비 스튜디오 (돌사진·가족사진)";
+export const alt = "KIDDING SEONGSU — 성수동 베이비 스튜디오 (돌사진·가족사진)";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

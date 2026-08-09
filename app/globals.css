@@ -7,6 +7,9 @@
 @theme {
   --font-sans: var(--font-noto-sans-kr), system-ui, sans-serif;
   --font-serif: var(--font-noto-serif-kr), Georgia, serif;
+  /* 워드마크 전용 — 로고의 기하학적 산세리프에 가장 가까운 무료 서체.
+     라틴 전용이라 한글에는 쓰지 않는다(한글은 자동으로 --font-sans 로 폴백). */
+  --font-brand: var(--font-poppins), var(--font-noto-sans-kr), system-ui, sans-serif;
 
   /* 종이 느낌의 웜 뉴트럴 */
   --color-ivory-50: #fdfcfa;
@@ -36,6 +39,27 @@ body {
   font-family: var(--font-sans);
   /* 국문 가독성: 기본 자간을 살짝 좁혀 세리프 헤드라인과 밀도를 맞춘다 */
   letter-spacing: -0.01em;
+}
+
+/**
+ * 워드마크 두 가지 크기.
+ * .wordmark  — 헤더·푸터처럼 작게 쓰는 곳. Bold 로 또렷하게.
+ * .wordmark-lg — 크게 쓰는 곳. 로고 원본이 hairline 이라 얇게 + 자간을 넓혀 감도를 살린다.
+ */
+.wordmark,
+.wordmark-lg {
+  font-family: var(--font-brand);
+  white-space: nowrap;
+}
+
+.wordmark {
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+
+.wordmark-lg {
+  font-weight: 200;
+  letter-spacing: 0.14em;
 }
 
 /* 세리프 헤드라인은 국문에서 자간이 벌어져 보이므로 더 조인다 */

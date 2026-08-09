@@ -13,7 +13,7 @@ export function SiteFooter({ profile }: { profile: Profile }) {
       <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8">
         <div className="grid gap-10 sm:grid-cols-[1.2fr_1fr_1fr]">
           <div>
-            <p className="font-serif text-xl font-bold text-ink-900">{siteConfig.name}</p>
+            <p className="wordmark text-lg text-ink-900">{siteConfig.name}</p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-600">
               {siteConfig.description}
             </p>

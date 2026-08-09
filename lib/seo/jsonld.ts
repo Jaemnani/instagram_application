@@ -17,6 +17,8 @@ export function organizationLd(profile: Profile): Json {
     "@type": "Organization",
     "@id": `${siteConfig.url}/#organization`,
     name: siteConfig.name,
+    // 한국어 상호를 함께 선언해야 "키딩성수" 검색에서도 같은 업체로 인식된다.
+    ...(siteConfig.nameKo && { alternateName: siteConfig.nameKo }),
     url: siteConfig.url,
     ...(profile.profilePicture && { logo: abs(profile.profilePicture.src) }),
     ...(profile.biography && { description: profile.biography }),
@@ -96,6 +98,7 @@ export function localBusinessLd(profile: Profile): Json | null {
     "@type": siteConfig.businessType,
     "@id": `${siteConfig.url}/#localbusiness`,
     name: siteConfig.name,
+    ...(siteConfig.nameKo && { alternateName: siteConfig.nameKo }),
     url: siteConfig.url,
     image: profile.profilePicture ? abs(profile.profilePicture.src) : undefined,
     description: profile.biography || siteConfig.description,

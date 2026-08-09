@@ -53,10 +53,22 @@ export default async function AboutPage() {
         <p className="text-xs font-medium uppercase tracking-[0.25em] text-clay-500">
           {brandCopy.tagline}
         </p>
-        <h1 className="mt-4 font-serif text-3xl font-bold leading-tight text-ink-900 sm:text-4xl">
-          성수동 베이비 스튜디오 {siteConfig.name}
+        {/* 큰 워드마크는 얇게(로고 원본 감도), 설명은 세리프 국문으로 */}
+        <h1 className="mt-4 flex flex-col gap-3">
+          <span className="wordmark-lg text-2xl text-ink-900 sm:text-4xl">{siteConfig.name}</span>
+          <span className="font-serif text-2xl font-bold leading-tight text-ink-600 sm:text-3xl">
+            성수동 베이비 스튜디오
+          </span>
         </h1>
         <p className="mt-6 text-[15px] leading-[1.9] text-ink-600 sm:text-base">
+          {siteConfig.nameKo && (
+            // 한국어 상호를 본문에 한 번은 남겨야 "키딩성수" 검색에 잡힌다.
+            <>
+              {siteConfig.name}
+              <span className="text-ink-800">({siteConfig.nameKo})</span>는 서울 성동구 성수동의
+              베이비 스튜디오입니다.{" "}
+            </>
+          )}
           {brandCopy.lead}
         </p>
       </header>

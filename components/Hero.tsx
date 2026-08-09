@@ -46,7 +46,12 @@ export function Hero({ posts, profile }: { posts: Post[]; profile: Profile }) {
       />
 
       <div className="relative mx-auto w-full max-w-6xl px-5 pb-14 pt-28 sm:px-8 sm:pb-20 sm:pt-36">
-        <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-ivory-200 sm:text-xs">
+        {/* 워드마크를 크게 — 로고 원본처럼 얇고 자간을 넓혀서 */}
+        <p className="wordmark-lg text-xl text-ivory-50 sm:text-3xl lg:text-4xl">
+          {siteConfig.name}
+        </p>
+
+        <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.3em] text-ivory-200 sm:text-xs">
           {brandCopy.tagline}
         </p>
 

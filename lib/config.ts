@@ -21,8 +21,14 @@ export const siteConfig = {
   /** 인스타그램 핸들 (@ 제외) */
   instagramHandle: env("IG_USERNAME", "your_business"),
 
-  /** 비즈니스/사이트 표시명 */
+  /** 비즈니스/사이트 표시명 (화면에 보이는 이름) */
   name: env("SITE_NAME", "Your Business"),
+
+  /**
+   * 한국어 표기. 화면은 영문을 쓰더라도 구조화 데이터의 alternateName 과
+   * 본문 첫 언급에 남겨 한국어 브랜드 검색 신호를 유지한다.
+   */
+  nameKo: env("SITE_NAME_KO"),
 
   /** 사이트 한 줄 설명 (메타 description 기본값) */
   description: env(

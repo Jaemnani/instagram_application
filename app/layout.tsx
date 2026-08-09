@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans_KR, Noto_Serif_KR } from "next/font/google";
+import { Noto_Sans_KR, Noto_Serif_KR, Poppins } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 
@@ -29,6 +29,14 @@ const sans = Noto_Sans_KR({
   display: "swap",
 });
 
+/** 워드마크 전용. 로고의 기하학적 산세리프에 가장 가까워 선택. 두 굵기만 받는다. */
+const brand = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin"],
+  weight: ["200", "700"],
+  display: "swap",
+});
+
 export async function generateMetadata(): Promise<Metadata> {
   const { profile } = await getInstagramData();
   return baseMetadata(profile);
@@ -42,7 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={lang}
-      className={`${serif.variable} ${sans.variable} h-full antialiased`}
+      className={`${serif.variable} ${sans.variable} ${brand.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-ivory-50 text-ink-800">
         <JsonLd data={[organizationLd(profile), webSiteLd(), localBusinessLd(profile)]} />
@@ -61,10 +69,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
         <header className="sticky top-0 z-30 border-b border-ivory-200 bg-ivory-50/85 backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
-            <Link
-              href="/"
-              className="font-serif text-lg font-bold tracking-tight text-ink-900 sm:text-xl"
-            >
+            <Link href="/" className="wordmark text-base text-ink-900 sm:text-lg">
               {siteConfig.name}
             </Link>
 
