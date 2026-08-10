@@ -74,12 +74,12 @@ export const zh: Dictionary = {
           "在圣水洞记录孩子的第一个生日。不要求固定姿势，拍下孩子玩闹之间的表情。",
       },
       {
-        name: "全家福",
-        description: "父母和孩子一起入镜。比起排得整整齐齐的构图，更看重这个家庭本来的气氛。",
-      },
-      {
         name: "百日 · 成长记录",
         description: "从 50 天、百日纪念到成长快照，按时期记录孩子长大的样子。",
+      },
+      {
+        name: "全家福",
+        description: "父母和孩子一起入镜。比起排得整整齐齐的构图，更看重这个家庭本来的气氛。",
       },
       {
         name: "场地租赁",
@@ -94,6 +94,8 @@ export const zh: Dictionary = {
     lead: "发布在 Instagram 上的拍摄记录。",
     empty: "还没有同步到任何帖子。",
     related: "其他拍摄记录",
+    scrollPrev: "查看上一组",
+    scrollNext: "查看下一组",
     comments: "评论",
   },
 
@@ -124,7 +126,7 @@ export const zh: Dictionary = {
       },
       {
         q: "带宝宝过去方便吗？",
-        a: "备有儿童座椅，洗手间男女分开，也支持免接触支付。",
+        a: "备有儿童座椅，也支持免接触支付。",
       },
       {
         q: "可以带宠物一起拍吗？",
@@ -154,7 +156,6 @@ export const zh: Dictionary = {
     amenities: "设施",
     amenityItems: [
       "儿童座椅",
-      "男女分开洗手间",
       "可停车",
       "可带宠物",
       "免接触支付",

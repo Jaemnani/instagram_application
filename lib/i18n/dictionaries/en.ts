@@ -74,14 +74,14 @@ export const en: Dictionary = {
           "Marking a child's first birthday in Seongsu. No fixed poses are asked for — we photograph the expressions that appear while the child plays.",
       },
       {
-        name: "Family portraits",
-        description:
-          "Parents and children together. We put the family's own natural atmosphere ahead of a neatly arranged composition.",
-      },
-      {
         name: "100-day & growth sessions",
         description:
           "From 50-day and 100-day portraits through growth snapshots, recording each stage as your child grows.",
+      },
+      {
+        name: "Family portraits",
+        description:
+          "Parents and children together. We put the family's own natural atmosphere ahead of a neatly arranged composition.",
       },
       {
         name: "Studio rental",
@@ -97,6 +97,8 @@ export const en: Dictionary = {
     lead: "Work posted to our Instagram.",
     empty: "No posts have been synced yet.",
     related: "More sessions",
+    scrollPrev: "Previous sessions",
+    scrollNext: "Next sessions",
     comments: "Comments",
   },
 
@@ -127,7 +129,7 @@ export const en: Dictionary = {
       },
       {
         q: "Is it easy to visit with a baby?",
-        a: "We have a high chair, and the restrooms are separate for men and women. Contactless payment is accepted.",
+        a: "We have a high chair, and contactless payment is accepted.",
       },
       {
         q: "Can we bring a pet?",
@@ -157,7 +159,6 @@ export const en: Dictionary = {
     amenities: "Facilities",
     amenityItems: [
       "High chair",
-      "Separate restrooms",
       "Parking available",
       "Pet friendly",
       "Contactless payment",

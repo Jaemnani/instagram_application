@@ -167,3 +167,11 @@ body {
 body[data-lightbox-open="true"] {
   overflow: hidden;
 }
+
+/* 가로 스트립 — 스크롤바는 숨기되 스크롤 자체는 살려둔다(휠·터치·키보드 모두 동작) */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

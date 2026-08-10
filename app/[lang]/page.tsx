@@ -5,6 +5,7 @@ import { Hero } from "@/components/Hero";
 import { JsonLd } from "@/components/JsonLd";
 import { LocationCard } from "@/components/LocationCard";
 import { PostCard } from "@/components/PostCard";
+import { PostStrip } from "@/components/PostStrip";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ServiceGrid } from "@/components/ServiceGrid";
@@ -127,13 +128,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             </Reveal>
 
             {rest.length > 0 && (
-              <div className="grid gap-x-8 gap-y-12 border-t border-ivory-200 pt-14 sm:grid-cols-2 lg:grid-cols-3">
-                {rest.map((post) => (
-                  <Reveal as="article" key={post.id}>
-                    <PostCard post={post} lang={locale} dict={dict} />
-                  </Reveal>
-                ))}
-              </div>
+              <Reveal>
+                <PostStrip posts={rest} lang={locale} dict={dict} />
+              </Reveal>
             )}
           </div>
         )}
