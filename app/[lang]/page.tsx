@@ -163,7 +163,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           />
         </Reveal>
         <Reveal>
-          <LocationCard dict={dict} />
+          <LocationCard dict={dict} lang={locale} />
         </Reveal>
 
         {bookingUrl && hasLocalBusinessData() && b && (

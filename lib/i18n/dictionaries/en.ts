@@ -141,6 +141,7 @@ export const en: Dictionary = {
     title: "Getting here",
     lead: "In Seongsu-dong, between Seoul Forest and Seongsu stations. Sessions are by appointment.",
     address: "Address",
+    addressForMaps: "For map apps and taxi drivers",
     postalCode: (code: string) => `Postal code ${code}`,
     hours: "Opening hours",
     hoursWeekday: "Mon–Fri 10:00 – 19:00",

@@ -56,7 +56,8 @@ export function Hero({
 
         {/* h1 = 브랜드명 + 그 언어의 검색어 한 줄 */}
         <h1 className="flex flex-col items-center gap-4">
-          <span className="wordmark-hero text-[2.4rem] leading-[1.05] text-ivory-50 sm:text-[4.5rem] lg:text-[5.5rem]">
+          {/* 크기는 .wordmark-hero 가 clamp 로 정한다 — 여기서 계단식으로 주면 넘친다 */}
+          <span className="wordmark-hero leading-[1.05] text-ivory-50">
             {siteConfig.name}
           </span>
           <span className="font-serif text-base font-bold leading-snug text-ivory-200 sm:text-2xl">

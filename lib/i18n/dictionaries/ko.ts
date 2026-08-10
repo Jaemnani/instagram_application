@@ -151,6 +151,7 @@ export const ko = {
     title: "오시는 길",
     lead: "서울숲역과 성수역 사이, 성수동에 있습니다. 촬영은 예약제로 진행됩니다.",
     address: "주소",
+    addressForMaps: "지도·택시 입력용",
     postalCode: (code: string) => `우편번호 ${code}`,
     hours: "영업시간",
     hoursWeekday: "월–금 10:00 – 19:00",

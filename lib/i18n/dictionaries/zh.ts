@@ -138,6 +138,7 @@ export const zh: Dictionary = {
     title: "交通与位置",
     lead: "位于首尔林站与圣水站之间的圣水洞。拍摄采取预约制。",
     address: "地址",
+    addressForMaps: "用于地图应用和出租车",
     postalCode: (code: string) => `邮编 ${code}`,
     hours: "营业时间",
     hoursWeekday: "周一至周五 10:00 – 19:00",

@@ -1,22 +1,39 @@
 import { fullAddress, googleMapsUrl, hasLocalBusinessData, siteConfig } from "@/lib/config";
-import type { Dictionary } from "@/lib/i18n";
+import type { Dictionary, Locale } from "@/lib/i18n";
 
 /** 위치·교통·편의시설 — 지역(Geographic) SEO 본문. LocalBusiness JSON-LD 와 짝을 이룬다. */
-export function LocationCard({ dict }: { dict: Dictionary }) {
+export function LocationCard({ dict, lang }: { dict: Dictionary; lang: Locale }) {
   if (!hasLocalBusinessData()) return null;
   const b = siteConfig.business;
   const t = dict.location;
 
-  // 주소는 번역하지 않는다 — 지도·내비게이션에 그대로 넣을 수 있어야 한다.
   const address = fullAddress();
   const mapUrl = googleMapsUrl();
+
+  /*
+   * 한국어 외 화면은 로마자 주소를 먼저 보여준다 — 한글은 외국인에게 완전히 불투명해서
+   * 도시조차 알 수 없다. 다만 한글 원문도 같이 남긴다: 국내 지도 앱과 택시에는
+   * 그게 필요하고, 로마자로는 검색이 안 되는 경우가 많다.
+   */
+  const latin = lang !== "ko" ? b.addressLatin : "";
 
   return (
     <div className="mt-10 grid gap-10 sm:grid-cols-2">
       <div>
         <h3 className="font-serif text-lg font-semibold text-ink-900">{t.address}</h3>
         <address className="mt-2 not-italic leading-relaxed text-ink-600">
-          {address}
+          {latin ? (
+            <>
+              <span className="block">{latin}</span>
+              <span className="mt-1 block text-sm text-ink-400">
+                <span className="mr-1.5">{t.addressForMaps}</span>
+                {/* 한글 원문은 그대로 복사해 쓸 수 있어야 하므로 번역·변형하지 않는다 */}
+                <span lang="ko">{address}</span>
+              </span>
+            </>
+          ) : (
+            address
+          )}
           {b.postalCode && (
             <span className="block text-sm text-ink-400">{t.postalCode(b.postalCode)}</span>
           )}

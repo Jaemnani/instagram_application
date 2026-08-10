@@ -72,6 +72,13 @@ export const siteConfig = {
      * 비우면 위 주소를 조합해 쓴다.
      */
     mapQuery: env("BIZ_MAP_QUERY"),
+    /**
+     * 로마자 주소 — 한국어 외 언어 화면에서 "읽을 수 있는" 주소로 보여준다.
+     * 한글 주소는 그 아래 지도·택시용으로 함께 남긴다(외국인은 한글을 못 읽지만,
+     * 국내 지도 앱과 택시에는 한글 원문이 필요하다).
+     * 도로명주소 영문 표기 규칙: 로 → -ro, 길 → -gil, 구 → -gu.
+     */
+    addressLatin: env("BIZ_ADDRESS_LATIN"),
     telephone: env("BIZ_PHONE"),
     /** 위도/경도 (지역 검색 핵심). 숫자 문자열. */
     latitude: env("BIZ_LAT"),

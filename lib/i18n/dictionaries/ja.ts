@@ -141,6 +141,7 @@ export const ja: Dictionary = {
     title: "アクセス",
     lead: "ソウルの森駅と聖水駅のあいだ、聖水洞にあります。撮影は予約制です。",
     address: "住所",
+    addressForMaps: "地図アプリ・タクシー用",
     postalCode: (code: string) => `郵便番号 ${code}`,
     hours: "営業時間",
     hoursWeekday: "月–金 10:00 – 19:00",
