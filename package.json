@@ -10,7 +10,8 @@
     "sync": "tsx scripts/sync.ts",
     "refresh-token": "tsx scripts/refresh-token.ts",
     "prebuild": "tsx scripts/sync.ts",
-    "translate": "tsx scripts/translate.ts"
+    "translate": "tsx scripts/translate.ts",
+    "indexnow": "tsx scripts/indexnow.ts"
   },
   "dependencies": {
     "image-size": "^2.0.2",
