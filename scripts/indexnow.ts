@@ -46,6 +46,16 @@ async function main() {
     return;
   }
 
+  // 로컬 SITE_URL 로는 제출할 게 없다. .env.local 이 localhost 를 가리키는 게 정상이므로
+  // 실패로 두지 말고 어떻게 돌리는지 알려준다.
+  if (/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])/.test(siteConfig.url)) {
+    console.error(
+      `SITE_URL 이 로컬입니다 (${siteConfig.url}). 색인 제출은 배포된 주소로만 의미가 있습니다.\n` +
+        "  실행: SITE_URL=https://kidding.kr npm run indexnow",
+    );
+    process.exit(1);
+  }
+
   if (!indexNowKey()) {
     console.error(
       "public/indexnow-key.txt 가 없거나 형식이 잘못됐습니다 (16진수 8~128자).\n" +
