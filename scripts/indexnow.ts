@@ -48,9 +48,8 @@ async function main() {
 
   if (!indexNowKey()) {
     console.error(
-      "INDEXNOW_KEY 가 없거나 형식이 잘못됐습니다 (16진수 8~128자).\n" +
-        "  생성: openssl rand -hex 32\n" +
-        "  .env.local 과 Vercel 환경변수 양쪽에 넣어야 합니다.",
+      "public/indexnow-key.txt 가 없거나 형식이 잘못됐습니다 (16진수 8~128자).\n" +
+        "  생성: openssl rand -hex 32 | tr -d '\\n' > public/indexnow-key.txt",
     );
     process.exit(1);
   }
@@ -63,7 +62,7 @@ async function main() {
     console.error(
       `키 파일 확인 실패: ${keyUrl}\n` +
         `  응답: ${check ? `HTTP ${check.status}` : "연결 실패"}\n` +
-        "  배포된 사이트의 INDEXNOW_KEY 가 로컬과 같은지 확인하세요 (Vercel 환경변수 + Redeploy).",
+        "  public/indexnow-key.txt 가 배포에 포함됐는지 확인하세요.",
     );
     process.exit(1);
   }

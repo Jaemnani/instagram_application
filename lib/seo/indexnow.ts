@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { siteConfig } from "@/lib/config";
 
 /**
@@ -12,13 +15,25 @@ import { siteConfig } from "@/lib/config";
 
 const ENDPOINT = "https://api.indexnow.org/indexnow";
 
-/** 키를 노출하는 경로. proxy matcher 가 확장자 있는 경로를 제외하므로 언어 접두사가 안 붙는다. */
+/**
+ * 키는 public/indexnow-key.txt 하나가 출처다.
+ *
+ * 환경변수로 두지 않는 이유: 이 값은 비밀이 아니라 공개 URL 로 서빙되는 소유 증명이다
+ * (구글 site-verification 토큰과 같은 부류). 정적 파일로 두면 배포만으로 바로 뜨고,
+ * 출처가 하나라 파일과 제출값이 어긋날 일이 없다.
+ *
+ * 확장자가 있어 proxy matcher 의 언어 리다이렉트에 걸리지 않는다.
+ */
 export const KEY_PATH = "/indexnow-key.txt";
 
 export function indexNowKey(): string | null {
-  const key = process.env.INDEXNOW_KEY?.trim();
-  // 규격: 8~128자, 16진수. 형식이 어긋나면 엔진이 422 로 거절한다.
-  return key && /^[a-f0-9]{8,128}$/i.test(key) ? key : null;
+  try {
+    const key = readFileSync(path.join(process.cwd(), "public", "indexnow-key.txt"), "utf8").trim();
+    // 규격: 8~128자, 16진수. 형식이 어긋나면 엔진이 422 로 거절한다.
+    return /^[a-f0-9]{8,128}$/i.test(key) ? key : null;
+  } catch {
+    return null;
+  }
 }
 
 export interface SubmitResult {
