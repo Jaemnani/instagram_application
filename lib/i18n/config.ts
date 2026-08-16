@@ -47,12 +47,16 @@ export function localizedPath(locale: Locale, path = "/"): string {
   return `/${locale}${clean}`;
 }
 
+/** 언어를 직접 고르면 심는 쿠키. 자동 감지 결과는 여기 저장하지 않는다(재평가 여지를 남긴다). */
+export const LOCALE_COOKIE = "NEXT_LOCALE";
+
 /**
  * Accept-Language 헤더에서 지원 언어를 고른다.
  * zh-TW/zh-HK 도 간체 페이지로 보내는 편이 빈 화면보다 낫다.
+ * 매치가 없으면 null — 호출자가 다음 신호(접속 국가)로 넘어간다.
  */
-export function matchLocale(acceptLanguage: string | null): Locale {
-  if (!acceptLanguage) return defaultLocale;
+export function matchAcceptLanguage(acceptLanguage: string | null): Locale | null {
+  if (!acceptLanguage) return null;
 
   const ranked = acceptLanguage
     .split(",")
@@ -68,5 +72,39 @@ export function matchLocale(acceptLanguage: string | null): Locale {
     const base = tag.split("-")[0];
     if (isLocale(base)) return base;
   }
-  return defaultLocale;
+  return null;
+}
+
+/**
+ * 호스팅(Vercel)이 엣지에서 붙여주는 접속 국가 코드(ISO 3166-1 alpha-2)로 언어를 추정.
+ * 로컬 개발 환경에는 이 헤더가 없어 null 을 돌려주고, 그러면 다음 신호로 자연히 넘어간다.
+ */
+export function matchCountry(country: string | null): Locale | null {
+  if (!country) return null;
+  const code = country.toUpperCase();
+  if (code === "KR") return "ko";
+  if (code === "JP") return "ja";
+  if (code === "CN" || code === "TW" || code === "HK" || code === "MO") return "zh";
+  if (code === "US" || code === "GB" || code === "CA" || code === "AU" || code === "NZ" || code === "IE")
+    return "en";
+  return null;
+}
+
+/**
+ * 언어 감지 우선순위: 사용자가 직접 고른 값(쿠키) → 브라우저 언어 설정
+ * → 접속 국가(IP) → 기본값(한국어). 어떤 신호도 지원 언어와 안 맞으면 한국어를 보여준다.
+ */
+export function resolveLocale({
+  cookieLocale,
+  acceptLanguage,
+  country,
+}: {
+  cookieLocale?: string | null;
+  acceptLanguage?: string | null;
+  country?: string | null;
+}): Locale {
+  if (cookieLocale && isLocale(cookieLocale)) return cookieLocale;
+  return (
+    matchAcceptLanguage(acceptLanguage ?? null) ?? matchCountry(country ?? null) ?? defaultLocale
+  );
 }

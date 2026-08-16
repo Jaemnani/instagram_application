@@ -59,7 +59,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         data={[imageGalleryLd(locale, posts), offerCatalogLd(locale), faqPageLd(locale)]}
       />
 
-      <Hero posts={posts} profile={profile} dict={dict} />
+      <Hero posts={posts} profile={profile} dict={dict} lang={locale} />
 
       <Section id="story">
         <Reveal>

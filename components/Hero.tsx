@@ -1,7 +1,8 @@
 import Image from "next/image";
 
+import { LanguageBadge } from "@/components/LanguageBadge";
 import { siteConfig } from "@/lib/config";
-import type { Dictionary } from "@/lib/i18n";
+import type { Dictionary, Locale } from "@/lib/i18n";
 import type { Post, Profile } from "@/lib/instagram/types";
 
 /**
@@ -13,10 +14,12 @@ export function Hero({
   posts,
   profile,
   dict,
+  lang,
 }: {
   posts: Post[];
   profile: Profile;
   dict: Dictionary;
+  lang: Locale;
 }) {
   const bookingUrl = siteConfig.bookingUrl || profile.website;
 
@@ -48,6 +51,8 @@ export function Hero({
         aria-hidden="true"
         className="absolute inset-0 bg-gradient-to-b from-ink-900/35 via-transparent to-ink-900/70"
       />
+
+      <LanguageBadge lang={lang} label={dict.ui.language} />
 
       <div className="relative flex flex-col items-center gap-6">
         <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-ivory-200 sm:text-xs">
