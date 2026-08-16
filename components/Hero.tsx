@@ -31,33 +31,36 @@ export function Hero({
       (best, p) => (!best || (p.likeCount ?? 0) > (best.likeCount ?? 0) ? p : best),
       null,
     );
-  const cover = picked?.coverImage;
+  // heroImageSrc 가 설정되면(현재 인형 놀이 사진) 게시물 기반 선택보다 우선한다.
+  const heroSrc = siteConfig.heroImageSrc || picked?.coverImage?.src;
 
   return (
     <section className="relative isolate flex min-h-svh flex-col items-center justify-center overflow-hidden bg-ink-900 px-5 py-24 text-center sm:px-8">
-      {cover && (
+      {heroSrc && (
         <Image
-          src={cover.src}
+          src={heroSrc}
           alt=""
           fill
           preload
           sizes="100vw"
           /*
            * 인물(얼굴) bbox 가 잘리지 않도록 세로 기준점을 인물 위치에 맞춘다.
-           * 현재 히어로 사진은 인물(엄마 헤어라인~아기 턱)이 이미지 상단 0~29%
-           * 구간에 있고 머리 위 여백이 거의 없다(엄마 머리카락이 y=0에 닿음).
+           * 현재 히어로 사진(2560×3840, public/hero/hero.jpg)은 아이 머리카락이
+           * 이미지 상단 약 11% 지점에서 시작하고(그 위는 보라색 배경 여백),
+           * 활짝 웃는 입/턱은 약 33% 지점이다.
            *
            * object-position 의 Y% 는 "세로 크롭량 중 위쪽에서 잘라낼 비율"이다.
            * 화면이 가로로 넓어질수록(세로 크롭량 자체가 커질수록) 이 비율만큼
-           * 잘리는 절대량도 함께 커지므로, 0%(top) 초과 값은 창이 충분히
-           * 넓어지면 언젠가 인물 bbox 상단(0%)을 침범한다. 반대로 0%로 고정하면
-           * 크롭은 항상 아래쪽(아기 발밑 — 여백이 넉넉함)에서만 일어나도록
-           * 수학적으로 보장되어, 어떤 가로세로 비율에서도 얼굴이 잘리지 않는다.
+           * 잘리는 절대량도 함께 커지므로, Y 를 "머리카락이 시작하는 지점의
+           * 비율"(여기서는 10%, 약간 여유를 둔 값)로 고정하면 세로 크롭은 그
+           * 지점보다 위쪽은 절대 넘지 않도록 수학적으로 보장된다 — 위쪽 여백만
+           * 먼저 깎이고, 그다음부터는 아래쪽(발치의 인형들 — 여백이 넉넉함)에서
+           * 잘려 어떤 가로세로 비율에서도 얼굴이 잘리지 않는다.
            *
-           * 히어로 사진이 바뀌면(HERO_POST_ID 재설정 등) 새 사진에서 인물이
-           * 상단 몇 % 지점에 있는지 다시 확인해 이 값을 조정할 것.
+           * 히어로 사진이 바뀌면(HERO_IMAGE_SRC/HERO_POST_ID 재설정 등) 새 사진에서
+           * 인물이 상단 몇 % 지점에서 시작하는지 다시 확인해 이 값을 조정할 것.
            */
-          className="object-cover object-top"
+          className="object-cover object-[center_10%]"
         />
       )}
 

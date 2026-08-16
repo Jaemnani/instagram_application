@@ -45,6 +45,14 @@ export const siteConfig = {
   /** 히어로 배경으로 쓸 게시물 id. 미설정 시 좋아요가 가장 많은 게시물의 사진. */
   heroPostId: env("HERO_POST_ID"),
 
+  /**
+   * 히어로 배경을 특정 게시물이 아니라 직접 지정한 정적 이미지로 고정한다.
+   * 설정되면 heroPostId/좋아요 최다 게시물 로직보다 우선한다.
+   * `public/hero/` 아래 둔다 — `public/media/` 는 npm run sync 가 게시물에서
+   * 참조 안 되는 파일을 자동 삭제하므로(pruneOrphanMedia) 수동 파일을 두면 안 된다.
+   */
+  heroImageSrc: env("HERO_IMAGE_SRC"),
+
   /** 지역 SEO: 주요 서비스 지역 (schema.org areaServed) */
   areaServed: env("BIZ_AREA_SERVED", "서울 성동구,성수동,서울숲,서울특별시")
     .split(",")
