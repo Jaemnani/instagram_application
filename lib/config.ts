@@ -73,12 +73,17 @@ export const siteConfig = {
      */
     mapQuery: env("BIZ_MAP_QUERY"),
     /**
-     * 로마자 주소 — 한국어 외 언어 화면에서 "읽을 수 있는" 주소로 보여준다.
-     * 한글 주소는 그 아래 지도·택시용으로 함께 남긴다(외국인은 한글을 못 읽지만,
-     * 국내 지도 앱과 택시에는 한글 원문이 필요하다).
+     * 로마자 주소 — 영어 화면에서 "읽을 수 있는" 주소로 보여준다. 일본어·중국어는
+     * 아래 addressJa/addressZh 가 있으면 그 언어 표기를 우선 쓰고, 없으면 이 로마자로
+     * 대체한다. 한글 주소는 그 아래 지도·택시용으로 항상 함께 남긴다(외국인은 한글을
+     * 못 읽지만, 국내 지도 앱과 택시에는 한글 원문이 필요하다).
      * 도로명주소 영문 표기 규칙: 로 → -ro, 길 → -gil, 구 → -gu.
      */
     addressLatin: env("BIZ_ADDRESS_LATIN"),
+    /** 일본어 화면용 현지 표기 주소(간지·가타카나). 비어 있으면 로마자로 대체. */
+    addressJa: env("BIZ_ADDRESS_JA"),
+    /** 중국어 화면용 현지 표기 주소(한자). 비어 있으면 로마자로 대체. */
+    addressZh: env("BIZ_ADDRESS_ZH"),
     telephone: env("BIZ_PHONE"),
     /** 위도/경도 (지역 검색 핵심). 숫자 문자열. */
     latitude: env("BIZ_LAT"),
@@ -99,6 +104,20 @@ export function instagramUrl(handle = siteConfig.instagramHandle): string {
 export function fullAddress(): string {
   const b = siteConfig.business;
   return [b.addressRegion, b.addressLocality, b.streetAddress].filter(Boolean).join(" ");
+}
+
+/**
+ * 화면에 보여줄 그 언어 표기 주소. 한국어는 원문 그대로, 그 외 언어는 해당 언어
+ * 표기(addressJa/addressZh)가 있으면 그것을, 없으면 로마자(addressLatin)를 쓴다.
+ * (일본어·중국어에도 로마자만 보이던 문제 수정 — 두 언어 모두 자기 문자로 된
+ * 주소가 있어야 읽고 이해할 수 있다.)
+ */
+export function localizedAddress(locale: string): string {
+  const b = siteConfig.business;
+  if (locale === "ko") return fullAddress();
+  if (locale === "ja" && b.addressJa) return b.addressJa;
+  if (locale === "zh" && b.addressZh) return b.addressZh;
+  return b.addressLatin;
 }
 
 /**
