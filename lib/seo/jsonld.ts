@@ -223,7 +223,7 @@ export function postLd(locale: Locale, post: Post): Json {
     // 번역본이 있으면 그 언어, 없으면 원문 언어를 정직하게 밝힌다.
     inLanguage: t ? htmlLang[locale] : "ko-KR",
     sameAs: post.permalink,
-    keywords: post.hashtags.join(", "),
+    keywords: (t?.hashtags ?? post.hashtags).join(", "),
     author: { "@id": `${siteConfig.url}/#organization` },
     publisher: { "@id": `${siteConfig.url}/#organization` },
     ...(images.length && { image: images }),

@@ -101,6 +101,7 @@ export function postMetadata(locale: Locale, post: Post): Metadata {
   const t = post.translations?.[locale];
   const title = t?.title || post.title;
   const description = t?.excerpt || post.excerpt || d.meta.description;
+  const hashtags = t?.hashtags ?? post.hashtags;
 
   const images = post.coverImage
     ? [
@@ -116,7 +117,7 @@ export function postMetadata(locale: Locale, post: Post): Metadata {
   return {
     title,
     description,
-    keywords: [...new Set([...post.hashtags, ...d.meta.keywords.slice(0, 3)])],
+    keywords: [...new Set([...hashtags, ...d.meta.keywords.slice(0, 3)])],
     alternates: { canonical: url, languages: languageAlternates(path) },
     openGraph: {
       type: "article",

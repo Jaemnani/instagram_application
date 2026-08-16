@@ -41,6 +41,7 @@ export function PostCard({
   const text = post.translations?.[lang];
   const title = text?.title || post.title;
   const excerpt = text?.excerpt ?? post.excerpt;
+  const hashtags = text?.hashtags ?? post.hashtags;
 
   return (
     <article className={featured ? "group" : "group flex flex-col"}>
@@ -96,9 +97,9 @@ export function PostCard({
             </p>
           )}
 
-          {post.hashtags.length > 0 && (
+          {hashtags.length > 0 && (
             <ul className="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-400">
-              {post.hashtags.slice(0, featured ? 6 : 3).map((tag) => (
+              {hashtags.slice(0, featured ? 6 : 3).map((tag) => (
                 <li key={tag}>#{tag}</li>
               ))}
             </ul>

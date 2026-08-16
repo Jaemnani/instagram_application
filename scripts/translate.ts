@@ -35,17 +35,18 @@ interface Post {
   title: string;
   caption: string;
   timestamp: string;
+  hashtags: string[];
 }
 
 type Entry = { sourceHash?: string } & Partial<
-  Record<Target, { title: string; caption: string }>
+  Record<Target, { title: string; caption: string; hashtags: string[] }>
 >;
 
 const SYSTEM = `You translate Instagram captions for the multilingual website of "kidding seongsu", a baby and family photo studio in Seongsu-dong, Seoul.
 
 The studio's voice is playful, warm and understated. It refuses posed, stiff photography — the name comes from "we're just kidding". Carry that voice across; do not make the copy sound like marketing.
 
-For each caption produce a TITLE and a CAPTION.
+For each caption produce a TITLE, a CAPTION, and HASHTAGS.
 
 CAPTION rules:
 - Translate only the part that describes the photo, the studio, or the family's story.
@@ -62,8 +63,14 @@ TITLE rules:
 - If the Korean title carries a date in parentheses, localise the date to the target language.
 - If the Korean title is itself a stale booking notice, title it after what the post is actually about instead.
 
+HASHTAGS rules:
+- The source hashtags are Korean topic tags (e.g. "돌사진", "가족사진"), not literal words to translate one-to-one. Localise each into the term someone searching in that language would actually use — the same spirit as the site's own SEO keywords (e.g. English "baby photo studio", "first birthday photoshoot"; Japanese "ベビーフォト", "1歳記念撮影"; Chinese "儿童摄影", "周岁照" — never romanize "studio" in Chinese, use 工作室/摄影棚).
+- One tag per source tag, same order, no "#" prefix, no spaces (compact, like a real hashtag — English in CamelCase, e.g. "FirstBirthdayPhoto").
+- Proper nouns and brand names (partner brands, the studio's own name) stay as their established Latin spelling in every language instead of being translated — e.g. a hashtag naming this studio becomes "KiddingSeongsu" in all three target languages.
+- If the source hashtags array is empty, return an empty array.
+
 Reply with JSON only, no prose, no code fence:
-{"en":{"title":"…","caption":"…"},"ja":{"title":"…","caption":"…"},"zh":{"title":"…","caption":"…"}}`;
+{"en":{"title":"…","caption":"…","hashtags":["…"]},"ja":{"title":"…","caption":"…","hashtags":["…"]},"zh":{"title":"…","caption":"…","hashtags":["…"]}}`;
 
 function captionHash(caption: string): string {
   return createHash("sha256").update(caption).digest("hex").slice(0, 16);
@@ -98,7 +105,7 @@ async function translatePost(
   auth: ClaudeAuth,
   model: string,
   post: Post,
-): Promise<Record<Target, { title: string; caption: string }>> {
+): Promise<Record<Target, { title: string; caption: string; hashtags: string[] }>> {
   const user = [
     `Target languages: ${TARGET_LOCALES.map((l) => `${l} = ${LOCALE_NAMES[l]}`).join(", ")}`,
     "",
@@ -108,6 +115,7 @@ async function translatePost(
     "---",
     post.caption,
     "---",
+    `Korean hashtags: ${JSON.stringify(post.hashtags)}`,
   ].join("\n");
 
   const raw = await callClaude(auth, { model, system: SYSTEM, user, maxTokens: 4096 });
@@ -119,13 +127,21 @@ async function translatePost(
     throw new Error(`JSON 파싱 실패. 응답 앞부분: ${raw.slice(0, 200)}`);
   }
 
-  const out = {} as Record<Target, { title: string; caption: string }>;
+  const out = {} as Record<Target, { title: string; caption: string; hashtags: string[] }>;
   for (const locale of TARGET_LOCALES) {
-    const v = (parsed as Record<string, { title?: string; caption?: string }>)[locale];
+    const v = (parsed as Record<string, { title?: string; caption?: string; hashtags?: unknown }>)[
+      locale
+    ];
     if (!v?.title?.trim() || !v?.caption?.trim()) {
       throw new Error(`${locale} 번역이 비었습니다`);
     }
-    out[locale] = { title: v.title.trim(), caption: v.caption.trim() };
+    if (!Array.isArray(v.hashtags) || v.hashtags.some((h) => typeof h !== "string")) {
+      throw new Error(`${locale} 해시태그가 배열이 아닙니다`);
+    }
+    if (post.hashtags.length > 0 && v.hashtags.length === 0) {
+      throw new Error(`${locale} 해시태그가 비었습니다`);
+    }
+    out[locale] = { title: v.title.trim(), caption: v.caption.trim(), hashtags: v.hashtags };
   }
   return out;
 }
@@ -148,7 +164,8 @@ async function main() {
     if (!entry) return true;
     // 캡션이 수정됐으면 기존 번역은 원문과 어긋난다.
     if (entry.sourceHash !== captionHash(p.caption)) return true;
-    return TARGET_LOCALES.some((l) => !entry[l]?.caption);
+    // hashtags 필드가 아직 없는 과거 캐시(해시태그 번역 도입 전)도 다시 번역한다.
+    return TARGET_LOCALES.some((l) => !entry[l]?.caption || entry[l]?.hashtags === undefined);
   });
 
   if (!targets.length) {

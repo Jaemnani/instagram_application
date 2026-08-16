@@ -95,6 +95,8 @@ export interface PostTranslation {
   title: string;
   excerpt: string;
   caption: string;
+  /** 그 언어 검색어에 맞춘 해시태그(# 제외). 직역이 아니라 그 언어권에서 실제 쓰는 표현. */
+  hashtags: string[];
 }
 
 export interface Profile {

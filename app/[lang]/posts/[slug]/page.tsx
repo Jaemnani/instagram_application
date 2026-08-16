@@ -43,6 +43,7 @@ export default async function PostPage({ params }: Params) {
   const t = post.translations?.[locale];
   const title = t?.title || post.title;
   const caption = t?.caption || post.caption;
+  const hashtags = t?.hashtags ?? post.hashtags;
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
@@ -90,9 +91,9 @@ export default async function PostPage({ params }: Params) {
           </div>
         )}
 
-        {post.hashtags.length > 0 && (
+        {hashtags.length > 0 && (
           <ul className="mt-6 flex flex-wrap gap-x-3 gap-y-1 text-sm text-ink-400">
-            {post.hashtags.map((tag) => (
+            {hashtags.map((tag) => (
               <li key={tag}>#{tag}</li>
             ))}
           </ul>

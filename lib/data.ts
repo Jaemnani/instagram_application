@@ -32,7 +32,7 @@ type TranslationEntry = {
   /** 번역 당시 원문 캡션의 해시. 캡션이 수정되면 값이 달라져 재번역 대상이 된다. */
   sourceHash?: string;
   /** excerpt 는 저장하지 않고 caption 에서 파생한다 — 한 곳만 고치면 되게. */
-} & Partial<Record<Locale, { title: string; caption: string }>>;
+} & Partial<Record<Locale, { title: string; caption: string; hashtags?: string[] }>>;
 
 export function captionHash(caption: string): string {
   return createHash("sha256").update(caption).digest("hex").slice(0, 16);
@@ -63,6 +63,8 @@ function attachTranslations(
         title: t.title || post.title,
         caption: t.caption,
         excerpt: deriveExcerpt(t.caption),
+        // 해시태그 번역이 아직 없는 캐시(과거 데이터)는 원문 해시태그로 폴백한다.
+        hashtags: t.hashtags ?? post.hashtags,
       };
     }
 
