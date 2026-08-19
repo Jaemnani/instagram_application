@@ -101,7 +101,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         </div>
       </Section>
 
-      <Section id="services" tone="tinted">
+      {/* 아래가 다크 밴드라 보더 불필요 — 다크 배경 자체가 경계 */}
+      <Section id="services" tone="tinted" bordered={false}>
         <Reveal>
           <SectionHeading
             id="services-heading"
@@ -115,29 +116,31 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         </Reveal>
       </Section>
 
-      <Section id="gallery">
+      {/* 사진이 주인공인 섹션 — 다크 밴드 위에서 사진 색이 가장 잘 산다 */}
+      <Section id="gallery" tone="dark">
         <Reveal>
           <SectionHeading
             id="gallery-heading"
             eyebrow={dict.gallery.eyebrow}
             title={dict.gallery.title}
             lead={dict.gallery.lead}
+            tone="dark"
           />
         </Reveal>
 
         {posts.length === 0 ? (
-          <p className="mt-10 rounded-sm border border-dashed border-ivory-300 p-10 text-center text-sm text-ink-400">
+          <p className="mt-10 rounded-sm border border-dashed border-ivory-50/20 p-10 text-center text-sm text-ivory-300/70">
             {dict.gallery.empty}
           </p>
         ) : (
           <div className="mt-10 space-y-14">
             <Reveal>
-              <PostCard post={featured} lang={locale} dict={dict} featured />
+              <PostCard post={featured} lang={locale} dict={dict} featured tone="dark" />
             </Reveal>
 
             {rest.length > 0 && (
               <Reveal>
-                <PostStrip posts={rest} lang={locale} dict={dict} />
+                <PostStrip posts={rest} lang={locale} dict={dict} tone="dark" />
               </Reveal>
             )}
           </div>

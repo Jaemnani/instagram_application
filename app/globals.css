@@ -46,6 +46,10 @@
   --color-clay-500: #b4694e;
   --color-clay-600: #9a5640;
   --color-clay-50: #fbf1ed;
+  /* 다크 밴드(ink-900) 위 전용 밝은 테라코타.
+     실측 대비: clay-500 은 ink-900 위 4.22:1 로 작은 라벨 AA(4.5:1) 탈락,
+     clay-400 은 6.17:1 통과. 다크 배경의 eyebrow/hover 는 반드시 이 값을 쓴다. */
+  --color-clay-400: #c98b70;
 }
 
 html {

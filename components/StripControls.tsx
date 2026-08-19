@@ -14,9 +14,11 @@ import { useEffect, useState } from "react";
 export function StripControls({
   targetId,
   labels,
+  tone = "light",
 }: {
   targetId: string;
   labels: { prev: string; next: string };
+  tone?: "light" | "dark";
 }) {
   const [edge, setEdge] = useState<{ start: boolean; end: boolean }>({ start: true, end: false });
 
@@ -55,8 +57,11 @@ export function StripControls({
   // 스크롤할 것이 없으면(카드가 화면에 다 들어옴) 화살표를 숨긴다.
   if (edge.start && edge.end) return null;
 
+  // disabled 는 opacity 대신 색을 낮춘다 — 다크 배경에서 opacity-30 은 식별이 어렵다.
   const base =
-    "flex h-10 w-10 items-center justify-center rounded-full border border-ivory-300 bg-ivory-50 text-ink-600 transition enabled:hover:border-clay-500 enabled:hover:text-clay-600 disabled:opacity-30";
+    tone === "dark"
+      ? "flex h-10 w-10 items-center justify-center rounded-full border border-ink-600 bg-ink-800 text-ivory-200 transition enabled:hover:border-clay-400 enabled:hover:text-clay-400 disabled:border-ink-800 disabled:text-ink-600"
+      : "flex h-10 w-10 items-center justify-center rounded-full border border-ivory-300 bg-ivory-50 text-ink-600 transition enabled:hover:border-clay-500 enabled:hover:text-clay-600 disabled:opacity-30";
 
   return (
     <div className="mt-6 flex justify-end gap-2">

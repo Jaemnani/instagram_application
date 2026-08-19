@@ -24,17 +24,21 @@ function MediaBadge({ post, dict }: { post: Post; dict: Dictionary }) {
 /**
  * 에디토리얼 게시물 카드.
  * `featured` 는 갤러리 첫 항목용 대형 가로 레이아웃, 기본은 그리드용 세로 레이아웃.
+ * `tone="dark"` 는 ink-900 다크 밴드 위에서 쓴다 — 텍스트를 ivory 계열로 뒤집는다.
+ * 날짜 테이프 라벨(ivory-200)은 다크에서도 그대로 두어 스크랩북 팝 포인트가 된다.
  */
 export function PostCard({
   post,
   lang,
   dict,
   featured = false,
+  tone = "light",
 }: {
   post: Post;
   lang: Locale;
   dict: Dictionary;
   featured?: boolean;
+  tone?: "light" | "dark";
 }) {
   const cover = post.coverImage;
   const href = localizedPath(lang, `/posts/${post.slug}`);
@@ -42,6 +46,7 @@ export function PostCard({
   const title = text?.title || post.title;
   const excerpt = text?.excerpt ?? post.excerpt;
   const hashtags = text?.hashtags ?? post.hashtags;
+  const dark = tone === "dark";
 
   return (
     <article className={featured ? "group" : "group flex flex-col"}>
@@ -51,7 +56,7 @@ export function PostCard({
             href={href}
             tabIndex={-1}
             aria-hidden="true"
-            className={`relative block overflow-hidden rounded-sm bg-ivory-200 ${
+            className={`relative block overflow-hidden rounded-sm ${dark ? "bg-ink-800" : "bg-ivory-200"} ${
               featured ? "aspect-[4/3] lg:aspect-[3/2]" : "aspect-[4/5]"
             }`}
           >
@@ -72,7 +77,9 @@ export function PostCard({
         )}
 
         <div className={featured ? "" : "mt-5"}>
-          <div className="flex items-center gap-3 text-xs tabular-nums tracking-[0.06em] text-ink-400">
+          <div
+            className={`flex items-center gap-3 text-xs tabular-nums tracking-[0.06em] ${dark ? "text-ivory-300/70" : "text-ink-400"}`}
+          >
             {/* 날짜는 마스킹테이프 라벨처럼 — 살짝 기울여 스크랩북 감성을 주되,
                 leading-none 으로 행 높이는 바꾸지 않는다(CLS 0). */}
             <time
@@ -85,18 +92,21 @@ export function PostCard({
           </div>
 
           <h3
-            className={`mt-2 font-serif font-bold leading-snug text-ink-900 ${
+            className={`mt-2 font-serif font-bold leading-snug ${dark ? "text-ivory-50" : "text-ink-900"} ${
               featured ? "text-2xl sm:text-3xl" : "text-lg"
             }`}
           >
-            <Link href={href} className="transition-colors hover:text-clay-600">
+            <Link
+              href={href}
+              className={`transition-colors ${dark ? "hover:text-clay-400" : "hover:text-clay-600"}`}
+            >
               {title}
             </Link>
           </h3>
 
           {excerpt && (
             <p
-              className={`mt-3 leading-[1.85] text-ink-600 ${
+              className={`mt-3 leading-[1.85] ${dark ? "text-ivory-200/85" : "text-ink-600"} ${
                 featured ? "text-[15px] sm:text-base" : "line-clamp-3 text-sm"
               }`}
             >
@@ -105,7 +115,9 @@ export function PostCard({
           )}
 
           {hashtags.length > 0 && (
-            <ul className="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-400">
+            <ul
+              className={`mt-4 flex flex-wrap gap-x-3 gap-y-1 text-xs ${dark ? "text-ivory-300/60" : "text-ink-400"}`}
+            >
               {hashtags.slice(0, featured ? 6 : 3).map((tag) => (
                 <li key={tag}>#{tag}</li>
               ))}

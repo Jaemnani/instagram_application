@@ -20,15 +20,18 @@ export function PostStrip({
   posts,
   lang,
   dict,
+  tone = "light",
 }: {
   posts: Post[];
   lang: Locale;
   dict: Dictionary;
+  tone?: "light" | "dark";
 }) {
   if (!posts.length) return null;
+  const dark = tone === "dark";
 
   return (
-    <div className="border-t border-ivory-200 pt-14">
+    <div className={`border-t pt-14 ${dark ? "border-ivory-50/10" : "border-ivory-200"}`}>
       <div className="relative">
         <ul
           id={STRIP_ID}
@@ -50,7 +53,7 @@ export function PostStrip({
               // 다음 카드가 살짝 잘려 보이도록 100% 보다 작게 — 스크롤 가능함을 즉시 알린다.
               className="w-[76%] shrink-0 snap-start sm:w-[46%] lg:w-[30%] xl:w-[23%]"
             >
-              <PostCard post={post} lang={lang} dict={dict} />
+              <PostCard post={post} lang={lang} dict={dict} tone={tone} />
             </li>
           ))}
         </ul>
@@ -58,13 +61,14 @@ export function PostStrip({
         {/* 오른쪽 끝이 배경으로 사라지며 "이어진다"는 인상을 준다. 클릭은 통과시킨다. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 hidden w-16 bg-gradient-to-l from-ivory-50 to-transparent sm:block"
+          className={`pointer-events-none absolute inset-y-0 right-0 hidden w-16 bg-gradient-to-l to-transparent sm:block ${dark ? "from-ink-900" : "from-ivory-50"}`}
         />
       </div>
 
       <StripControls
         targetId={STRIP_ID}
         labels={{ prev: dict.gallery.scrollPrev, next: dict.gallery.scrollNext }}
+        tone={tone}
       />
     </div>
   );
