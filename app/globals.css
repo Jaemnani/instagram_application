@@ -150,6 +150,50 @@ body {
 }
 
 /**
+ * 액센트 단어의 낙서 밑줄.
+ * 기본은 그려진 상태(JS 미실행·reduced-motion 안전), 채움 효과가 활성일 때만
+ * 숨겼다가 단어가 켜지는 순간 손으로 긋듯 그려진다(stroke-dashoffset).
+ */
+.statement-squiggle {
+  position: absolute;
+  left: 0;
+  bottom: -0.14em;
+  width: 100%;
+  height: 0.2em;
+  overflow: visible;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-statement-ready] .statement-squiggle path {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    /* dashoffset 만으로는 round 캡이 점으로 남는다 — opacity 로 완전히 숨긴다 */
+    opacity: 0;
+  }
+
+  [data-statement-ready] .statement-word[data-on] .statement-squiggle path {
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transition:
+      stroke-dashoffset 0.7s ease 0.25s,
+      opacity 0.15s ease 0.25s;
+  }
+}
+
+/* 도장 뱃지 — 천천히 도는 스탬프. 움직임을 원치 않으면 정지. */
+@media (prefers-reduced-motion: no-preference) {
+  .stamp-spin {
+    animation: stamp-spin 28s linear infinite;
+  }
+
+  @keyframes stamp-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+/**
  * 마퀴 리본 — transform 전용이라 컴포지터에서만 돈다(리플로/리페인트 없음).
  * 트랙이 동일 콘텐츠 2벌이므로 -50% 지점이 정확히 시작점과 겹친다.
  * 움직임을 원치 않는 사용자에게는 규칙 자체를 적용하지 않아 정지 상태로 보인다.

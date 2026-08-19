@@ -10,7 +10,11 @@ import { PostStrip } from "@/components/PostStrip";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ServiceGrid } from "@/components/ServiceGrid";
+import { StampBadge } from "@/components/StampBadge";
 import { Statement } from "@/components/Statement";
+import { ZigzagEdge } from "@/components/ZigzagEdge";
+import Image from "next/image";
+
 import { hasLocalBusinessData, siteConfig } from "@/lib/config";
 import { getDictionary, isLocale, locales, type Locale } from "@/lib/i18n";
 import { getInstagramData } from "@/lib/data";
@@ -120,6 +124,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
       </Section>
 
       {/* 사진이 주인공인 섹션 — 다크 밴드 위에서 사진 색이 가장 잘 산다 */}
+      <ZigzagEdge direction="into" />
       <Section id="gallery" tone="dark">
         <Reveal>
           <SectionHeading
@@ -149,6 +154,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           </div>
         )}
       </Section>
+      <ZigzagEdge direction="out" />
 
       {/* 다크 갤러리 직후 밝은 종이로 복귀 — tinted 는 location 으로 넘긴다 */}
       <Section id="faq">
@@ -182,7 +188,17 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
       {/* 대형 예약 섹션 — 히어로와 짝을 이루는 다크 북엔드 */}
       {bookingUrl && hasLocalBusinessData() && b && (
         <Section id="book" tone="dark" bordered={false}>
-          <Reveal className="text-center">
+          <Reveal className="relative text-center">
+            {/* 좌우 여백의 장식 — 콘텐츠와 겹치지 않는 lg 이상에서만 */}
+            <Image
+              src="/brand/sticker-cam-bear.webp"
+              alt=""
+              aria-hidden="true"
+              width={900}
+              height={497}
+              className="pointer-events-none absolute -left-2 top-10 hidden w-44 -rotate-6 lg:block xl:w-52"
+            />
+            <StampBadge className="pointer-events-none absolute right-0 top-8 hidden h-24 w-24 lg:block xl:h-28 xl:w-28" />
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-clay-400">
               {dict.book.eyebrow}
             </p>

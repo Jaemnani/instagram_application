@@ -52,28 +52,52 @@ export function PostCard({
     <article className={featured ? "group" : "group flex flex-col"}>
       <div className={featured ? "grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-end" : ""}>
         {cover && (
-          <Link
-            href={href}
-            tabIndex={-1}
-            aria-hidden="true"
-            className={`relative block overflow-hidden rounded-sm ${dark ? "bg-ink-800" : "bg-ivory-200"} ${
-              featured ? "aspect-[4/3] lg:aspect-[3/2]" : "aspect-[4/5]"
-            }`}
-          >
-            <Image
-              src={cover.src}
-              alt={cover.alt}
-              fill
-              preload={featured}
-              sizes={
-                featured
-                  ? "(max-width: 1024px) 100vw, 700px"
-                  : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
-              }
-              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-            />
-            <MediaBadge post={post} dict={dict} />
-          </Link>
+          // 대표 사진은 스크랩북처럼 테이프로 붙인 연출 — 테이프가 사진 밖으로
+          // 삐져나와야 해서 overflow-hidden 인 Link 바깥의 래퍼에 얹는다.
+          <div className={featured ? "relative" : "contents"}>
+            <Link
+              href={href}
+              tabIndex={-1}
+              aria-hidden="true"
+              className={`relative block overflow-hidden rounded-sm ${dark ? "bg-ink-800" : "bg-ivory-200"} ${
+                featured ? "aspect-[4/3] lg:aspect-[3/2]" : "aspect-[4/5]"
+              }`}
+            >
+              <Image
+                src={cover.src}
+                alt={cover.alt}
+                fill
+                preload={featured}
+                sizes={
+                  featured
+                    ? "(max-width: 1024px) 100vw, 700px"
+                    : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
+                }
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+              />
+              <MediaBadge post={post} dict={dict} />
+            </Link>
+            {featured && (
+              <>
+                <Image
+                  src="/brand/tape-1.webp"
+                  alt=""
+                  aria-hidden="true"
+                  width={800}
+                  height={221}
+                  className="pointer-events-none absolute -left-7 -top-3 w-28 -rotate-45 opacity-95 sm:w-32"
+                />
+                <Image
+                  src="/brand/tape-1.webp"
+                  alt=""
+                  aria-hidden="true"
+                  width={800}
+                  height={221}
+                  className="pointer-events-none absolute -right-7 -top-3 w-28 rotate-45 opacity-95 sm:w-32"
+                />
+              </>
+            )}
+          </div>
         )}
 
         <div className={featured ? "" : "mt-5"}>

@@ -25,21 +25,36 @@ export function Statement({ dict, lang }: { dict: Dictionary; lang: Locale }) {
               className="font-serif font-bold leading-[1.35] text-ink-900"
               style={{ fontSize: "clamp(1.75rem, 4.5vw, 3.25rem)" }}
             >
-              {[...segmenter.segment(line)].map((seg, si) =>
-                seg.isWordLike ? (
+              {[...segmenter.segment(line)].map((seg, si) => {
+                if (!seg.isWordLike) return seg.segment;
+                // 첫 줄의 "Kidding"만 테라코타 액센트 + 채워질 때 그려지는 낙서 밑줄.
+                const accent = li === 0 && seg.segment === "Kidding";
+                return (
                   <span
                     key={si}
-                    className={`statement-word ${
-                      // 첫 줄의 "Kidding"만 채움 완료 색을 테라코타로 — 절제된 팝 포인트.
-                      li === 0 && seg.segment === "Kidding" ? "statement-word-accent" : ""
-                    }`}
+                    className={`statement-word ${accent ? "statement-word-accent relative inline-block" : ""}`}
                   >
                     {seg.segment}
+                    {accent && (
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 100 10"
+                        preserveAspectRatio="none"
+                        className="statement-squiggle"
+                      >
+                        <path
+                          d="M2 6 Q 15 1 28 5 T 54 5 T 80 5 T 98 4"
+                          pathLength="100"
+                          fill="none"
+                          stroke="var(--color-clay-500)"
+                          strokeWidth="4"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    )}
                   </span>
-                ) : (
-                  seg.segment
-                ),
-              )}
+                );
+              })}
             </p>
           ))}
         </StatementFill>
