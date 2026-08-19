@@ -42,6 +42,15 @@ export const ja: Dictionary = {
     tagline: "No posed, Just Kidding!",
   },
 
+  statement: {
+    label: "スタジオの哲学",
+    lines: [
+      "No posed, Just Kidding!",
+      "ポーズは作りません。子どもが遊んでいるあいだ、",
+      "カメラはいちばん可愛い瞬間を待っています。",
+    ],
+  },
+
   story: {
     eyebrow: "Story",
     title: "どんなふうに撮るのか",

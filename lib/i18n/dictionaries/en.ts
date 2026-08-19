@@ -42,6 +42,15 @@ export const en: Dictionary = {
     tagline: "No posed, Just Kidding!",
   },
 
+  statement: {
+    label: "Our philosophy",
+    lines: [
+      "No posed, Just Kidding!",
+      "We never stage a pose. While your child plays,",
+      "the camera waits for the loveliest moment.",
+    ],
+  },
+
   story: {
     eyebrow: "Story",
     title: "How we photograph",

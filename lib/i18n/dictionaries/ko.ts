@@ -48,6 +48,16 @@ export const ko = {
     tagline: "No posed, Just Kidding!",
   },
 
+  /** 브랜드 스테이트먼트 — 스크롤에 따라 단어가 채워지는 대형 문장 */
+  statement: {
+    label: "스튜디오 철학",
+    lines: [
+      "No posed, Just Kidding!",
+      "포즈를 만들지 않습니다. 아이가 노는 사이,",
+      "카메라는 가장 예쁜 순간을 기다립니다.",
+    ],
+  },
+
   /** 스튜디오 이야기 */
   story: {
     eyebrow: "Story",

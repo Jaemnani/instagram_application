@@ -42,6 +42,15 @@ export const zh: Dictionary = {
     tagline: "No posed, Just Kidding!",
   },
 
+  statement: {
+    label: "工作室理念",
+    lines: [
+      "No posed, Just Kidding!",
+      "我们不摆拍。孩子尽情玩耍的时候，",
+      "镜头在等待最可爱的瞬间。",
+    ],
+  },
+
   story: {
     eyebrow: "Story",
     title: "我们怎么拍",

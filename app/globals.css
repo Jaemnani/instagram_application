@@ -125,6 +125,31 @@ body {
 }
 
 /**
+ * 스테이트먼트 채움 — 기본색은 항상 진한 잉크(마크업의 text-ink-900).
+ * "아직 안 채워진" 연한 상태는 JS 가 data-statement-ready 를 붙인 뒤에만 존재하므로,
+ * JS 미실행·reduced-motion 어느 경우에도 문장이 처음부터 온전히 보인다.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  [data-statement-ready] .statement-word {
+    color: var(--color-ivory-300);
+    transition: color 0.35s ease;
+  }
+
+  [data-statement-ready] .statement-word[data-on] {
+    color: var(--color-ink-900);
+  }
+
+  [data-statement-ready] .statement-word-accent[data-on] {
+    color: var(--color-clay-600);
+  }
+}
+
+/* JS 없이도 액센트 단어는 테라코타 — 채움과 무관한 최종 상태의 색 */
+.statement-word-accent {
+  color: var(--color-clay-600);
+}
+
+/**
  * 마퀴 리본 — transform 전용이라 컴포지터에서만 돈다(리플로/리페인트 없음).
  * 트랙이 동일 콘텐츠 2벌이므로 -50% 지점이 정확히 시작점과 겹친다.
  * 움직임을 원치 않는 사용자에게는 규칙 자체를 적용하지 않아 정지 상태로 보인다.

@@ -10,6 +10,7 @@ import { PostStrip } from "@/components/PostStrip";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ServiceGrid } from "@/components/ServiceGrid";
+import { Statement } from "@/components/Statement";
 import { hasLocalBusinessData, siteConfig } from "@/lib/config";
 import { getDictionary, isLocale, locales, type Locale } from "@/lib/i18n";
 import { getInstagramData } from "@/lib/data";
@@ -68,6 +69,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
       <Hero posts={posts} profile={profile} dict={dict} lang={locale} />
 
       <MarqueeRibbon />
+
+      <Statement dict={dict} lang={locale} />
 
       <Section id="story">
         <Reveal>
