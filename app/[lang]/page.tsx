@@ -18,23 +18,28 @@ export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }
 
-/** 섹션 래퍼 — 넓은 상하 여백 + 얇은 구분선으로 리듬을 일정하게 유지한다. */
+/**
+ * 섹션 래퍼 — 넓은 상하 여백 + 배경 톤으로 리듬을 만든다.
+ * tone: base(ivory-50 종이) / tinted(ivory-100 한 단계 어두운 종이) / dark(ink-900 다크 밴드).
+ * 다크 밴드는 배경 대비 자체가 경계라 보더를 그리지 않는다 — 보더는 밝은 이웃끼리만.
+ */
 function Section({
   id,
   children,
   bordered = true,
-  tinted = false,
+  tone = "base",
 }: {
   id: string;
   children: React.ReactNode;
   bordered?: boolean;
-  tinted?: boolean;
+  tone?: "base" | "tinted" | "dark";
 }) {
+  const toneClass = tone === "tinted" ? "bg-ivory-100" : tone === "dark" ? "bg-ink-900" : "";
   return (
     <section
       id={id}
       aria-labelledby={`${id}-heading`}
-      className={`${bordered ? "border-b border-ivory-200" : ""} ${tinted ? "bg-ivory-100" : ""}`}
+      className={`${bordered && tone !== "dark" ? "border-b border-ivory-200" : ""} ${toneClass}`}
     >
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">{children}</div>
     </section>
@@ -93,7 +98,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         </div>
       </Section>
 
-      <Section id="services" tinted>
+      <Section id="services" tone="tinted">
         <Reveal>
           <SectionHeading
             id="services-heading"
@@ -136,7 +141,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         )}
       </Section>
 
-      <Section id="faq" tinted>
+      {/* 다크 갤러리 직후 밝은 종이로 복귀 — tinted 는 location 으로 넘긴다 */}
+      <Section id="faq">
         <Reveal>
           <SectionHeading
             id="faq-heading"
@@ -150,7 +156,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         </Reveal>
       </Section>
 
-      <Section id="location" bordered={false}>
+      <Section id="location" tone="tinted" bordered={false}>
         <Reveal>
           <SectionHeading
             id="location-heading"
