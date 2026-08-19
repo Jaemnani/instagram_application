@@ -120,6 +120,23 @@ body {
   }
 }
 
+/**
+ * 마퀴 리본 — transform 전용이라 컴포지터에서만 돈다(리플로/리페인트 없음).
+ * 트랙이 동일 콘텐츠 2벌이므로 -50% 지점이 정확히 시작점과 겹친다.
+ * 움직임을 원치 않는 사용자에게는 규칙 자체를 적용하지 않아 정지 상태로 보인다.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .marquee-track {
+    animation: marquee 30s linear infinite;
+  }
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
 /* 세리프 헤드라인은 국문에서 자간이 벌어져 보이므로 더 조인다 */
 .font-serif {
   letter-spacing: -0.02em;

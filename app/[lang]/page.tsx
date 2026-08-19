@@ -4,6 +4,7 @@ import { Faq } from "@/components/Faq";
 import { Hero } from "@/components/Hero";
 import { JsonLd } from "@/components/JsonLd";
 import { LocationCard } from "@/components/LocationCard";
+import { MarqueeRibbon } from "@/components/MarqueeRibbon";
 import { PostCard } from "@/components/PostCard";
 import { PostStrip } from "@/components/PostStrip";
 import { Reveal } from "@/components/Reveal";
@@ -65,6 +66,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
       />
 
       <Hero posts={posts} profile={profile} dict={dict} lang={locale} />
+
+      <MarqueeRibbon />
 
       <Section id="story">
         <Reveal>

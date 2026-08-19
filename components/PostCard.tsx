@@ -72,8 +72,15 @@ export function PostCard({
         )}
 
         <div className={featured ? "" : "mt-5"}>
-          <div className="flex items-center gap-3 text-xs text-ink-400">
-            <time dateTime={post.timestamp}>{formatDate(post.timestamp, lang)}</time>
+          <div className="flex items-center gap-3 text-xs tabular-nums tracking-[0.06em] text-ink-400">
+            {/* 날짜는 마스킹테이프 라벨처럼 — 살짝 기울여 스크랩북 감성을 주되,
+                leading-none 으로 행 높이는 바꾸지 않는다(CLS 0). */}
+            <time
+              dateTime={post.timestamp}
+              className="inline-block -rotate-1 bg-ivory-200/90 px-2 py-0.5 text-[11px] leading-none text-ink-600"
+            >
+              {formatDate(post.timestamp, lang)}
+            </time>
             {post.likeCount !== undefined && <span>♡ {formatNumber(post.likeCount, lang)}</span>}
           </div>
 
