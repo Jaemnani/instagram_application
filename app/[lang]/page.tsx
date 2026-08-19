@@ -177,24 +177,41 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         <Reveal>
           <LocationCard dict={dict} lang={locale} />
         </Reveal>
+      </Section>
 
-        {bookingUrl && hasLocalBusinessData() && b && (
-          <Reveal className="mt-14 border-t border-ivory-200 pt-12 text-center">
-            <p className="font-serif text-xl font-bold text-ink-900 sm:text-2xl">
-              {dict.location.ctaTitle}
+      {/* 대형 예약 섹션 — 히어로와 짝을 이루는 다크 북엔드 */}
+      {bookingUrl && hasLocalBusinessData() && b && (
+        <Section id="book" tone="dark" bordered={false}>
+          <Reveal className="text-center">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-clay-400">
+              {dict.book.eyebrow}
             </p>
-            <p className="mt-3 text-[15px] text-ink-600">{dict.location.ctaBody}</p>
+            {/* 장식용 대형 타이포 — 실제 제목은 아래 h2 가 담당한다 */}
+            <p
+              aria-hidden="true"
+              className="font-brand mt-4 font-bold uppercase leading-none text-ivory-50"
+              style={{ fontSize: "clamp(3rem, 10vw, 7rem)" }}
+            >
+              Book Now<span className="text-clay-400">.</span>
+            </p>
+            <h2
+              id="book-heading"
+              className="mt-8 font-serif text-xl font-bold text-ivory-50 sm:text-2xl"
+            >
+              {dict.book.title}
+            </h2>
+            <p className="mt-3 text-[15px] text-ivory-200/85">{dict.book.body}</p>
             <a
               href={bookingUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-7 inline-block rounded-full bg-ink-900 px-7 py-3.5 text-sm font-medium text-ivory-50 transition-colors hover:bg-clay-600"
+              className="mt-8 inline-block rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium text-ink-900 transition-colors hover:bg-clay-500 hover:text-ivory-50"
             >
               {dict.ui.book}
             </a>
           </Reveal>
-        )}
-      </Section>
+        </Section>
+      )}
     </>
   );
 }

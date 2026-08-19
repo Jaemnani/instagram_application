@@ -173,8 +173,12 @@ export const ja: Dictionary = {
       "キャッシュレス決済",
       "予約制",
     ],
-    ctaTitle: "撮影をお考えですか？",
-    ctaBody: "ご希望の日程とお子さまの月齢をお知らせいただければ、空き状況をご案内します。",
+  },
+
+  book: {
+    eyebrow: "Reservation",
+    title: "撮影をお考えですか？",
+    body: "ご希望の日程とお子さまの月齢をお知らせいただければ、空き状況をご案内します。",
   },
 
   footer: {

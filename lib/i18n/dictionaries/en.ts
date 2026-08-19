@@ -173,9 +173,12 @@ export const en: Dictionary = {
       "Contactless payment",
       "By appointment",
     ],
-    ctaTitle: "Planning a session?",
-    ctaBody:
-      "Tell us your preferred dates and your child's age in months, and we will share the available slots.",
+  },
+
+  book: {
+    eyebrow: "Reservation",
+    title: "Planning a session?",
+    body: "Tell us your preferred dates and your child's age in months, and we will share the available slots.",
   },
 
   footer: {

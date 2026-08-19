@@ -170,8 +170,12 @@ export const zh: Dictionary = {
       "免接触支付",
       "预约制",
     ],
-    ctaTitle: "在计划拍摄吗？",
-    ctaBody: "告诉我们希望的日期和孩子的月龄，我们会回复可预约的时段。",
+  },
+
+  book: {
+    eyebrow: "Reservation",
+    title: "在计划拍摄吗？",
+    body: "告诉我们希望的日期和孩子的月龄，我们会回复可预约的时段。",
   },
 
   footer: {
