@@ -34,20 +34,25 @@ function Section({
   children,
   bordered = true,
   tone = "base",
+  fullscreen = false,
 }: {
   id: string;
   children: React.ReactNode;
   bordered?: boolean;
   tone?: "base" | "tinted" | "dark";
+  /** 데스크톱에서 뷰포트 한 장을 차지하는 전체화면 섹션 (콘텐츠 세로 중앙) */
+  fullscreen?: boolean;
 }) {
   const toneClass = tone === "tinted" ? "bg-ivory-100" : tone === "dark" ? "bg-ink-900" : "";
   return (
     <section
       id={id}
       aria-labelledby={`${id}-heading`}
-      className={`${bordered && tone !== "dark" ? "border-b border-ivory-200" : ""} ${toneClass}`}
+      className={`snap-section relative ${bordered && tone !== "dark" ? "border-b border-ivory-200" : ""} ${toneClass} ${
+        fullscreen ? "lg:flex lg:min-h-svh lg:items-center" : ""
+      }`}
     >
-      <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">{children}</div>
+      <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20">{children}</div>
     </section>
   );
 }
@@ -126,6 +131,15 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
       {/* 사진이 주인공인 섹션 — 다크 밴드 위에서 사진 색이 가장 잘 산다 */}
       <ZigzagEdge direction="into" />
       <Section id="gallery" tone="dark">
+        {/* 곰돌이 스티커 — 지그재그 경계를 가로질러 크게 붙인다 (경계 무시가 포인트) */}
+        <Image
+          src="/brand/sticker-cam-bear.webp"
+          alt=""
+          aria-hidden="true"
+          width={900}
+          height={497}
+          className="pointer-events-none absolute -top-14 right-3 z-10 w-44 rotate-6 sm:-top-20 sm:w-60 lg:-top-24 lg:right-10 lg:w-80"
+        />
         <Reveal>
           <SectionHeading
             id="gallery-heading"
@@ -187,26 +201,16 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
       {/* 대형 예약 섹션 — 히어로와 짝을 이루는 다크 북엔드 */}
       {bookingUrl && hasLocalBusinessData() && b && (
-        <Section id="book" tone="dark" bordered={false}>
-          <Reveal className="relative text-center">
-            {/* 좌우 여백의 장식 — 콘텐츠와 겹치지 않는 lg 이상에서만 */}
-            <Image
-              src="/brand/sticker-cam-bear.webp"
-              alt=""
-              aria-hidden="true"
-              width={900}
-              height={497}
-              className="pointer-events-none absolute -left-2 top-10 hidden w-44 -rotate-6 lg:block xl:w-52"
-            />
-            <StampBadge className="pointer-events-none absolute right-0 top-8 hidden h-24 w-24 lg:block xl:h-28 xl:w-28" />
+        <Section id="book" tone="dark" bordered={false} fullscreen>
+          <Reveal className="text-center">
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-clay-400">
               {dict.book.eyebrow}
             </p>
-            {/* 장식용 대형 타이포 — 실제 제목은 아래 h2 가 담당한다 */}
+            {/* 장식용 대형 타이포 — 전체화면을 채우는 피날레. 실제 제목은 아래 h2. */}
             <p
               aria-hidden="true"
               className="font-brand mt-4 font-bold uppercase leading-none text-ivory-50"
-              style={{ fontSize: "clamp(3rem, 10vw, 7rem)" }}
+              style={{ fontSize: "clamp(3.25rem, 12vw, 10rem)" }}
             >
               Book Now<span className="text-clay-400">.</span>
             </p>
@@ -228,6 +232,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           </Reveal>
         </Section>
       )}
+
+      {/* 떠다니는 브랜드 스티커 — 페이지 어디서나 우하단에서 천천히 돈다 */}
+      <StampBadge className="pointer-events-none fixed bottom-5 right-5 z-40 hidden h-20 w-20 sm:block lg:h-24 lg:w-24" />
     </>
   );
 }

@@ -58,6 +58,22 @@ html {
   scrollbar-gutter: stable;
 }
 
+/**
+ * 섹션 단위 휠 스냅 — 휠을 넘기면 다음 섹션 머리에 안착하는 "페이지 넘김" 감각.
+ * 데스크톱 + 정밀 포인터(마우스/트랙패드)에서만 켠다:
+ *  - 모바일은 섹션 높이가 뷰포트를 넘는 경우가 많아 스냅이 오히려 방해
+ *  - proximity 라서 뷰포트보다 긴 섹션(갤러리 등) 내부는 자유 스크롤 유지
+ */
+@media (min-width: 1024px) and (pointer: fine) {
+  html {
+    scroll-snap-type: y proximity;
+  }
+
+  .snap-section {
+    scroll-snap-align: start;
+  }
+}
+
 body {
   font-family: var(--font-sans);
   /* 국문 가독성: 기본 자간을 살짝 좁혀 세리프 헤드라인과 밀도를 맞춘다 */

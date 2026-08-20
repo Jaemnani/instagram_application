@@ -16,8 +16,13 @@ export function Statement({ dict, lang }: { dict: Dictionary; lang: Locale }) {
   const segmenter = new Intl.Segmenter(intlLocale[lang], { granularity: "word" });
 
   return (
-    <section id="statement" aria-label={dict.statement.label} className="bg-ivory-50">
-      <div className="mx-auto max-w-4xl px-5 py-20 sm:px-8 sm:py-28">
+    <section
+      id="statement"
+      aria-label={dict.statement.label}
+      // 데스크톱에서는 전체화면 한 장 — 큰 문장이 화면을 독차지하는 순간을 만든다.
+      className="snap-section bg-ivory-50 lg:flex lg:min-h-svh lg:items-center"
+    >
+      <div className="mx-auto w-full max-w-4xl px-5 py-20 sm:px-8 sm:py-28">
         <StatementFill>
           {dict.statement.lines.map((line, li) => (
             <p
