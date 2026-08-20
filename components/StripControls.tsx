@@ -33,10 +33,28 @@ export function StripControls({
     };
     update();
 
+    /*
+     * 가로 스크롤러는 자기 위에 온 "세로" 휠도 삼켜서 페이지가 안 내려가는
+     * 브라우저가 있다(실측: 커서가 스트립 위에 있으면 휠이 완전히 갇혀
+     * 갤러리 아래 내용으로 못 감). 세로 성분이 우세한 휠은 페이지 스크롤로
+     * 직접 넘기고, 가로 제스처(트랙패드 좌우·shift+휠)만 스트립이 소비한다.
+     * ⚠️ behavior 는 반드시 instant — auto 는 html 의 scroll-behavior:smooth 를
+     * 승계하는데, 연속 휠 이벤트가 smooth 애니메이션을 계속 취소시켜 실측상
+     * 페이지가 한 픽셀도 안 움직인다. instant 는 휠 본연의 즉시 이동과 같다.
+     */
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        window.scrollBy({ top: e.deltaY, behavior: "instant" });
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+
     el.addEventListener("scroll", update, { passive: true });
     const ro = new ResizeObserver(update);
     ro.observe(el);
     return () => {
+      el.removeEventListener("wheel", onWheel);
       el.removeEventListener("scroll", update);
       ro.disconnect();
     };
