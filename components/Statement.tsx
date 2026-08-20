@@ -20,7 +20,7 @@ export function Statement({ dict, lang }: { dict: Dictionary; lang: Locale }) {
       id="statement"
       aria-label={dict.statement.label}
       // 데스크톱에서는 전체화면 한 장 — 큰 문장이 화면을 독차지하는 순간을 만든다.
-      className="snap-section bg-ivory-50 lg:flex lg:min-h-svh lg:items-center"
+      className="snap-section dot-grid bg-ivory-50 lg:flex lg:min-h-svh lg:items-center"
     >
       <div className="mx-auto w-full max-w-4xl px-5 py-20 sm:px-8 sm:py-28">
         <StatementFill>

@@ -35,6 +35,7 @@ function Section({
   bordered = true,
   tone = "base",
   fullscreen = false,
+  className = "",
 }: {
   id: string;
   children: React.ReactNode;
@@ -42,6 +43,7 @@ function Section({
   tone?: "base" | "tinted" | "dark";
   /** 데스크톱에서 뷰포트 한 장을 차지하는 전체화면 섹션 (콘텐츠 세로 중앙) */
   fullscreen?: boolean;
+  className?: string;
 }) {
   const toneClass = tone === "tinted" ? "bg-ivory-100" : tone === "dark" ? "bg-ink-900" : "";
   return (
@@ -50,7 +52,7 @@ function Section({
       aria-labelledby={`${id}-heading`}
       className={`snap-section relative ${bordered && tone !== "dark" ? "border-b border-ivory-200" : ""} ${toneClass} ${
         fullscreen ? "lg:flex lg:min-h-svh lg:items-center" : ""
-      }`}
+      } ${className}`}
     >
       <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20">{children}</div>
     </section>
@@ -87,6 +89,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             id="story-heading"
             eyebrow={dict.story.eyebrow}
             title={dict.story.title}
+            display="Story"
           />
         </Reveal>
 
@@ -120,6 +123,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             id="services-heading"
             eyebrow={dict.services.eyebrow}
             title={dict.services.title}
+            display="Services"
             lead={dict.services.lead}
           />
         </Reveal>
@@ -138,13 +142,14 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           aria-hidden="true"
           width={900}
           height={497}
-          className="pointer-events-none absolute -top-14 right-3 z-10 w-44 rotate-6 sm:-top-20 sm:w-60 lg:-top-24 lg:right-10 lg:w-80"
+          className="pointer-events-none absolute -top-16 right-3 z-10 w-52 rotate-6 sm:-top-24 sm:w-72 lg:-top-32 lg:right-10 lg:w-[27rem]"
         />
         <Reveal>
           <SectionHeading
             id="gallery-heading"
             eyebrow={dict.gallery.eyebrow}
             title={dict.gallery.title}
+            display="Gallery"
             lead={dict.gallery.lead}
             tone="dark"
           />
@@ -177,6 +182,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             id="faq-heading"
             eyebrow={dict.faq.eyebrow}
             title={dict.faq.title}
+            display="FAQ"
             lead={dict.faq.lead}
           />
         </Reveal>
@@ -191,6 +197,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             id="location-heading"
             eyebrow={dict.location.eyebrow}
             title={dict.location.title}
+            display="Location"
             lead={dict.location.lead}
           />
         </Reveal>
@@ -201,7 +208,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
       {/* 대형 예약 섹션 — 히어로와 짝을 이루는 다크 북엔드 */}
       {bookingUrl && hasLocalBusinessData() && b && (
-        <Section id="book" tone="dark" bordered={false} fullscreen>
+        <Section id="book" tone="dark" bordered={false} fullscreen className="dot-grid-dark">
           <Reveal className="text-center">
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-clay-400">
               {dict.book.eyebrow}

@@ -76,6 +76,21 @@ export function PostCard({
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
               />
               <MediaBadge post={post} dict={dict} />
+              {/* 호버 시 나타나는 ↗ 칩 — "카드 = 열 수 있음" 어포던스 (장식, 접근 링크는 제목) */}
+              <span
+                aria-hidden="true"
+                className="absolute bottom-3 right-3 flex h-10 w-10 translate-y-1.5 items-center justify-center rounded-full bg-ivory-50/95 text-ink-900 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M3 11 L11 3 M5 3 h6 v6"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
             </Link>
             {featured && (
               <>

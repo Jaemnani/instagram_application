@@ -72,6 +72,16 @@ html {
   .snap-section {
     scroll-snap-align: start;
   }
+
+  /*
+   * 푸터는 "바닥"을 스냅 종점으로 만든다 — 이게 없으면 페이지 맨 아래(푸터)에
+   * 도달해도 마지막 섹션(BOOK NOW)의 머리가 proximity 범위 안이라 휠이 위로
+   * 끌려 올라간다. end 정렬 = 푸터 바닥이 뷰포트 바닥에 붙는 지점(=최대 스크롤)이
+   * 정식 안착점이 되어 바닥에서 더는 움직이지 않는다.
+   */
+  .snap-footer {
+    scroll-snap-align: end;
+  }
 }
 
 body {
@@ -194,6 +204,34 @@ body {
       stroke-dashoffset 0.7s ease 0.25s,
       opacity 0.15s ease 0.25s;
   }
+}
+
+/**
+ * 섹션 백드롭 타이포 — 제목 뒤에 크게 깔리는 아웃라인 영문 (GALLERY, STORY …).
+ * 채우기 없이 외곽선만 그려 시선을 뺏지 않으면서 지면에 스케일감을 준다.
+ */
+.section-display {
+  font-size: clamp(3.25rem, 9vw, 7.5rem);
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--color-ivory-300);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.section-display-dark {
+  -webkit-text-stroke-color: var(--color-ivory-50);
+  opacity: 0.13;
+}
+
+/* 할프톤 도트 지면 — 종이에 인쇄된 망점 느낌의 배경 텍스처 */
+.dot-grid {
+  background-image: radial-gradient(var(--color-ivory-200) 1.2px, transparent 1.3px);
+  background-size: 18px 18px;
+}
+
+.dot-grid-dark {
+  background-image: radial-gradient(rgba(253, 252, 250, 0.06) 1.2px, transparent 1.3px);
+  background-size: 18px 18px;
 }
 
 /* 도장 뱃지 — 천천히 도는 스탬프. 움직임을 원치 않으면 정지. */

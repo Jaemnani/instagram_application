@@ -20,7 +20,7 @@ export function SiteFooter({
   const bookingUrl = siteConfig.bookingUrl || profile.website;
 
   return (
-    <footer className="border-t border-ivory-200 bg-ivory-100">
+    <footer className="snap-footer border-t border-ivory-200 bg-ivory-100">
       <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
