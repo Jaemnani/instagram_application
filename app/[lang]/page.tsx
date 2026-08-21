@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Faq } from "@/components/Faq";
 import { Hero } from "@/components/Hero";
 import { JsonLd } from "@/components/JsonLd";
+import { LensTransition } from "@/components/LensTransition";
 import { LocationCard } from "@/components/LocationCard";
 import { MarqueeRibbon } from "@/components/MarqueeRibbon";
 import { PostCard } from "@/components/PostCard";
@@ -158,15 +159,18 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         tone="dark"
         className="z-10 -mt-6 rounded-t-[2rem] shadow-[0_-24px_60px_rgba(28,25,23,0.35)] lg:rounded-t-[4rem]"
       >
-        {/* 곰돌이 스티커 — 지그재그 경계를 가로질러 크게 붙인다 (경계 무시가 포인트) */}
-        <Image
-          src="/brand/sticker-cam-bear.webp"
-          alt=""
-          aria-hidden="true"
-          width={900}
-          height={497}
-          className="pointer-events-none absolute -top-16 right-3 z-10 w-52 rotate-6 sm:-top-24 sm:w-72 lg:-top-32 lg:right-10 lg:w-[27rem]"
-        />
+        {/* 곰돌이 스티커 — 아치 경계를 가로질러 크게 붙는다(경계 무시가 포인트).
+            Reveal 로 감싸 스크롤 진입 시 아래에서 떠오르며 자리잡는다. */}
+        <Reveal className="pointer-events-none absolute -top-16 right-3 z-10 w-52 sm:-top-24 sm:w-72 lg:-top-32 lg:right-10 lg:w-[27rem]">
+          <Image
+            src="/brand/sticker-cam-bear.webp"
+            alt=""
+            aria-hidden="true"
+            width={900}
+            height={497}
+            className="w-full rotate-6"
+          />
+        </Reveal>
         <SectionSign caption={dict.gallery.title} />
 
         <Reveal>
@@ -233,6 +237,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           <LocationCard dict={dict} lang={locale} />
         </Reveal>
       </Section>
+
+      {/* 렌즈 관통 — 조리개가 열리며 다크 피날레로 들어간다 (데스크톱 장식) */}
+      {bookingUrl && hasLocalBusinessData() && b && <LensTransition />}
 
       {/* 대형 예약 섹션 — 히어로와 짝을 이루는 다크 북엔드 */}
       {bookingUrl && hasLocalBusinessData() && b && (

@@ -20,8 +20,15 @@ export function Statement({ dict, lang }: { dict: Dictionary; lang: Locale }) {
       id="statement"
       aria-label={dict.statement.label}
       // 데스크톱에서는 전체화면 한 장 — 큰 문장이 화면을 독차지하는 순간을 만든다.
-      className="snap-section dot-grid bg-ivory-50 lg:flex lg:min-h-svh lg:items-center"
+      className="snap-section dot-grid relative overflow-hidden bg-ivory-50 lg:flex lg:min-h-svh lg:items-center"
     >
+      {/* 오른쪽 여백을 채우는 세로쓰기 대형 아웃라인 (장식) */}
+      <span
+        aria-hidden="true"
+        className="section-display vertical-label pointer-events-none absolute right-6 top-1/2 hidden -translate-y-1/2 select-none font-brand font-bold uppercase leading-none xl:block"
+      >
+        Philosophy
+      </span>
       <div className="mx-auto w-full max-w-4xl px-5 py-20 sm:px-8 sm:py-28">
         <StatementFill>
           {dict.statement.lines.map((line, li) => (

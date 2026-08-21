@@ -223,6 +223,38 @@ body {
   opacity: 0.13;
 }
 
+/**
+ * 렌즈 관통 전환.
+ * 기본은 완전히 숨김 — 장식이므로 JS 미실행·모바일·reduced-motion 에서는
+ * 이 구간이 아예 없어야 긴 빈 스크롤이 생기지 않는다(컴포넌트가 조건을 만족할 때만
+ * data-lens-ready 를 붙인다).
+ */
+[data-lens] {
+  display: none;
+}
+
+[data-lens][data-lens-ready] {
+  display: block;
+  /* 스크롤 여정 = 이 높이 - 뷰포트. 길수록 조리개가 천천히 열린다. */
+  height: 240vh;
+}
+
+.lens-iris {
+  position: absolute;
+  height: 10rem;
+  width: 10rem;
+  border-radius: 9999px;
+  background: var(--color-ink-900);
+  /* 0 → 화면 대각선을 덮고도 남는 배율. transform 이라 리플로 없음 */
+  transform: scale(calc(var(--lens, 0) * 26));
+  will-change: transform;
+}
+
+/* 조리개가 거의 다 열리면 카메라와 안내 문구는 사라진다 */
+.lens-cam {
+  opacity: clamp(0, calc((0.82 - var(--lens, 0)) * 5), 1);
+}
+
 /* 세로쓰기 라벨 — 잡지 색인 탭. 라틴 글자는 눕히지 않고 세워서 쌓는다. */
 .vertical-label {
   writing-mode: vertical-rl;
