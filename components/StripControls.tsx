@@ -37,19 +37,47 @@ export function StripControls({
      * 이 스트립은 "가로로 넘겨 보는" 갤러리다. 그래서 그 위에서는 세로 휠을
      * 가로 이동으로 바꿔 준다 — 마우스 휠만 있는 사용자도 옆으로 넘길 수 있다.
      *
-     * 끝(왼쪽 처음 / 오른쪽 마지막)에 닿은 뒤 같은 방향으로 더 굴리면
-     * preventDefault 하지 않고 그대로 흘려보낸다. 그러면 브라우저가 페이지를
-     * 스크롤해 다음 장면으로 넘어간다(풀페이지 스냅이 받는다).
-     * ⚠️ 여기서 페이지를 직접 옮기려 하면 안 된다 — mandatory 스냅이 그 이동을
-     * 곧바로 되돌려 스크롤이 갇힌다(실측). 판단만 하고 브라우저에 맡긴다.
+     * 끝(왼쪽 처음 / 오른쪽 마지막)에 닿으면 다음·이전 장면으로 넘긴다.
+     * ⚠️ preventDefault 를 안 하고 브라우저의 스크롤 체이닝에 맡기면 안 된다 —
+     * 실측 결과 끝에 닿아도(left == max) 페이지가 전혀 움직이지 않아 갤러리에
+     * 갇힌다. 그래서 다음 장면의 시작 좌표로 우리가 직접 옮긴다. 스냅 지점에
+     * 정확히 맞춰 옮기므로 mandatory 스냅이 되돌리지 않는다.
      */
+    let handoff = 0; // 연속 휠이 여러 장면을 건너뛰지 않게 하는 쿨다운
+
+    const goToScene = (dir: 1 | -1) => {
+      const pages = [...document.querySelectorAll<HTMLElement>(".snap-page")];
+      const here = pages.findIndex((p) => p.contains(el));
+      const next = pages[here + dir];
+      if (here < 0 || !next) return false;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({
+        top: window.scrollY + next.getBoundingClientRect().top,
+        behavior: reduce ? "instant" : "smooth",
+      });
+      return true;
+    };
+
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // 가로 제스처는 그대로
       const max = el.scrollWidth - el.clientWidth;
       if (max <= 0) return; // 넘길 것이 없으면 페이지 스크롤에 맡긴다
       const atStart = el.scrollLeft <= 0;
       const atEnd = el.scrollLeft >= max - 1;
-      if ((e.deltaY > 0 && atEnd) || (e.deltaY < 0 && atStart)) return;
+
+      if ((e.deltaY > 0 && atEnd) || (e.deltaY < 0 && atStart)) {
+        const now = e.timeStamp;
+        if (now - handoff < 900) {
+          e.preventDefault(); // 이동 중에 들어온 휠은 삼킨다
+          return;
+        }
+        if (goToScene(e.deltaY > 0 ? 1 : -1)) {
+          handoff = now;
+          e.preventDefault();
+        }
+        return;
+      }
+
       e.preventDefault();
       el.scrollLeft += e.deltaY;
     };
