@@ -9,10 +9,10 @@ import { PostCard } from "@/components/PostCard";
 import { PostStrip } from "@/components/PostStrip";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
+import { SectionSign } from "@/components/SectionSign";
 import { ServiceGrid } from "@/components/ServiceGrid";
 import { StampBadge } from "@/components/StampBadge";
 import { Statement } from "@/components/Statement";
-import { ZigzagEdge } from "@/components/ZigzagEdge";
 import Image from "next/image";
 
 import { hasLocalBusinessData, siteConfig } from "@/lib/config";
@@ -37,6 +37,7 @@ function Section({
   fullscreen = false,
   className = "",
   overlay,
+  snap = true,
 }: {
   id: string;
   children: React.ReactNode;
@@ -47,13 +48,21 @@ function Section({
   className?: string;
   /** 최대폭 제약을 받지 않고 섹션 전체를 가로지르는 장식 레이어 */
   overlay?: React.ReactNode;
+  /**
+   * 휠 스냅 대상 여부.
+   * ⚠️ sticky 로 고정되는 섹션에는 반드시 false — position:sticky 요소에
+   * scroll-snap-align 이 걸리면 브라우저가 스냅 지점을 sticky 위치로 계속
+   * 재계산해 그 지점에 스크롤이 갇힌다(실측: 문서 최대 6991 인데 5258 에서 정지.
+   * 스냅만 꺼도, sticky 만 꺼도 정상 복귀 — 둘의 조합이 원인).
+   */
+  snap?: boolean;
 }) {
   const toneClass = tone === "tinted" ? "bg-ivory-100" : tone === "dark" ? "bg-ink-900" : "";
   return (
     <section
       id={id}
       aria-labelledby={`${id}-heading`}
-      className={`snap-section relative ${bordered && tone !== "dark" ? "border-b border-ivory-200" : ""} ${toneClass} ${
+      className={`${snap ? "snap-section" : ""} relative ${bordered && tone !== "dark" ? "border-b border-ivory-200" : ""} ${toneClass} ${
         fullscreen ? "lg:flex lg:min-h-svh lg:items-center" : ""
       } ${className}`}
     >
@@ -120,8 +129,13 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         </div>
       </Section>
 
-      {/* 아래가 다크 밴드라 보더 불필요 — 다크 배경 자체가 경계 */}
-      <Section id="services" tone="tinted" bordered={false} className="grid-paper">
+      {/*
+        아치 커튼 — 밝은 종이 섹션이 멈춰 선 채로, 다크 갤러리가 둥근 지붕을 이고
+        그 위를 덮으며 올라온다. 장(章)이 넘어가는 감각을 만드는 전환.
+        services 높이(약 714px)가 뷰포트보다 작아야 sticky 가 잘리지 않는다.
+      */}
+      <div className="lg:sticky lg:top-0">
+      <Section id="services" tone="tinted" bordered={false} className="grid-paper" snap={false}>
         <Reveal>
           <SectionHeading
             id="services-heading"
@@ -136,9 +150,14 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         </Reveal>
       </Section>
 
+      </div>
+
       {/* 사진이 주인공인 섹션 — 다크 밴드 위에서 사진 색이 가장 잘 산다 */}
-      <ZigzagEdge direction="into" />
-      <Section id="gallery" tone="dark">
+      <Section
+        id="gallery"
+        tone="dark"
+        className="z-10 -mt-6 rounded-t-[2rem] shadow-[0_-24px_60px_rgba(28,25,23,0.35)] lg:rounded-t-[4rem]"
+      >
         {/* 곰돌이 스티커 — 지그재그 경계를 가로질러 크게 붙인다 (경계 무시가 포인트) */}
         <Image
           src="/brand/sticker-cam-bear.webp"
@@ -148,6 +167,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           height={497}
           className="pointer-events-none absolute -top-16 right-3 z-10 w-52 rotate-6 sm:-top-24 sm:w-72 lg:-top-32 lg:right-10 lg:w-[27rem]"
         />
+        <SectionSign caption={dict.gallery.title} />
+
         <Reveal>
           <SectionHeading
             id="gallery-heading"
@@ -177,10 +198,13 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           </div>
         )}
       </Section>
-      <ZigzagEdge direction="out" />
 
-      {/* 다크 갤러리 직후 밝은 종이로 복귀 — tinted 는 location 으로 넘긴다 */}
-      <Section id="faq">
+      {/* 다크 갤러리 직후 밝은 종이로 복귀 — 이번엔 종이가 다크를 덮으며 올라온다 */}
+      <Section
+        id="faq"
+        bordered={false}
+        className="z-10 -mt-6 rounded-t-[2rem] bg-ivory-50 shadow-[0_-24px_60px_rgba(28,25,23,0.18)] lg:rounded-t-[4rem]"
+      >
         <Reveal>
           <SectionHeading
             id="faq-heading"
