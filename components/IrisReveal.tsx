@@ -1,0 +1,57 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
+/**
+ * 조리개 열림 — 장면에 들어서면 화면 가운데에서 원이 퍼지며 안의 내용이 드러난다.
+ * (카메라 조리개가 열리는 순간의 은유. 예약 장면 진입에 쓴다.)
+ *
+ * 안전 설계: 기본은 "완전히 열린" 상태다. 닫힌 상태(원 반지름 0)는 이 컴포넌트가
+ * data-iris-ready 를 붙인 뒤에만 존재하므로, JS 미실행·reduced-motion 어디서도
+ * 내용이 가려지지 않는다.
+ *
+ * 장면을 벗어나면 다시 닫아 두어, 되돌아왔을 때 열림이 한 번 더 재생된다.
+ *
+ * ⚠️ 관찰 대상과 클립 대상은 반드시 분리한다 — clip-path 로 잘린 요소는
+ * IntersectionObserver 가 "보이지 않는다"고 판단해서, 닫힌 상태에서는 열림 신호가
+ * 영영 오지 않는다(실측: 화면 한가운데 있어도 isIntersecting=false).
+ * 그래서 바깥 래퍼를 관찰하고, 클립은 안쪽 자식에만 건다.
+ */
+export function IrisReveal({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    root.setAttribute("data-iris-ready", "");
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) root.setAttribute("data-open", "");
+        else root.removeAttribute("data-open");
+      },
+      { threshold: 0.45 },
+    );
+    io.observe(root);
+
+    return () => {
+      io.disconnect();
+      root.removeAttribute("data-iris-ready");
+      root.removeAttribute("data-open");
+    };
+  }, []);
+
+  return (
+    <div ref={ref} className={className}>
+      <div className="iris">{children}</div>
+    </div>
+  );
+}

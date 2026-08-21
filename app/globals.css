@@ -216,6 +216,22 @@ html {
   opacity: 0.13;
 }
 
+/**
+ * 조리개 열림 — 원이 가운데에서 퍼지며 안의 내용을 드러낸다.
+ * 기본은 열린 상태(clip-path 없음)라 JS 미실행·reduced-motion 에서도 다 보인다.
+ * 닫힌 상태는 data-iris-ready 가 붙었을 때만 존재한다.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  [data-iris-ready] .iris {
+    clip-path: circle(0% at 50% 50%);
+  }
+
+  [data-iris-ready][data-open] .iris {
+    clip-path: circle(140% at 50% 50%);
+    transition: clip-path 1.15s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
 /* 세로쓰기 라벨 — 잡지 색인 탭. 라틴 글자는 눕히지 않고 세워서 쌓는다. */
 .vertical-label {
   writing-mode: vertical-rl;

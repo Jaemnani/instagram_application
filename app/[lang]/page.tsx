@@ -4,17 +4,18 @@ import { Faq } from "@/components/Faq";
 import { Hero } from "@/components/Hero";
 import { JsonLd } from "@/components/JsonLd";
 import { FadeTransition } from "@/components/FadeTransition";
+import { IrisReveal } from "@/components/IrisReveal";
 import { LocationCard } from "@/components/LocationCard";
 import { MarqueeRibbon } from "@/components/MarqueeRibbon";
 import { PostCard } from "@/components/PostCard";
+import { PostStrip } from "@/components/PostStrip";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
-import { SectionSign } from "@/components/SectionSign";
 import { ServiceGrid } from "@/components/ServiceGrid";
 import { Statement } from "@/components/Statement";
 import Image from "next/image";
 
-import { hasLocalBusinessData, instagramUrl, siteConfig } from "@/lib/config";
+import { hasLocalBusinessData, siteConfig } from "@/lib/config";
 import { getDictionary, isLocale, locales, type Locale } from "@/lib/i18n";
 import { getInstagramData } from "@/lib/data";
 import { faqPageLd, imageGalleryLd, offerCatalogLd } from "@/lib/seo/jsonld";
@@ -73,7 +74,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   const locale = lang as Locale;
   const dict = getDictionary(locale);
   const { profile, posts } = await getInstagramData();
-  const [featured, ...rest] = posts;
   const bookingUrl = siteConfig.bookingUrl || profile.website;
   const b = siteConfig.business;
 
@@ -141,16 +141,16 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         </div>
       </Section>
 
-      {/* 사진이 주인공인 섹션 — 다크 밴드 위에서 사진 색이 가장 잘 산다 */}
+      {/* 사진이 주인공인 장면 — 대표 한 장과 나머지를 한 줄 가로 갤러리로 */}
       <Section
         id="gallery"
-        tone="dark"
         page
+        tone="dark"
         className="z-10 -mt-8 rounded-t-[2rem] shadow-[0_-24px_60px_rgba(28,25,23,0.35)] lg:-mt-16 lg:rounded-t-[4rem]"
       >
         {/* 곰돌이 스티커 — 아치 경계를 가로질러 크게 붙는다(경계 무시가 포인트).
-            Reveal 로 감싸 스크롤 진입 시 아래에서 떠오르며 자리잡는다. */}
-        <Reveal className="pointer-events-none absolute -top-16 right-3 z-10 w-52 sm:-top-24 sm:w-72 lg:-top-32 lg:right-10 lg:w-[27rem]">
+            Reveal 로 감싸 장면 진입 시 아래에서 떠오르며 자리잡는다. */}
+        <Reveal className="pointer-events-none absolute -top-16 right-3 z-10 w-40 sm:-top-20 sm:w-56 lg:-top-24 lg:right-10 lg:w-80">
           <Image
             src="/brand/sticker-cam-bear.webp"
             alt=""
@@ -160,7 +160,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             className="w-full rotate-6"
           />
         </Reveal>
-        <SectionSign caption={dict.gallery.title} />
 
         <Reveal>
           <SectionHeading
@@ -179,51 +178,12 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           </p>
         ) : (
           <Reveal className="mt-8">
-            <PostCard post={featured} lang={locale} dict={dict} featured tone="dark" />
+            {/* 한 줄 가로 갤러리 — 휠을 굴리면 옆으로 넘어가고, 끝에 닿으면
+                다음 장면으로 이어진다(StripControls 의 wheel 처리). */}
+            <PostStrip posts={posts} lang={locale} dict={dict} tone="dark" />
           </Reveal>
         )}
       </Section>
-
-      {/*
-        나머지 촬영은 다음 장면으로 넘긴다 — 한 장면이 뷰포트를 넘으면 mandatory
-        스냅이 그 구간을 건너뛸 수 없게 되어(스냅 지점 간격 > 화면 높이) 스크롤이
-        갇힌다. 장면은 항상 한 화면 안에 들어가야 한다.
-      */}
-      {rest.length > 0 && (
-        <section
-          aria-label={dict.gallery.title}
-          className="snap-page dot-grid-dark relative flex min-h-svh flex-col justify-center bg-ink-900"
-        >
-          <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
-            {/*
-              가로 스크롤 스트립 대신 그리드를 쓴다 — 가로 스크롤러는 자기 위에 온
-              세로 휠을 삼켜서(또는 스냅 임계를 못 넘겨) 다음 장면으로 넘어가지
-              못하게 만든다. 그리드는 그 충돌이 원천적으로 없다.
-              한 화면에 담기도록 8장까지만 싣고, 나머지는 인스타그램으로 보낸다.
-            */}
-            <Reveal>
-              <ul className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
-                {rest.slice(0, 8).map((post) => (
-                  <li key={post.id}>
-                    <PostCard post={post} lang={locale} dict={dict} tone="dark" compact />
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-
-            <Reveal className="mt-8 text-center">
-              <a
-                href={instagramUrl(profile.username)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs uppercase tracking-[0.2em] text-clay-400 transition-colors hover:text-ivory-50"
-              >
-                {dict.ui.viewOnInstagram}
-              </a>
-            </Reveal>
-          </div>
-        </section>
-      )}
 
       {/* 다크 갤러리 직후 밝은 종이로 복귀 — 이번엔 종이가 다크를 덮으며 올라온다 */}
       <Section
@@ -280,7 +240,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             </>
           }
         >
-          <Reveal className="text-center">
+          {/* 곰돌이 장면에서 넘어오는 순간, 조리개가 열리듯 예약 화면이 드러난다 */}
+          <IrisReveal className="text-center">
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-clay-400">
               {dict.book.eyebrow}
             </p>
@@ -307,7 +268,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             >
               {dict.ui.book}
             </a>
-          </Reveal>
+          </IrisReveal>
         </Section>
       )}
     </>
