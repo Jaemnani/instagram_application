@@ -1,8 +1,10 @@
+import { MarqueeRibbon } from "@/components/MarqueeRibbon";
 import { StatementFill } from "@/components/StatementFill";
 import { intlLocale, type Dictionary, type Locale } from "@/lib/i18n";
 
 /**
- * 브랜드 스테이트먼트 — 스크롤에 따라 문장이 단어 단위로 채워지는 대형 타이포 섹션.
+ * 브랜드 스테이트먼트 — 한 화면을 통째로 쓰는 큰 문장.
+ * 장면에 들어서면 문장이 앞에서부터 한 단어씩 진해진다(StatementFill).
  *
  * 분절은 서버에서 Intl.Segmenter 로 한다. 공백·문장부호 세그먼트는 span 으로 감싸지
  * 않고 텍스트 노드 그대로 내보내므로, 서버 HTML 의 텍스트는 원문과 완전히 동일하다
@@ -16,13 +18,16 @@ export function Statement({ dict, lang }: { dict: Dictionary; lang: Locale }) {
   const segmenter = new Intl.Segmenter(intlLocale[lang], { granularity: "word" });
 
   return (
-    // 스페이서가 뷰포트보다 길어, 섹션이 화면에 고정된 채 머무는 동안 문장이 채워진다.
-    <div data-pin-spacer className="lg:h-[200vh]">
     <section
       id="statement"
       aria-label={dict.statement.label}
-      className="dot-grid relative overflow-hidden bg-ivory-50 lg:sticky lg:top-0 lg:flex lg:h-svh lg:items-center"
+      className="snap-page dot-grid relative flex min-h-svh flex-col justify-center overflow-hidden bg-ivory-50"
     >
+      {/* 히어로에서 넘어온 직후, 이 장면 머리에 걸리는 브랜드 띠 */}
+      <div className="absolute inset-x-0 top-0">
+        <MarqueeRibbon />
+      </div>
+
       {/* 오른쪽 여백을 채우는 세로쓰기 대형 아웃라인 (장식) */}
       <span
         aria-hidden="true"
@@ -30,7 +35,7 @@ export function Statement({ dict, lang }: { dict: Dictionary; lang: Locale }) {
       >
         Philosophy
       </span>
-      <div className="mx-auto w-full max-w-4xl px-5 py-20 sm:px-8 sm:py-28">
+      <div className="mx-auto w-full max-w-4xl px-5 py-24 sm:px-8">
         <StatementFill>
           {dict.statement.lines.map((line, li) => (
             <p
@@ -73,6 +78,5 @@ export function Statement({ dict, lang }: { dict: Dictionary; lang: Locale }) {
         </StatementFill>
       </div>
     </section>
-    </div>
   );
 }

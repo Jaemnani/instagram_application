@@ -2,16 +2,20 @@
 
 import { useEffect, useRef } from "react";
 
+/** 단어가 하나씩 진해지는 간격(ms). 문장 전체가 약 2초 안에 다 채워지는 속도. */
+const STEP_MS = 55;
+
 /**
- * 스테이트먼트 채움 컨트롤러 — 서버가 분절해 둔 .statement-word 들을
- * 스크롤 진행률에 맞춰 앞에서부터 data-on 으로 켠다.
+ * 스테이트먼트 채움 컨트롤러 — 서버가 분절해 둔 .statement-word 들을 앞에서부터
+ * 하나씩 켠다.
+ *
+ * 풀페이지 스냅에서는 장면이 화면에 딱 맞아 스크롤이 거의 일어나지 않으므로,
+ * 스크롤 진행률이 아니라 **장면에 들어선 순간**을 신호로 삼는다. 화면을 벗어나면
+ * 되돌려, 다시 올라왔을 때 처음부터 다시 채워진다.
  *
  * 안전 설계: 텍스트의 기본색은 진한 잉크색이고, "아직 안 채워진" 연한 상태는
  * 이 컴포넌트가 data-statement-ready 를 붙인 뒤에만 존재한다(globals.css).
  * 그래서 JS 미실행·IO 미지원·reduced-motion 어느 경우에도 글이 항상 온전히 보인다.
- *
- * 성능: IntersectionObserver 로 섹션이 뷰포트 근처일 때만 scroll 리스너를 붙이고,
- * rAF 로 스로틀하며, 프레임마다 이전 개수와 달라진 span 만 토글한다(O(변경분)).
  */
 export function StatementFill({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -26,57 +30,42 @@ export function StatementFill({ children }: { children: React.ReactNode }) {
 
     root.setAttribute("data-statement-ready", "");
 
-    let lastCount = 0;
-    let raf = 0;
-
-    // 섹션이 sticky 로 고정되면 자기 rect.top 은 0 에 붙어 움직이지 않는다.
-    // 그럴 때는 스크롤을 실제로 소비하는 바깥 스페이서를 기준으로 진행률을 잰다.
-    const spacer = root.closest<HTMLElement>("[data-pin-spacer]");
-
-    const update = () => {
-      raf = 0;
-      const vh = window.innerHeight;
-      let progress: number;
-      if (spacer && spacer.getBoundingClientRect().height > vh) {
-        const rect = spacer.getBoundingClientRect();
-        progress = Math.min(1, Math.max(0, -rect.top / (rect.height - vh)));
-      } else {
-        const rect = root.getBoundingClientRect();
-        // 섹션 상단이 화면 85% 지점에 닿으면 시작해, 뷰포트를 통과하는 동안 채운다.
-        progress = Math.min(1, Math.max(0, (vh * 0.85 - rect.top) / (rect.height + vh * 0.35)));
-      }
-      const count = Math.round(progress * words.length);
-      if (count === lastCount) return;
-      const [from, to] = count > lastCount ? [lastCount, count] : [count, lastCount];
-      for (let i = from; i < to; i++) {
-        if (i < count) words[i].setAttribute("data-on", "");
-        else words[i].removeAttribute("data-on");
-      }
-      lastCount = count;
+    let timer: ReturnType<typeof setInterval> | undefined;
+    const stop = () => {
+      if (timer) clearInterval(timer);
+      timer = undefined;
     };
-
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
+    const reset = () => {
+      stop();
+      for (const w of words) w.removeAttribute("data-on");
     };
 
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          update();
-          window.addEventListener("scroll", onScroll, { passive: true });
+          // 장면에 들어섰다 — 앞 단어부터 차례로 켠다.
+          stop();
+          let i = 0;
+          timer = setInterval(() => {
+            if (i >= words.length) {
+              stop();
+              return;
+            }
+            words[i].setAttribute("data-on", "");
+            i++;
+          }, STEP_MS);
         } else {
-          window.removeEventListener("scroll", onScroll);
+          reset();
         }
       },
-      // 근처에 오기 전에 미리 붙여 첫 프레임부터 자연스럽게 반응한다.
-      { rootMargin: "25% 0px 25% 0px" },
+      // 장면의 절반 이상이 보일 때만 시작 — 스치듯 지나갈 때는 켜지 않는다.
+      { threshold: 0.5 },
     );
     io.observe(root);
 
     return () => {
       io.disconnect();
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
+      stop();
       root.removeAttribute("data-statement-ready");
     };
   }, []);

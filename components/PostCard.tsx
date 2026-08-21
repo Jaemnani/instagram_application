@@ -50,12 +50,15 @@ export function PostCard({
   dict,
   featured = false,
   tone = "light",
+  compact = false,
 }: {
   post: Post;
   lang: Locale;
   dict: Dictionary;
   featured?: boolean;
   tone?: "light" | "dark";
+  /** 한 화면에 여러 장을 담는 그리드용 — 텍스트를 줄여 카드 높이를 낮춘다 */
+  compact?: boolean;
 }) {
   const cover = post.coverImage;
   const href = localizedPath(lang, `/posts/${post.slug}`);
@@ -132,7 +135,7 @@ export function PostCard({
           </div>
         )}
 
-        <div className={featured ? "relative" : "mt-5"}>
+        <div className={featured ? "relative" : compact ? "mt-3" : "mt-5"}>
           {/* 세로쓰기 인덱스 탭 — 잡지 색인처럼 텍스트 블록 옆에 붙는다(장식).
               그리드 간격(gap-8) 안쪽에 놓이므로 폭이 확보되는 lg 이상에서만 */}
           {featured && (
@@ -161,7 +164,7 @@ export function PostCard({
 
           <h3
             className={`mt-2 font-serif font-bold leading-snug ${dark ? "text-ivory-50" : "text-ink-900"} ${
-              featured ? "text-2xl sm:text-3xl" : "text-lg"
+              featured ? "text-2xl sm:text-3xl" : compact ? "text-sm" : "text-lg"
             }`}
           >
             <Link
@@ -175,14 +178,18 @@ export function PostCard({
           {excerpt && (
             <p
               className={`mt-3 leading-[1.85] ${dark ? "text-ivory-200/85" : "text-ink-600"} ${
-                featured ? "text-[15px] sm:text-base" : "line-clamp-3 text-sm"
+                featured
+                  ? "text-[15px] sm:text-base"
+                  : compact
+                    ? "line-clamp-2 text-xs leading-[1.6]"
+                    : "line-clamp-3 text-sm"
               }`}
             >
               {excerpt}
             </p>
           )}
 
-          {hashtags.length > 0 && (
+          {hashtags.length > 0 && !compact && (
             <ul
               className={`mt-4 flex flex-wrap gap-x-3 gap-y-1 text-xs ${dark ? "text-ivory-300/60" : "text-ink-400"}`}
             >

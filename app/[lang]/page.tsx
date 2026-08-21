@@ -3,20 +3,18 @@ import { notFound } from "next/navigation";
 import { Faq } from "@/components/Faq";
 import { Hero } from "@/components/Hero";
 import { JsonLd } from "@/components/JsonLd";
-import { LensTransition } from "@/components/LensTransition";
+import { FadeTransition } from "@/components/FadeTransition";
 import { LocationCard } from "@/components/LocationCard";
 import { MarqueeRibbon } from "@/components/MarqueeRibbon";
 import { PostCard } from "@/components/PostCard";
-import { PostStrip } from "@/components/PostStrip";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { SectionSign } from "@/components/SectionSign";
 import { ServiceGrid } from "@/components/ServiceGrid";
-import { StampBadge } from "@/components/StampBadge";
 import { Statement } from "@/components/Statement";
 import Image from "next/image";
 
-import { hasLocalBusinessData, siteConfig } from "@/lib/config";
+import { hasLocalBusinessData, instagramUrl, siteConfig } from "@/lib/config";
 import { getDictionary, isLocale, locales, type Locale } from "@/lib/i18n";
 import { getInstagramData } from "@/lib/data";
 import { faqPageLd, imageGalleryLd, offerCatalogLd } from "@/lib/seo/jsonld";
@@ -35,26 +33,22 @@ function Section({
   children,
   bordered = true,
   tone = "base",
-  fullscreen = false,
   className = "",
   overlay,
-  pinned = false,
+  page = false,
 }: {
   id: string;
   children: React.ReactNode;
   bordered?: boolean;
   tone?: "base" | "tinted" | "dark";
-  /** 데스크톱에서 뷰포트 한 장을 차지하는 전체화면 섹션 (콘텐츠 세로 중앙) */
-  fullscreen?: boolean;
   className?: string;
   /** 최대폭 제약을 받지 않고 섹션 전체를 가로지르는 장식 레이어 */
   overlay?: React.ReactNode;
   /**
-   * 화면에 고정(pin)되는 섹션.
-   * 부모를 뷰포트보다 긴 스페이서로 두면, 이 섹션이 화면을 꽉 채운 채 머무는 동안
-   * 스크롤이 소비되고 그 뒤 다음 섹션이 올라온다(장면이 "머물다 넘어가는" 감각).
+   * 한 화면을 통째로 쓰는 장면. 데스크톱에서 휠 한 번에 이 장면에 딱 걸린다.
+   * 높이는 min-h 라서 콘텐츠가 길어지면(FAQ 펼침 등) 자연히 늘어난다.
    */
-  pinned?: boolean;
+  page?: boolean;
 }) {
   const toneClass = tone === "tinted" ? "bg-ivory-100" : tone === "dark" ? "bg-ink-900" : "";
   return (
@@ -62,11 +56,7 @@ function Section({
       id={id}
       aria-labelledby={`${id}-heading`}
       className={`relative ${bordered && tone !== "dark" ? "border-b border-ivory-200" : ""} ${toneClass} ${
-        pinned
-          ? "lg:sticky lg:top-0 lg:flex lg:h-svh lg:items-center"
-          : fullscreen
-            ? "lg:flex lg:min-h-svh lg:items-center"
-            : ""
+        page ? "snap-page flex min-h-svh flex-col justify-center" : ""
       } ${className}`}
     >
       {overlay}
@@ -95,70 +85,67 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
       <Hero posts={posts} profile={profile} dict={dict} lang={locale} />
 
-      <MarqueeRibbon />
-
       <Statement dict={dict} lang={locale} />
 
-      <Section id="story">
-        <Reveal>
-          <SectionHeading
-            id="story-heading"
-            eyebrow={dict.story.eyebrow}
-            title={dict.story.title}
-            display="Story"
-          />
-        </Reveal>
-
-        <Reveal className="mt-8 max-w-3xl">
-          <p className="text-[15px] leading-[1.9] text-ink-600 sm:text-base">
-            <span className="wordmark text-ink-900">{siteConfig.name}</span>
-            {/* 한국어 상호를 한 번은 남겨야 "키딩성수" 검색에 잡힌다 (한국어 페이지 한정) */}
-            {locale === "ko" && siteConfig.nameKo && (
-              <span className="text-ink-800">({siteConfig.nameKo})</span>
-            )}
-            {dict.story.intro} {dict.story.lead}
-          </p>
-        </Reveal>
-
-        <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-3">
-          {dict.story.items.map((s) => (
-            <Reveal as="article" key={s.heading}>
-              <h3 className="font-serif text-lg font-bold leading-snug text-ink-900">
-                {s.heading}
-              </h3>
-              <p className="mt-3 text-[15px] leading-[1.85] text-ink-600">{s.body}</p>
+      {/* 이야기 + 촬영 종류를 한 장면에 나란히 — 휠 한 번으로 스튜디오를 파악한다 */}
+      <Section id="story" page tone="tinted" bordered={false} className="grid-paper">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+          <div>
+            <Reveal>
+              <SectionHeading
+                id="story-heading"
+                eyebrow={dict.story.eyebrow}
+                title={dict.story.title}
+                display="Story"
+              />
             </Reveal>
-          ))}
+
+            <Reveal className="mt-6">
+              <p className="text-sm leading-[1.85] text-ink-600">
+                <span className="wordmark text-ink-900">{siteConfig.name}</span>
+                {/* 한국어 상호를 한 번은 남겨야 "키딩성수" 검색에 잡힌다 (한국어 페이지 한정) */}
+                {locale === "ko" && siteConfig.nameKo && (
+                  <span className="text-ink-800">({siteConfig.nameKo})</span>
+                )}
+                {dict.story.intro} {dict.story.lead}
+              </p>
+            </Reveal>
+
+            <div className="mt-8 space-y-5">
+              {dict.story.items.map((st) => (
+                <Reveal as="article" key={st.heading}>
+                  <h3 className="font-serif text-base font-bold leading-snug text-ink-900">
+                    {st.heading}
+                  </h3>
+                  <p className="mt-1.5 text-[13px] leading-[1.7] text-ink-600">{st.body}</p>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+
+          {/* JSON-LD 의 OfferCatalog @id(#services)와 이어지는 앵커를 유지한다 */}
+          <div id="services">
+            <Reveal>
+              <SectionHeading
+                id="services-heading"
+                eyebrow={dict.services.eyebrow}
+                title={dict.services.title}
+                display="Services"
+                lead={dict.services.lead}
+              />
+            </Reveal>
+            <Reveal>
+              <ServiceGrid dict={dict} compact />
+            </Reveal>
+          </div>
         </div>
       </Section>
-
-      {/*
-        아치 커튼 — 밝은 종이 섹션이 멈춰 선 채로, 다크 갤러리가 둥근 지붕을 이고
-        그 위를 덮으며 올라온다. 장(章)이 넘어가는 감각을 만드는 전환.
-        services 높이(약 714px)가 뷰포트보다 작아야 sticky 가 잘리지 않는다.
-      */}
-      <div className="lg:sticky lg:top-0">
-      <Section id="services" tone="tinted" bordered={false} className="grid-paper">
-        <Reveal>
-          <SectionHeading
-            id="services-heading"
-            eyebrow={dict.services.eyebrow}
-            title={dict.services.title}
-            display="Services"
-            lead={dict.services.lead}
-          />
-        </Reveal>
-        <Reveal>
-          <ServiceGrid dict={dict} />
-        </Reveal>
-      </Section>
-
-      </div>
 
       {/* 사진이 주인공인 섹션 — 다크 밴드 위에서 사진 색이 가장 잘 산다 */}
       <Section
         id="gallery"
         tone="dark"
+        page
         className="z-10 -mt-8 rounded-t-[2rem] shadow-[0_-24px_60px_rgba(28,25,23,0.35)] lg:-mt-16 lg:rounded-t-[4rem]"
       >
         {/* 곰돌이 스티커 — 아치 경계를 가로질러 크게 붙는다(경계 무시가 포인트).
@@ -191,23 +178,57 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             {dict.gallery.empty}
           </p>
         ) : (
-          <div className="mt-10 space-y-14">
-            <Reveal>
-              <PostCard post={featured} lang={locale} dict={dict} featured tone="dark" />
-            </Reveal>
-
-            {rest.length > 0 && (
-              <Reveal>
-                <PostStrip posts={rest} lang={locale} dict={dict} tone="dark" />
-              </Reveal>
-            )}
-          </div>
+          <Reveal className="mt-8">
+            <PostCard post={featured} lang={locale} dict={dict} featured tone="dark" />
+          </Reveal>
         )}
       </Section>
+
+      {/*
+        나머지 촬영은 다음 장면으로 넘긴다 — 한 장면이 뷰포트를 넘으면 mandatory
+        스냅이 그 구간을 건너뛸 수 없게 되어(스냅 지점 간격 > 화면 높이) 스크롤이
+        갇힌다. 장면은 항상 한 화면 안에 들어가야 한다.
+      */}
+      {rest.length > 0 && (
+        <section
+          aria-label={dict.gallery.title}
+          className="snap-page dot-grid-dark relative flex min-h-svh flex-col justify-center bg-ink-900"
+        >
+          <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
+            {/*
+              가로 스크롤 스트립 대신 그리드를 쓴다 — 가로 스크롤러는 자기 위에 온
+              세로 휠을 삼켜서(또는 스냅 임계를 못 넘겨) 다음 장면으로 넘어가지
+              못하게 만든다. 그리드는 그 충돌이 원천적으로 없다.
+              한 화면에 담기도록 8장까지만 싣고, 나머지는 인스타그램으로 보낸다.
+            */}
+            <Reveal>
+              <ul className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+                {rest.slice(0, 8).map((post) => (
+                  <li key={post.id}>
+                    <PostCard post={post} lang={locale} dict={dict} tone="dark" compact />
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+
+            <Reveal className="mt-8 text-center">
+              <a
+                href={instagramUrl(profile.username)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs uppercase tracking-[0.2em] text-clay-400 transition-colors hover:text-ivory-50"
+              >
+                {dict.ui.viewOnInstagram}
+              </a>
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       {/* 다크 갤러리 직후 밝은 종이로 복귀 — 이번엔 종이가 다크를 덮으며 올라온다 */}
       <Section
         id="faq"
+        page
         bordered={false}
         className="z-10 -mt-8 rounded-t-[2rem] bg-ivory-50 shadow-[0_-24px_60px_rgba(28,25,23,0.18)] lg:-mt-16 lg:rounded-t-[4rem]"
       >
@@ -225,7 +246,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         </Reveal>
       </Section>
 
-      <Section id="location" tone="tinted" bordered={false}>
+      <Section id="location" page tone="tinted" bordered={false}>
         <Reveal>
           <SectionHeading
             id="location-heading"
@@ -240,17 +261,16 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         </Reveal>
       </Section>
 
-      {/* 렌즈 관통 — 조리개가 열리며 다크 피날레로 들어간다 (데스크톱 장식) */}
-      {bookingUrl && hasLocalBusinessData() && b && <LensTransition />}
+      {/* 숨 고르기 한 장면 — 곰돌이와 카메라만 떠올랐다가, 다음 장면에서 예약으로 */}
+      {bookingUrl && hasLocalBusinessData() && b && <FadeTransition />}
 
       {/* 대형 예약 섹션 — 히어로와 짝을 이루는 다크 북엔드 */}
       {bookingUrl && hasLocalBusinessData() && b && (
-        <div className="lg:h-[185vh]">
         <Section
           id="book"
+          page
           tone="dark"
           bordered={false}
-          pinned
           className="dot-grid-dark"
           overlay={
             // 대형 타이포를 위아래로 감싸는 흰 사선 띠 — 전체화면이 되는 lg 이상에서만
@@ -289,11 +309,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             </a>
           </Reveal>
         </Section>
-        </div>
       )}
-
-      {/* 떠다니는 브랜드 스티커 — 페이지 어디서나 우하단에서 천천히 돈다 */}
-      <StampBadge className="pointer-events-none fixed bottom-5 right-5 z-40 hidden h-20 w-20 sm:block lg:h-24 lg:w-24" />
     </>
   );
 }
