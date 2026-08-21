@@ -7,7 +7,6 @@ import { FadeTransition } from "@/components/FadeTransition";
 import { IrisReveal } from "@/components/IrisReveal";
 import { LocationCard } from "@/components/LocationCard";
 import { MarqueeRibbon } from "@/components/MarqueeRibbon";
-import { PostCard } from "@/components/PostCard";
 import { PostStrip } from "@/components/PostStrip";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";

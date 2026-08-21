@@ -228,7 +228,8 @@ html {
 
   [data-iris-ready][data-open] .iris {
     clip-path: circle(140% at 50% 50%);
-    transition: clip-path 1.15s cubic-bezier(0.22, 1, 0.36, 1);
+    /* 살짝 늦게 시작해 스냅 이동이 멎은 뒤 열리는 게 눈에 들어오게 */
+    transition: clip-path 1.25s cubic-bezier(0.22, 1, 0.36, 1) 0.12s;
   }
 }
 

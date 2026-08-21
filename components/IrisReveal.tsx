@@ -33,17 +33,39 @@ export function IrisReveal({
 
     root.setAttribute("data-iris-ready", "");
 
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) root.setAttribute("data-open", "");
-        else root.removeAttribute("data-open");
-      },
-      { threshold: 0.45 },
-    );
-    io.observe(root);
+    /*
+     * 여는 시점은 "스크롤이 멎은 뒤"여야 한다.
+     * IntersectionObserver 로 열면, 스냅이 부드럽게 이동하는 동안 이미 이 장면이
+     * 화면을 채워 애니메이션이 시작되고 — 사용자가 도착했을 땐 다 열려 있다.
+     * 그래서 효과가 "없는 것처럼" 보인다(실측: 도착 첫 프레임에 clip 137%).
+     * scrollend(미지원 브라우저는 디바운스)로 정착을 기다렸다가 연다.
+     */
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const settle = () => {
+      const rect = root.getBoundingClientRect();
+      const mid = window.innerHeight / 2;
+      const centered = rect.top < mid && rect.bottom > mid;
+      if (centered) root.setAttribute("data-open", "");
+      else root.removeAttribute("data-open");
+    };
+
+    const onScroll = () => {
+      // 이동이 시작되면 닫아 두었다가, 멎었을 때 다시 연다
+      root.removeAttribute("data-open");
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(settle, 140);
+    };
+
+    const supportsScrollEnd = "onscrollend" in window;
+    window.addEventListener("scroll", onScroll, { passive: true });
+    if (supportsScrollEnd) window.addEventListener("scrollend", settle);
+    settle(); // 이미 이 장면에 서 있는 경우(새로고침 등)
 
     return () => {
-      io.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      if (supportsScrollEnd) window.removeEventListener("scrollend", settle);
+      if (timer) clearTimeout(timer);
       root.removeAttribute("data-iris-ready");
       root.removeAttribute("data-open");
     };
