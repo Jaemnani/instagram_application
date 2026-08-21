@@ -73,7 +73,7 @@ export function IrisReveal({
 
   return (
     <div ref={ref} className={className}>
-      <div className="iris">{children}</div>
+      <div className="iris h-full">{children}</div>
     </div>
   );
 }

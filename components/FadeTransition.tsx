@@ -1,39 +1,40 @@
 import Image from "next/image";
 
-import { Reveal } from "@/components/Reveal";
+import { IrisReveal } from "@/components/IrisReveal";
 
 /**
- * 장면 사이의 숨 고르기 — 어두운 화면에 카메라와 곰돌이만 떠오른다.
+ * 셔터가 열리는 한 장면 — 오시는 길(밝은 종이)에서 휠을 내리면 화면 한가운데에서
+ * 검은 원이 퍼지며 카메라와 곰돌이가 나타나 화면을 가득 채운다. 다음 장면으로
+ * 넘어갈 때는 그 원이 다시 닫히면서 넘어간다(카메라 셔터의 은유).
  *
- * 오시는 길에서 예약(BOOK NOW)으로 넘어가기 직전에 한 장면을 비워, 다음 장면이
- * 더 크게 들어오게 만드는 장치다. 배경이 다음 섹션과 같은 잉크색이라 넘어갈 때
- * 배경은 그대로 있고 그림만 바뀌는 것처럼 보인다.
+ * 배경 구성이 핵심이다 — 섹션 자체는 앞 장면과 같은 밝은 종이색이고, 어두운 배경은
+ * 조리개 *안쪽*에 있다. 그래서 원이 커질 때 "밝은 화면에 검은 원이 퍼지는" 것이
+ * 그대로 보인다. 섹션까지 어둡게 칠하면 원이 퍼지는 게 안 보인다.
  *
- * 순수 장식(aria-hidden)이라 색인·접근성과 무관하다. 등장은 기존 Reveal 규칙을
- * 그대로 쓰므로 reduced-motion 에서는 애니메이션 없이 그냥 보인다.
+ * 순수 장식(aria-hidden)이라 색인·접근성과 무관하다. JS 미실행·reduced-motion 에서는
+ * 조리개 없이 처음부터 열린 상태로 보인다(IrisReveal 의 안전 기본값).
  *
  * ⚠️ overflow-hidden 을 주지 말 것 — 그 자리에 스크롤 포트가 생겨 휠 대상이 이
  * 섹션으로 고정되고, 페이지 스냅이 제대로 걸리지 않아 스르륵 흘러간다(가로 갤러리
- * 스트립에서 겪은 것과 같은 함정). 스티커는 화면 안에 들어오므로 잘라낼 것도 없다.
+ * 스트립에서 겪은 것과 같은 함정).
  */
 export function FadeTransition() {
   return (
-    <section
-      aria-hidden="true"
-      className="snap-page relative flex min-h-svh items-center justify-center bg-ink-900"
-    >
-      <Reveal className="flex flex-col items-center gap-8">
-        <Image
-          src="/brand/sticker-cam-bear.webp"
-          alt=""
-          width={900}
-          height={497}
-          className="w-64 sm:w-80 lg:w-[28rem]"
-        />
-        <p className="text-[11px] uppercase tracking-[0.4em] text-ivory-300/60">
-          Ready when you are
-        </p>
-      </Reveal>
+    <section aria-hidden="true" className="snap-page relative min-h-svh bg-ivory-100">
+      <IrisReveal className="absolute inset-0">
+        <div className="flex h-full w-full flex-col items-center justify-center gap-10 bg-ink-900">
+          <Image
+            src="/brand/sticker-cam-bear.webp"
+            alt=""
+            width={900}
+            height={497}
+            className="w-[78vw] max-w-[52rem]"
+          />
+          <p className="text-[11px] uppercase tracking-[0.4em] text-ivory-300/60">
+            Ready when you are
+          </p>
+        </div>
+      </IrisReveal>
     </section>
   );
 }
