@@ -79,8 +79,18 @@ export function PostCard({
               href={href}
               tabIndex={-1}
               aria-hidden="true"
+              /*
+               * compact 는 "한 화면 안에 놓이는" 카드다. lg 이상(풀페이지 스냅이
+               * 켜지는 구간)에서는 사진 높이를 뷰포트에 비례시킨다 — 비율로 두면
+               * 화면이 낮은 노트북(800px 등)에서 장면이 뷰포트를 넘어, 스냅이 어긋나
+               * 스크롤이 흘러간다(실측: 1280×800 에서 갤러리 952px).
+               */
               className={`relative block overflow-hidden rounded-sm ${dark ? "bg-ink-800" : "bg-ivory-200"} ${
-                featured ? "aspect-[4/3] lg:aspect-[3/2]" : "aspect-[4/5]"
+                featured
+                  ? "aspect-[4/3] lg:aspect-[3/2]"
+                  : compact
+                    ? "aspect-[4/5] lg:aspect-auto lg:h-[27svh]"
+                    : "aspect-[4/5]"
               }`}
             >
               <Image

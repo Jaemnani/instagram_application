@@ -64,10 +64,15 @@ html {
  * mandatory 스냅이 오히려 답답하고, 세로가 짧은 기기에서는 콘텐츠가 잘린다.
  *
  * scroll-snap-stop: always — 세게 굴려도 장면을 건너뛰지 않고 한 칸씩 선다.
- * 갤러리처럼 뷰포트보다 긴 장면은 시작점에만 붙고 내부는 자유 스크롤이다.
  * ⚠️ 스냅 대상에는 position:sticky 를 쓰지 말 것(스크롤이 그 지점에 갇힌다).
+ *
+ * min-height 조건이 핵심이다 — 장면이 화면보다 크면 mandatory 스냅이 안착점을
+ * 잡지 못해 스크롤이 스르륵 흘러간다. 실측(1280 폭): 900·800 은 모든 장면이
+ * 화면 안에 들어오지만, 720 이하에서는 갤러리(771)·FAQ(724)가 넘친다. FAQ 는
+ * 문항 수로 높이가 정해져 화면을 따라 줄어들지 않으므로, 낮은 창에서는 스냅을
+ * 아예 켜지 않고 평범한 스크롤로 둔다(장면 구성은 그대로 보인다).
  */
-@media (min-width: 1024px) and (pointer: fine) {
+@media (min-width: 1024px) and (min-height: 760px) and (pointer: fine) {
   html {
     scroll-snap-type: y mandatory;
   }

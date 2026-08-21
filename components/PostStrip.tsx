@@ -31,7 +31,7 @@ export function PostStrip({
   const dark = tone === "dark";
 
   return (
-    <div className={`border-t pt-14 ${dark ? "border-ivory-50/10" : "border-ivory-200"}`}>
+    <div className={`border-t pt-10 ${dark ? "border-ivory-50/10" : "border-ivory-200"}`}>
       <div className="relative">
         <ul
           id={STRIP_ID}
@@ -53,7 +53,8 @@ export function PostStrip({
               // 다음 카드가 살짝 잘려 보이도록 100% 보다 작게 — 스크롤 가능함을 즉시 알린다.
               className="w-[76%] shrink-0 snap-start sm:w-[46%] lg:w-[30%] xl:w-[23%]"
             >
-              <PostCard post={post} lang={lang} dict={dict} tone={tone} />
+              {/* 한 화면 안에 들어가야 하는 카드 — 사진 높이가 뷰포트를 따라간다 */}
+              <PostCard post={post} lang={lang} dict={dict} tone={tone} compact />
             </li>
           ))}
         </ul>
