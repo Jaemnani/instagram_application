@@ -5,19 +5,36 @@ import { formatDate, formatNumber } from "@/lib/format";
 import { localizedPath, type Dictionary, type Locale } from "@/lib/i18n";
 import type { Post } from "@/lib/instagram/types";
 
-/** 캐러셀·영상 배지 (이미지 위 좌상단) */
+/**
+ * 캐러셀·영상 배지 (이미지 위 좌상단).
+ * 영상이면 가운데 재생 버튼도 얹는다 — 정지 이미지와 영상을 한눈에 구별시키는
+ * 관습적 기호라, 배지 텍스트보다 먼저 읽힌다. 버튼은 장식(실제 재생은 상세에서).
+ */
 function MediaBadge({ post, dict }: { post: Post; dict: Dictionary }) {
+  const isVideo = post.type === "VIDEO";
   const label =
     post.type === "CAROUSEL_ALBUM"
       ? dict.ui.photoCount(post.images.length)
-      : post.type === "VIDEO"
+      : isVideo
         ? dict.ui.video
         : null;
   if (!label) return null;
   return (
-    <span className="absolute left-3 top-3 rounded-full bg-ink-900/70 px-2.5 py-1 text-[11px] font-medium text-ivory-50 backdrop-blur-sm">
-      {label}
-    </span>
+    <>
+      <span className="absolute left-3 top-3 rounded-full bg-ink-900/70 px-2.5 py-1 text-[11px] font-medium text-ivory-50 backdrop-blur-sm">
+        {label}
+      </span>
+      {isVideo && (
+        <span
+          aria-hidden="true"
+          className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-ivory-50/90 text-ink-900 shadow-sm transition-transform duration-500 group-hover:scale-110"
+        >
+          <svg width="16" height="18" viewBox="0 0 16 18" fill="currentColor">
+            <path d="M15 8.13a1 1 0 0 1 0 1.74l-13 7.5A1 1 0 0 1 .5 16.5v-15A1 1 0 0 1 2 .63l13 7.5Z" />
+          </svg>
+        </span>
+      )}
+    </>
   );
 }
 
@@ -115,7 +132,19 @@ export function PostCard({
           </div>
         )}
 
-        <div className={featured ? "" : "mt-5"}>
+        <div className={featured ? "relative" : "mt-5"}>
+          {/* 세로쓰기 인덱스 탭 — 잡지 색인처럼 텍스트 블록 옆에 붙는다(장식).
+              그리드 간격(gap-8) 안쪽에 놓이므로 폭이 확보되는 lg 이상에서만 */}
+          {featured && (
+            <span
+              aria-hidden="true"
+              className={`vertical-label absolute -left-9 top-1 hidden rounded-full border px-1.5 py-3 text-[10px] uppercase tracking-[0.25em] lg:block ${
+                dark ? "border-ivory-50/25 text-ivory-300/70" : "border-ivory-300 text-ink-400"
+              }`}
+            >
+              Details
+            </span>
+          )}
           <div
             className={`flex items-center gap-3 text-xs tabular-nums tracking-[0.06em] ${dark ? "text-ivory-300/70" : "text-ink-400"}`}
           >

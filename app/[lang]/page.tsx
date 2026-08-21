@@ -36,6 +36,7 @@ function Section({
   tone = "base",
   fullscreen = false,
   className = "",
+  overlay,
 }: {
   id: string;
   children: React.ReactNode;
@@ -44,6 +45,8 @@ function Section({
   /** 데스크톱에서 뷰포트 한 장을 차지하는 전체화면 섹션 (콘텐츠 세로 중앙) */
   fullscreen?: boolean;
   className?: string;
+  /** 최대폭 제약을 받지 않고 섹션 전체를 가로지르는 장식 레이어 */
+  overlay?: React.ReactNode;
 }) {
   const toneClass = tone === "tinted" ? "bg-ivory-100" : tone === "dark" ? "bg-ink-900" : "";
   return (
@@ -54,6 +57,7 @@ function Section({
         fullscreen ? "lg:flex lg:min-h-svh lg:items-center" : ""
       } ${className}`}
     >
+      {overlay}
       <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20">{children}</div>
     </section>
   );
@@ -117,7 +121,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
       </Section>
 
       {/* 아래가 다크 밴드라 보더 불필요 — 다크 배경 자체가 경계 */}
-      <Section id="services" tone="tinted" bordered={false}>
+      <Section id="services" tone="tinted" bordered={false} className="grid-paper">
         <Reveal>
           <SectionHeading
             id="services-heading"
@@ -208,7 +212,20 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
       {/* 대형 예약 섹션 — 히어로와 짝을 이루는 다크 북엔드 */}
       {bookingUrl && hasLocalBusinessData() && b && (
-        <Section id="book" tone="dark" bordered={false} fullscreen className="dot-grid-dark">
+        <Section
+          id="book"
+          tone="dark"
+          bordered={false}
+          fullscreen
+          className="dot-grid-dark"
+          overlay={
+            // 대형 타이포를 위아래로 감싸는 흰 사선 띠 — 전체화면이 되는 lg 이상에서만
+            <>
+              <MarqueeRibbon variant="tilted" className="top-[13%] hidden lg:block" />
+              <MarqueeRibbon variant="tilted" reverse className="bottom-[13%] hidden lg:block" />
+            </>
+          }
+        >
           <Reveal className="text-center">
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-clay-400">
               {dict.book.eyebrow}

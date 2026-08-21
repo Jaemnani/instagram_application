@@ -223,6 +223,20 @@ body {
   opacity: 0.13;
 }
 
+/* 세로쓰기 라벨 — 잡지 색인 탭. 라틴 글자는 눕히지 않고 세워서 쌓는다. */
+.vertical-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* 모눈 지면 — 그래프용지에 인쇄한 느낌 (도트 지면과 짝을 이루는 텍스처 변주) */
+.grid-paper {
+  background-image:
+    linear-gradient(var(--color-ivory-200) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-ivory-200) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
 /* 할프톤 도트 지면 — 종이에 인쇄된 망점 느낌의 배경 텍스처 */
 .dot-grid {
   background-image: radial-gradient(var(--color-ivory-200) 1.2px, transparent 1.3px);
@@ -255,6 +269,11 @@ body {
 @media (prefers-reduced-motion: no-preference) {
   .marquee-track {
     animation: marquee 30s linear infinite;
+  }
+
+  /* 사선 리본을 두 줄 겹칠 때 서로 반대로 흐르게 해 교차감을 만든다 */
+  .marquee-track-reverse {
+    animation: marquee 30s linear infinite reverse;
   }
 
   @keyframes marquee {
