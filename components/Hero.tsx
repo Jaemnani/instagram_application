@@ -35,7 +35,7 @@ export function Hero({
   const heroSrc = siteConfig.heroImageSrc || picked?.coverImage?.src;
 
   return (
-    <section className="snap-section relative isolate flex min-h-svh flex-col items-center justify-center overflow-hidden bg-ink-900 px-5 py-24 text-center sm:px-8">
+    <section className="relative isolate flex min-h-svh flex-col items-center justify-center overflow-hidden bg-ink-900 px-5 py-24 text-center sm:px-8">
       {heroSrc && (
         <Image
           src={heroSrc}

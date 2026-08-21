@@ -29,15 +29,22 @@ export function StatementFill({ children }: { children: React.ReactNode }) {
     let lastCount = 0;
     let raf = 0;
 
+    // 섹션이 sticky 로 고정되면 자기 rect.top 은 0 에 붙어 움직이지 않는다.
+    // 그럴 때는 스크롤을 실제로 소비하는 바깥 스페이서를 기준으로 진행률을 잰다.
+    const spacer = root.closest<HTMLElement>("[data-pin-spacer]");
+
     const update = () => {
       raf = 0;
-      const rect = root.getBoundingClientRect();
       const vh = window.innerHeight;
-      // 섹션 상단이 화면 85% 지점에 닿으면 시작해, 뷰포트를 통과하는 동안 채운다.
-      const progress = Math.min(
-        1,
-        Math.max(0, (vh * 0.85 - rect.top) / (rect.height + vh * 0.35)),
-      );
+      let progress: number;
+      if (spacer && spacer.getBoundingClientRect().height > vh) {
+        const rect = spacer.getBoundingClientRect();
+        progress = Math.min(1, Math.max(0, -rect.top / (rect.height - vh)));
+      } else {
+        const rect = root.getBoundingClientRect();
+        // 섹션 상단이 화면 85% 지점에 닿으면 시작해, 뷰포트를 통과하는 동안 채운다.
+        progress = Math.min(1, Math.max(0, (vh * 0.85 - rect.top) / (rect.height + vh * 0.35)));
+      }
       const count = Math.round(progress * words.length);
       if (count === lastCount) return;
       const [from, to] = count > lastCount ? [lastCount, count] : [count, lastCount];

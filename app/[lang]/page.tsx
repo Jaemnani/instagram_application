@@ -38,7 +38,7 @@ function Section({
   fullscreen = false,
   className = "",
   overlay,
-  snap = true,
+  pinned = false,
 }: {
   id: string;
   children: React.ReactNode;
@@ -50,21 +50,23 @@ function Section({
   /** 최대폭 제약을 받지 않고 섹션 전체를 가로지르는 장식 레이어 */
   overlay?: React.ReactNode;
   /**
-   * 휠 스냅 대상 여부.
-   * ⚠️ sticky 로 고정되는 섹션에는 반드시 false — position:sticky 요소에
-   * scroll-snap-align 이 걸리면 브라우저가 스냅 지점을 sticky 위치로 계속
-   * 재계산해 그 지점에 스크롤이 갇힌다(실측: 문서 최대 6991 인데 5258 에서 정지.
-   * 스냅만 꺼도, sticky 만 꺼도 정상 복귀 — 둘의 조합이 원인).
+   * 화면에 고정(pin)되는 섹션.
+   * 부모를 뷰포트보다 긴 스페이서로 두면, 이 섹션이 화면을 꽉 채운 채 머무는 동안
+   * 스크롤이 소비되고 그 뒤 다음 섹션이 올라온다(장면이 "머물다 넘어가는" 감각).
    */
-  snap?: boolean;
+  pinned?: boolean;
 }) {
   const toneClass = tone === "tinted" ? "bg-ivory-100" : tone === "dark" ? "bg-ink-900" : "";
   return (
     <section
       id={id}
       aria-labelledby={`${id}-heading`}
-      className={`${snap ? "snap-section" : ""} relative ${bordered && tone !== "dark" ? "border-b border-ivory-200" : ""} ${toneClass} ${
-        fullscreen ? "lg:flex lg:min-h-svh lg:items-center" : ""
+      className={`relative ${bordered && tone !== "dark" ? "border-b border-ivory-200" : ""} ${toneClass} ${
+        pinned
+          ? "lg:sticky lg:top-0 lg:flex lg:h-svh lg:items-center"
+          : fullscreen
+            ? "lg:flex lg:min-h-svh lg:items-center"
+            : ""
       } ${className}`}
     >
       {overlay}
@@ -136,7 +138,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         services 높이(약 714px)가 뷰포트보다 작아야 sticky 가 잘리지 않는다.
       */}
       <div className="lg:sticky lg:top-0">
-      <Section id="services" tone="tinted" bordered={false} className="grid-paper" snap={false}>
+      <Section id="services" tone="tinted" bordered={false} className="grid-paper">
         <Reveal>
           <SectionHeading
             id="services-heading"
@@ -157,7 +159,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
       <Section
         id="gallery"
         tone="dark"
-        className="z-10 -mt-6 rounded-t-[2rem] shadow-[0_-24px_60px_rgba(28,25,23,0.35)] lg:rounded-t-[4rem]"
+        className="z-10 -mt-8 rounded-t-[2rem] shadow-[0_-24px_60px_rgba(28,25,23,0.35)] lg:-mt-16 lg:rounded-t-[4rem]"
       >
         {/* 곰돌이 스티커 — 아치 경계를 가로질러 크게 붙는다(경계 무시가 포인트).
             Reveal 로 감싸 스크롤 진입 시 아래에서 떠오르며 자리잡는다. */}
@@ -207,7 +209,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
       <Section
         id="faq"
         bordered={false}
-        className="z-10 -mt-6 rounded-t-[2rem] bg-ivory-50 shadow-[0_-24px_60px_rgba(28,25,23,0.18)] lg:rounded-t-[4rem]"
+        className="z-10 -mt-8 rounded-t-[2rem] bg-ivory-50 shadow-[0_-24px_60px_rgba(28,25,23,0.18)] lg:-mt-16 lg:rounded-t-[4rem]"
       >
         <Reveal>
           <SectionHeading
@@ -243,11 +245,12 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
       {/* 대형 예약 섹션 — 히어로와 짝을 이루는 다크 북엔드 */}
       {bookingUrl && hasLocalBusinessData() && b && (
+        <div className="lg:h-[185vh]">
         <Section
           id="book"
           tone="dark"
           bordered={false}
-          fullscreen
+          pinned
           className="dot-grid-dark"
           overlay={
             // 대형 타이포를 위아래로 감싸는 흰 사선 띠 — 전체화면이 되는 lg 이상에서만
@@ -286,6 +289,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             </a>
           </Reveal>
         </Section>
+        </div>
       )}
 
       {/* 떠다니는 브랜드 스티커 — 페이지 어디서나 우하단에서 천천히 돈다 */}

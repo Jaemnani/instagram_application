@@ -59,38 +59,6 @@ html {
 }
 
 /**
- * 섹션 단위 휠 스냅 — 휠을 넘기면 다음 섹션 머리에 안착하는 "페이지 넘김" 감각.
- * 데스크톱 + 정밀 포인터(마우스/트랙패드)에서만 켠다:
- *  - 모바일은 섹션 높이가 뷰포트를 넘는 경우가 많아 스냅이 오히려 방해
- *  - proximity 라서 뷰포트보다 긴 섹션(갤러리 등) 내부는 자유 스크롤 유지
- */
-@media (min-width: 1024px) and (pointer: fine) {
-  html {
-    scroll-snap-type: y proximity;
-  }
-
-  .snap-section {
-    scroll-snap-align: start;
-  }
-
-  /*
-   * 푸터는 "바닥"을 스냅 종점으로 만든다 — 이게 없으면 페이지 맨 아래(푸터)에
-   * 도달해도 마지막 섹션(BOOK NOW)의 머리가 proximity 범위 안이라 휠이 위로
-   * 끌려 올라간다. end 정렬 = 푸터 바닥이 뷰포트 바닥에 붙는 지점(=최대 스크롤)이
-   * 정식 안착점이 되어 바닥에서 더는 움직이지 않는다.
-   */
-  .snap-footer {
-    scroll-snap-align: end;
-  }
-}
-
-body {
-  font-family: var(--font-sans);
-  /* 국문 가독성: 기본 자간을 살짝 좁혀 세리프 헤드라인과 밀도를 맞춘다 */
-  letter-spacing: -0.01em;
-}
-
-/**
  * 워드마크 두 가지 크기.
  * .wordmark  — 헤더·푸터처럼 작게 쓰는 곳. Bold 로 또렷하게.
  * .wordmark-lg — 크게 쓰는 곳. 로고 원본이 hairline 이라 얇게 + 자간을 넓혀 감도를 살린다.

@@ -16,11 +16,12 @@ export function Statement({ dict, lang }: { dict: Dictionary; lang: Locale }) {
   const segmenter = new Intl.Segmenter(intlLocale[lang], { granularity: "word" });
 
   return (
+    // 스페이서가 뷰포트보다 길어, 섹션이 화면에 고정된 채 머무는 동안 문장이 채워진다.
+    <div data-pin-spacer className="lg:h-[200vh]">
     <section
       id="statement"
       aria-label={dict.statement.label}
-      // 데스크톱에서는 전체화면 한 장 — 큰 문장이 화면을 독차지하는 순간을 만든다.
-      className="snap-section dot-grid relative overflow-hidden bg-ivory-50 lg:flex lg:min-h-svh lg:items-center"
+      className="dot-grid relative overflow-hidden bg-ivory-50 lg:sticky lg:top-0 lg:flex lg:h-svh lg:items-center"
     >
       {/* 오른쪽 여백을 채우는 세로쓰기 대형 아웃라인 (장식) */}
       <span
@@ -72,5 +73,6 @@ export function Statement({ dict, lang }: { dict: Dictionary; lang: Locale }) {
         </StatementFill>
       </div>
     </section>
+    </div>
   );
 }

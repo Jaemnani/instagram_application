@@ -40,7 +40,9 @@ export function MarqueeRibbon({
       // 회전하면 양 끝에 빈 삼각형이 생기므로 화면보다 넓게 뽑아 덮는다.
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-x-0 z-20 overflow-hidden ${className}`}
+        // 회전하면 띠의 bounding box 가 세로로 커진다. 부모에 여백이 없으면
+        // overflow-hidden 이 위아래 모서리를 잘라 띠 끝이 삐뚤어져 보인다.
+        className={`pointer-events-none absolute inset-x-0 z-20 overflow-hidden py-10 ${className}`}
       >
         <div
           // 회전하면 글자 블록이 띠 경계를 넘기 쉬워 상하 여백을 넉넉히 준다
