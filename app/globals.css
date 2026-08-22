@@ -75,6 +75,12 @@ html {
 @media (min-width: 1024px) and (min-height: 760px) and (pointer: fine) {
   html {
     scroll-snap-type: y mandatory;
+    /*
+     * 풀페이지는 "탁" 하고 장면이 바뀌어야 한다. smooth 를 두면 스냅 이동이
+     * 부드럽게 흘러가 — 화면이 위로 밀리는 모습(휠이 내려가는 모습)이 그대로
+     * 보인다. 여기서는 장면 전환이 곧 화면 전환이므로 이동은 안 보이는 게 맞다.
+     */
+    scroll-behavior: auto;
   }
 
   .snap-page {
@@ -219,6 +225,56 @@ html {
 .section-display-dark {
   -webkit-text-stroke-color: var(--color-ivory-50);
   opacity: 0.13;
+}
+
+/**
+ * 셔터 오버레이 — 오시는 길 ↔ 예약 사이를 덮는 화면 고정 조리개.
+ * 평소에는 아예 없고(display:none), 전환하는 동안에만 나타난다.
+ * 시간 값은 ShutterTransition.tsx 의 OPEN_MS / CLOSE_MS 와 같이 맞춰야 한다.
+ */
+.shutter {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.shutter[data-active] {
+  display: block;
+}
+
+.shutter-iris {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  background: var(--color-ink-900);
+  /* 닫힘 — 이 원이 줄어들며 아래 장면이 드러난다 */
+  clip-path: circle(0% at 50% 50%);
+  transition: clip-path 0.45s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+.shutter[data-open] .shutter-iris {
+  /* circle() 백분율은 대각선 기준 — 세로가 긴 창에서 모서리를 덮으려면 70% 남짓 */
+  clip-path: circle(78% at 50% 50%);
+  transition: clip-path 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.shutter-iris img {
+  width: 78vw;
+  max-width: 52rem;
+  height: auto;
+}
+
+.shutter-iris p {
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-ivory-300) 60%, transparent);
 }
 
 /**
