@@ -31,7 +31,7 @@ export function SiteFooter({
           </div>
 
           <div>
-            <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">
+            <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-600">
               {dict.footer.studio}
             </h2>
             <address className="mt-3 space-y-1 text-sm not-italic text-ink-600">
@@ -48,7 +48,7 @@ export function SiteFooter({
           </div>
 
           <div>
-            <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">
+            <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-600">
               {dict.footer.links}
             </h2>
             <ul className="mt-3 space-y-2 text-sm text-ink-600">
@@ -90,7 +90,7 @@ export function SiteFooter({
           <LanguageSwitcher lang={lang} dict={dict} />
         </div>
 
-        <p className="mt-12 border-t border-ivory-200 pt-6 text-xs text-ink-400">
+        <p className="mt-12 border-t border-ivory-200 pt-6 text-xs text-ink-600">
           © {siteConfig.name}. {dict.footer.syncNote}
         </p>
       </div>

@@ -102,7 +102,9 @@ export function Hero({
 
       <a
         href="#story"
-        aria-label={dict.ui.scrollHint}
+        /* 보이는 텍스트(SCROLL)가 접근명에 포함돼야 한다 — 음성 제어 사용자가
+           "SCROLL 클릭"이라고 말했을 때 이 링크가 잡힌다(WCAG 2.5.3) */
+        aria-label={`${dict.ui.scroll} — ${dict.ui.scrollHint}`}
         className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-ivory-200 transition-colors hover:text-ivory-50"
       >
         <span className="text-[10px] uppercase tracking-[0.28em]">{dict.ui.scroll}</span>

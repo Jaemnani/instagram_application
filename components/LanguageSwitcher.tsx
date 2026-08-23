@@ -21,7 +21,7 @@ export function LanguageSwitcher({
 }) {
   return (
     <nav aria-label={dict.ui.language}>
-      <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">
+      <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-600">
         {dict.ui.language}
       </h2>
       <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm">

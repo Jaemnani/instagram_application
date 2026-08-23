@@ -1,7 +1,30 @@
 # 워드마크 폰트 (Geo Sans Light)
 
-로고 서체로 쓸 **Geo Sans Light** 파일을 이 폴더에 넣으면 자동으로 적용됩니다.
-파일이 없으면 Poppins 로 조용히 폴백하므로 빌드나 화면이 깨지지 않습니다.
+로고 서체로 쓸 **Geo Sans Light** 파일을 이 폴더에 넣고, `app/globals.css` 의
+`@font-face` 와 `--font-brand-display` 스택을 되살리면 적용됩니다.
+
+> ⚠️ **파일 없이 `@font-face` 만 두면 안 됩니다.** "파일이 없으면 조용히 폴백한다"고
+> 적어 뒀었지만 실제로는 브라우저가 매 페이지 로드마다 두 파일을 요청해 **404 를
+> 2번 받습니다**(Lighthouse 콘솔 에러로 실측). 그래서 지금은 선언을 빼 둔 상태이고,
+> 폰트를 넣을 때 함께 되살려야 합니다.
+
+되살릴 내용:
+
+```css
+@font-face {
+  font-family: "Geo Sans Light";
+  src:
+    url("/fonts/GeoSansLight.woff2") format("woff2"),
+    url("/fonts/GeoSansLight.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* @theme 안 */
+--font-brand-display: "Geo Sans Light", var(--font-poppins), var(--font-noto-sans-kr),
+  system-ui, sans-serif;
+```
 
 ## 넣을 파일 이름 (둘 중 하나 이상)
 

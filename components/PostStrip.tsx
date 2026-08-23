@@ -32,13 +32,16 @@ export function PostStrip({
 
   return (
     <div className={`border-t pt-10 ${dark ? "border-ivory-50/10" : "border-ivory-200"}`}>
-      <div className="relative">
+      {/*
+        role="region" 은 바깥 div 에 준다. ul 에 주면 암묵 role(list) 이 덮여
+        자식 <li> 가 "리스트 밖의 항목"이 되어 접근성 검사에 걸린다(실측).
+        초점과 좌우 키 이동은 ul 이 그대로 담당한다.
+      */}
+      <div className="relative" role="region" aria-label={dict.gallery.title}>
         <ul
           id={STRIP_ID}
           // 목록 자체에 초점을 줘 키보드 사용자도 좌우 키로 넘길 수 있게 한다.
           tabIndex={0}
-          role="region"
-          aria-label={dict.gallery.title}
           /*
            * scroll-pl-* 은 px-* 과 반드시 같은 값이어야 한다. 없으면 snap-start 가
            * 첫 카드를 컨테이너 맨 왼쪽(= padding 안쪽)에 맞추려고 scrollLeft 을
