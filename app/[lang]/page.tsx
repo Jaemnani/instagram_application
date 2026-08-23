@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Faq } from "@/components/Faq";
 import { Hero } from "@/components/Hero";
 import { JsonLd } from "@/components/JsonLd";
-import { ShutterTransition } from "@/components/ShutterTransition";
+import { FadeTransition } from "@/components/FadeTransition";
 import { LocationCard } from "@/components/LocationCard";
 import { MarqueeRibbon } from "@/components/MarqueeRibbon";
 import { PostStrip } from "@/components/PostStrip";
@@ -219,9 +219,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         </Reveal>
       </Section>
 
-      {/* 오시는 길 ↔ 예약 사이를 덮는 셔터. 스크롤 구간이 아니라 화면 고정 오버레이라
-          장면이 밀려 올라가는 모습 없이 조리개만 열리고 닫힌다. */}
-      {bookingUrl && hasLocalBusinessData() && b && <ShutterTransition />}
+      {/* 숨 고르기 한 장면 — 곰돌이와 카메라만 떠올랐다가, 다음 장면에서 예약으로 */}
+      {bookingUrl && hasLocalBusinessData() && b && <FadeTransition />}
 
       {/* 대형 예약 섹션 — 히어로와 짝을 이루는 다크 북엔드 */}
       {bookingUrl && hasLocalBusinessData() && b && (
@@ -239,7 +238,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             </>
           }
         >
-          {/* 이 화면은 셔터(ShutterTransition)가 닫히면서 드러난다 */}
           <div className="text-center">
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-clay-400">
               {dict.book.eyebrow}
