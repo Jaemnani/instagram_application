@@ -241,12 +241,15 @@ async function checkPage(locale: string) {
       const first = (it.acceptedAnswer?.text ?? "").split(/(?<=[.。!?！？])\s*/)[0] ?? "";
       return first.length > 90; // 첫 문장이 길면 직답이 아니라 설명으로 시작한 것
     });
+    // 문항이 0개면 "모두 통과"가 아니라 검사할 게 없었던 것이다 — ok 로 보고하면 미탐
     add(
-      longOpeners.length ? "warn" : "ok",
+      items.length === 0 ? "warn" : longOpeners.length ? "warn" : "ok",
       `/${locale} FAQ 직답`,
-      longOpeners.length
-        ? `${items.length}문항 중 ${longOpeners.length}개가 긴 문장으로 시작`
-        : `${items.length}문항 모두 짧은 직답으로 시작`,
+      items.length === 0
+        ? "FAQPage 에 문항이 없음"
+        : longOpeners.length
+          ? `${items.length}문항 중 ${longOpeners.length}개가 긴 문장으로 시작`
+          : `${items.length}문항 모두 짧은 직답으로 시작`,
     );
   }
 }
