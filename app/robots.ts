@@ -25,7 +25,8 @@ const AI_CRAWLERS = [
   "ClaudeBot",
   "Claude-SearchBot",
   "Claude-User",
-  // Google (Gemini / AI Overviews)
+  // Google — Googlebot 이 검색·AI Overviews 색인, Google-Extended 는 Gemini 학습
+  "Googlebot",
   "Google-Extended",
   // Perplexity
   "PerplexityBot",

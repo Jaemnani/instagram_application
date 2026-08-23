@@ -18,15 +18,21 @@ import { siteConfig } from "../lib/config";
 
 const BASE = (process.argv[2] || siteConfig.url).replace(/\/$/, "");
 
-/** 검색용 — 막히면 그 엔진 답변에 인용될 수 없다 */
+/**
+ * 검색용 — 막히면 그 엔진 답변에 인용될 수 없다.
+ * ⚠️ Google-Extended 는 여기에 넣지 않는다. 그건 Gemini **학습**용이고 검색은 Googlebot 이다.
+ * 학습만 끄고 인용은 허용하는 설정(문서가 권하는 구성)을 실패로 오판하게 된다.
+ */
 const SEARCH_BOTS = [
   "OAI-SearchBot",
   "ChatGPT-User",
   "Claude-SearchBot",
   "Claude-User",
   "PerplexityBot",
-  "Google-Extended",
+  "Perplexity-User",
   "Applebot",
+  "Googlebot",
+  "Bingbot",
 ];
 
 const REQUIRED_LD = ["Organization", "WebSite", "FAQPage", "OfferCatalog"];
@@ -53,22 +59,37 @@ async function get(path: string): Promise<{ status: number; text: string }> {
   }
 }
 
-/** robots.txt 를 user-agent 별 규칙으로 거칠게 파싱한다(Allow/Disallow 만 본다) */
+/**
+ * robots.txt 를 user-agent 별 규칙으로 파싱한다(Allow/Disallow 만 본다).
+ *
+ * ⚠️ 그룹 규칙이 핵심이다 — **연속된 User-agent 줄은 하나의 그룹**이고 그 뒤의 규칙을
+ * 함께 받는다. 규칙이 한 번 나온 뒤 다시 User-agent 가 나오면 그때부터 새 그룹이다.
+ * Next 의 `MetadataRoute.Robots` 가 배열 userAgent 를 정확히 이 형태로 직렬화한다.
+ * 이걸 틀리면 앞쪽 봇들이 규칙 없는 것으로 보여, 차단을 놓친다(미탐).
+ */
 function parseRobots(txt: string): Map<string, string[]> {
   const rules = new Map<string, string[]>();
-  let agents: string[] = [];
+  let group: string[] = [];
+  let sawRule = false;
+
   for (const raw of txt.split("\n")) {
     const line = raw.split("#")[0].trim();
     if (!line) continue;
-    const [k, ...rest] = line.split(":");
-    const key = k.trim().toLowerCase();
-    const value = rest.join(":").trim();
+    const idx = line.indexOf(":");
+    if (idx < 0) continue;
+    const key = line.slice(0, idx).trim().toLowerCase();
+    const value = line.slice(idx + 1).trim().toLowerCase();
+
     if (key === "user-agent") {
-      agents = agents.length && rules.has(agents[0]) ? [value.toLowerCase()] : [...agents, value.toLowerCase()];
-      for (const a of agents) if (!rules.has(a)) rules.set(a, []);
-    } else if (key === "disallow" || key === "allow") {
-      for (const a of agents) rules.get(a)?.push(`${key} ${value}`);
-      if (key === "disallow") agents = agents.slice();
+      if (sawRule) {
+        group = []; // 규칙 뒤에 나온 User-agent → 새 그룹
+        sawRule = false;
+      }
+      group.push(value);
+      if (!rules.has(value)) rules.set(value, []);
+    } else if (key === "allow" || key === "disallow") {
+      sawRule = true;
+      for (const a of group) rules.get(a)?.push(`${key} ${value}`);
     }
   }
   return rules;
@@ -84,7 +105,8 @@ async function checkRobots() {
 
   for (const bot of SEARCH_BOTS) {
     const own = rules.get(bot.toLowerCase());
-    if (!own) {
+    // 규칙이 아예 없거나(미명시) 빈 그룹이면 `*` 규칙을 따르는 것으로 본다
+    if (!own || own.length === 0) {
       unlisted.push(bot);
       continue;
     }
@@ -127,14 +149,27 @@ async function checkSitemap() {
 
 function extractJsonLd(html: string): Record<string, unknown>[] {
   const out: Record<string, unknown>[] = [];
+
+  /** 배열과 `@graph` 를 펼쳐 노드를 평평하게 모은다 */
+  const collect = (node: unknown) => {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) {
+      for (const n of node) collect(n);
+      return;
+    }
+    const obj = node as Record<string, unknown>;
+    if (Array.isArray(obj["@graph"])) {
+      for (const n of obj["@graph"]) collect(n);
+      return;
+    }
+    out.push(obj);
+  };
+
   const re = /<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(html))) {
     try {
-      const parsed: unknown = JSON.parse(m[1]);
-      for (const item of Array.isArray(parsed) ? parsed : [parsed]) {
-        if (item && typeof item === "object") out.push(item as Record<string, unknown>);
-      }
+      collect(JSON.parse(m[1]));
     } catch {
       out.push({ "@type": "PARSE_ERROR" });
     }

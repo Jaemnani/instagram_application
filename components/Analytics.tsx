@@ -70,11 +70,28 @@ export function Analytics() {
 
   useEffect(() => {
     if (!gaId) return;
+
+    /*
+     * 아래 인라인 <script> 는 첫 로드 때 HTML 파서가 실행한다. 다만 클라이언트에서
+     * 이 컴포넌트가 새로 마운트되는 경우(브라우저는 innerHTML 로 삽입된 script 를
+     * 실행하지 않는다) gtag 가 없을 수 있어, 여기서 한 번 더 보장한다.
+     * 이미 정의돼 있으면 손대지 않으므로 config 가 두 번 불리지 않는다.
+     */
+    window.dataLayer = window.dataLayer ?? [];
+    if (typeof window.gtag !== "function") {
+      // 표준 스니펫과 같은 형태 — GA 는 arguments 객체가 쌓이기를 기대한다
+      const gtag = function (this: unknown) {
+        // eslint-disable-next-line prefer-rest-params
+        window.dataLayer?.push(arguments);
+      } as (...args: unknown[]) => void;
+      window.gtag = gtag;
+      gtag("js", new Date());
+      gtag("config", gaId);
+    }
+
     const source = matchAiSource(document.referrer);
     if (!source) return;
-    // gtag 로드 전이라도 dataLayer 에 쌓아두면 로드 시점에 함께 처리된다
-    window.dataLayer = window.dataLayer ?? [];
-    window.gtag?.("event", "ai_referral", {
+    window.gtag("event", "ai_referral", {
       ai_source: source,
       page_location: window.location.href,
     });
@@ -97,7 +114,10 @@ export function Analytics() {
             `function gtag(){dataLayer.push(arguments)}` +
             `window.gtag=gtag;` +
             `gtag('js',new Date());` +
-            `gtag('config',${JSON.stringify(gaId)});`,
+            // `<` 를 이스케이프해야 값 안의 `</script>` 로 스크립트를 닫을 수 없다.
+            // JSON.stringify 는 따옴표·역슬래시만 처리하고 `<` 는 그대로 둔다 —
+            // 같은 이유로 lib/seo/jsonld.ts 의 serializeLd 도 이 치환을 한다.
+            `gtag('config',${JSON.stringify(gaId).replace(/</g, "\\u003c")});`,
         }}
       />
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
