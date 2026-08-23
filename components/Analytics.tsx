@@ -82,16 +82,25 @@ export function Analytics() {
 
   if (!gaId) return null;
 
+  /*
+   * 초기화는 일반 <script> 로 서버 HTML 에 넣는다 — Google 공식 스니펫과 같은 순서다.
+   * next/script 의 인라인은 하이드레이션 후에야 주입돼 (a) 초기 HTML 에 없어 검증이
+   * 어렵고 (b) 그 전에 실행되는 코드가 gtag 를 못 찾는다. 여기서 먼저 정의해 두면
+   * 외부 gtag.js 가 로드되기 전 호출도 dataLayer 에 쌓였다가 로드 시 함께 처리된다.
+   */
   return (
     <>
+      <script
+        dangerouslySetInnerHTML={{
+          __html:
+            `window.dataLayer=window.dataLayer||[];` +
+            `function gtag(){dataLayer.push(arguments)}` +
+            `window.gtag=gtag;` +
+            `gtag('js',new Date());` +
+            `gtag('config',${JSON.stringify(gaId)});`,
+        }}
+      />
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
-      <Script id="ga4-init" strategy="afterInteractive">
-        {`window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-window.gtag = gtag;
-gtag('js', new Date());
-gtag('config', '${gaId}');`}
-      </Script>
     </>
   );
 }
