@@ -86,7 +86,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
       {/* 이야기 + 촬영 종류를 한 장면에 나란히 — 휠 한 번으로 스튜디오를 파악한다 */}
       <Section id="story" page tone="tinted" bordered={false} className="grid-paper">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="grid gap-12 md:grid-cols-2 lg:gap-16">
           <div>
             <Reveal>
               <SectionHeading

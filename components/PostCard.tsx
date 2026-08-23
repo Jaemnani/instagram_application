@@ -89,7 +89,7 @@ export function PostCard({
                 featured
                   ? "aspect-[4/3] lg:aspect-[3/2]"
                   : compact
-                    ? "aspect-[4/5] lg:aspect-auto lg:h-[27svh]"
+                    ? "aspect-[4/5] md:aspect-auto md:h-[27svh]"
                     : "aspect-[4/5]"
               }`}
             >
