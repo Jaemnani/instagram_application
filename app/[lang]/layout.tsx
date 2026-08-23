@@ -15,6 +15,11 @@ import { localBusinessLd, organizationLd, webSiteLd } from "@/lib/seo/jsonld";
 /**
  * 국문 웹폰트. `subsets` 는 preload 대상만 정하고 한글 글리프는 항상 self-host 되므로
  * (next/font 의 findFontFilesInCss 가 CSS 의 모든 파일을 받는다) latin 만 지정해도 한글이 나온다.
+ *
+ * ⚠️ **가중치 하나가 곧 파일 여러 개다.** 한글 글리프는 unicode-range 로 잘게 쪼개져
+ * 서브셋 파일이 가중치마다 4~5개씩 생긴다(실측: 가중치 6종 → woff2 27개, 678KB,
+ * 전체 전송량의 43%). 안 쓰는 굵기를 선언에 남겨 두면 그만큼 그대로 낭비다.
+ * 굵기를 추가할 때는 실제로 쓰는지 먼저 확인할 것.
  */
 const serif = Noto_Serif_KR({
   variable: "--font-noto-serif-kr",
@@ -26,7 +31,8 @@ const serif = Noto_Serif_KR({
 const sans = Noto_Sans_KR({
   variable: "--font-noto-sans-kr",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  // 400=본문, 500=라벨. 700 은 본문 계열에서 쓰는 곳이 없어 뺐다(굵은 제목은 serif 담당).
+  weight: ["400", "500"],
   display: "swap",
 });
 
