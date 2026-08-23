@@ -21,7 +21,9 @@ export function Statement({ dict, lang }: { dict: Dictionary; lang: Locale }) {
     <section
       id="statement"
       aria-label={dict.statement.label}
-      className="snap-page dot-grid relative flex min-h-svh flex-col justify-center overflow-hidden bg-ivory-50"
+      // ⚠️ hidden 이 아니라 clip — hidden 은 스크롤 포트를 만들어 이 장면 위에서
+      // 휠이 먹통이 된다(Hero 와 같은 함정). clip 은 잘라내되 컨테이너가 되지 않는다.
+      className="snap-page dot-grid relative flex min-h-svh flex-col justify-center overflow-clip bg-ivory-50"
     >
       {/* 히어로에서 넘어온 직후, 이 장면 머리에 걸리는 브랜드 띠 */}
       <div className="absolute inset-x-0 top-0">

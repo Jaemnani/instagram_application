@@ -35,7 +35,14 @@ export function Hero({
   const heroSrc = siteConfig.heroImageSrc || picked?.coverImage?.src;
 
   return (
-    <section className="snap-page relative isolate flex min-h-svh flex-col items-center justify-center overflow-hidden bg-ink-900 px-5 py-24 text-center sm:px-8">
+    <section /*
+       * ⚠️ overflow-hidden 이 아니라 overflow-clip 이다.
+       * hidden 은 그 자리에 **스크롤 포트**를 만들어 휠 대상이 이 섹션으로 고정된다.
+       * 이 섹션은 스크롤할 게 없으므로 첫 화면에서 휠이 통째로 먹통이 됐다
+       * (실측: 커서가 히어로 위일 때 작은 휠 8회에도 y=0).
+       * clip 은 넘침을 잘라내는 결과는 같으면서 스크롤 컨테이너가 되지 않는다.
+       */
+      className="snap-page relative isolate flex min-h-svh flex-col items-center justify-center overflow-clip bg-ink-900 px-5 py-24 text-center sm:px-8">
       {heroSrc && (
         <Image
           src={heroSrc}
