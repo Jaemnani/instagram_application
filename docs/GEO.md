@@ -6,9 +6,14 @@ AI 답변(ChatGPT·Perplexity·Claude·Gemini·AI Overviews)에 이 스튜디오
 ## 현황 점검 — 언제든 한 줄로
 
 ```bash
-npm run geo-check                          # 프로덕션
-npm run geo-check -- http://localhost:3005 # 로컬
+npm run geo-check -- https://실제도메인      # 배포본 (이게 진짜 확인)
+npm run geo-check -- http://localhost:3005 # 로컬 dev (포트는 npm run dev 출력 확인)
+npm run geo-check                          # 인자 없으면 SITE_URL 값 — 로컬에선 localhost:3000
 ```
+
+⚠️ **인자를 주지 않으면 `SITE_URL` 환경변수를 씁니다.** 로컬 `.env.local` 은 개발용이라
+`http://localhost:3000` 이라서, dev 서버를 다른 포트로 띄웠거나 배포본을 보려던 경우
+전부 `연결 실패 — ECONNREFUSED` 로 나옵니다. 사이트 결함이 아니라 주소 문제입니다.
 
 배포된 사이트에 실제로 요청을 보내 확인한다. 코드가 아니라 **응답**을 보는 이유는, 빌드가
 통과해도 배포 결과가 다를 수 있고(캐시·환경변수) AI 는 그 배포 결과로 판단하기 때문이다.

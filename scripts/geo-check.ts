@@ -67,13 +67,28 @@ type Level = "ok" | "warn" | "fail";
 const rows: { level: Level; label: string; detail: string }[] = [];
 const add = (level: Level, label: string, detail: string) => rows.push({ level, label, detail });
 
-async function get(path: string): Promise<{ status: number; text: string }> {
+/** status 0 = HTTP 응답 자체를 못 받음(연결 실패). error 에 사유가 담긴다. */
+async function get(path: string): Promise<{ status: number; text: string; error?: string }> {
   try {
     const res = await fetch(`${BASE}${path}`, { headers: { "user-agent": "geo-check" } });
     return { status: res.status, text: await res.text() };
   } catch (err) {
-    return { status: 0, text: err instanceof Error ? err.message : String(err) };
+    /*
+     * Node 의 fetch 는 실패를 `TypeError: fetch failed` 로 감싸고 진짜 원인은 cause 에 둔다.
+     * 그런데 cause 가 AggregateError 면 message 가 **빈 문자열**이고 사유는 code 에만 있다
+     * (실측: ECONNREFUSED). message 만 읽으면 "연결 실패 — " 처럼 이유가 비어 나온다.
+     */
+    const cause: unknown = err instanceof Error ? (err.cause ?? err) : err;
+    const c = cause as { message?: string; code?: string; name?: string } | undefined;
+    const detail = c?.message || c?.code || c?.name || String(cause);
+    return { status: 0, text: "", error: detail };
   }
+}
+
+/** 응답을 못 받은 이유를 사람이 읽을 수 있게 */
+function failReason(r: { status: number; error?: string }): string {
+  if (r.status !== 0) return `응답 ${r.status}`;
+  return `연결 실패 — ${r.error ?? "원인 불명"}`;
 }
 
 /**
@@ -113,8 +128,8 @@ function parseRobots(txt: string): Map<string, string[]> {
 }
 
 async function checkRobots() {
-  const { status, text } = await get("/robots.txt");
-  if (status !== 200) return add("fail", "robots.txt", `응답 ${status}`);
+  const { status, text, error } = await get("/robots.txt");
+  if (status !== 200) return add("fail", "robots.txt", failReason({ status, error }));
 
   const rules = parseRobots(text);
   const blocked: string[] = [];
@@ -151,8 +166,9 @@ async function checkRobots() {
 }
 
 async function checkLlmsTxt() {
-  const { status, text } = await get("/llms.txt");
-  if (status !== 200) return add("warn", "llms.txt", `응답 ${status} (필수는 아니지만 Perplexity 가 참고)`);
+  const { status, text, error } = await get("/llms.txt");
+  if (status !== 200)
+    return add("warn", "llms.txt", `${failReason({ status, error })} (필수는 아니지만 Perplexity 가 참고)`);
 
   const want: [string, RegExp][] = [
     ["주소", /성수동|성동구|Seongsu/i],
@@ -165,8 +181,8 @@ async function checkLlmsTxt() {
 }
 
 async function checkSitemap() {
-  const { status, text } = await get("/sitemap.xml");
-  if (status !== 200) return add("fail", "sitemap.xml", `응답 ${status}`);
+  const { status, text, error } = await get("/sitemap.xml");
+  if (status !== 200) return add("fail", "sitemap.xml", failReason({ status, error }));
   const count = (text.match(/<loc>/g) ?? []).length;
   add(count > 0 ? "ok" : "fail", "sitemap.xml", `URL ${count}개`);
 }
@@ -204,8 +220,8 @@ function extractJsonLd(html: string): Record<string, unknown>[] {
 }
 
 async function checkPage(locale: string) {
-  const { status, text: html } = await get(`/${locale}`);
-  if (status !== 200) return add("fail", `/${locale}`, `응답 ${status}`);
+  const { status, text: html, error } = await get(`/${locale}`);
+  if (status !== 200) return add("fail", `/${locale}`, failReason({ status, error }));
 
   const ld = extractJsonLd(html);
   if (ld.some((x) => typesOf(x).includes("PARSE_ERROR"))) add("fail", `/${locale} JSON-LD`, "파싱 실패한 블록 있음");
@@ -255,7 +271,16 @@ async function checkPage(locale: string) {
 }
 
 async function main() {
-  console.log(`\nGEO 점검 — ${BASE}\n${"─".repeat(60)}`);
+  const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])/.test(BASE);
+  console.log(`\nGEO 점검 — 대상: ${BASE}`);
+  if (isLocal && !process.argv[2]) {
+    // SITE_URL 은 로컬 개발용으로 localhost 인 경우가 많다 — 프로덕션을 보려면 인자가 필요하다
+    console.log(
+      `  ↑ SITE_URL 환경변수 값입니다. 배포된 사이트를 보려면 주소를 인자로 주세요:\n` +
+        `     npm run geo-check -- https://실제도메인`,
+    );
+  }
+  console.log("─".repeat(60));
 
   await checkRobots();
   await checkLlmsTxt();
@@ -267,7 +292,17 @@ async function main() {
 
   const fails = rows.filter((r) => r.level === "fail").length;
   const warns = rows.filter((r) => r.level === "warn").length;
-  console.log(`${"─".repeat(60)}\n실패 ${fails} · 주의 ${warns} · 통과 ${rows.length - fails - warns}\n`);
+  console.log(`${"─".repeat(60)}\n실패 ${fails} · 주의 ${warns} · 통과 ${rows.length - fails - warns}`);
+
+  // 하나도 응답을 못 받았으면 사이트 문제가 아니라 주소·서버 문제다
+  if (rows.every((r) => r.detail.startsWith("연결 실패"))) {
+    console.log(
+      `\n※ ${BASE} 에서 응답이 없습니다. 사이트 결함이 아니라 주소나 서버 문제입니다.\n` +
+        `   - 로컬을 보려면 dev 서버 포트를 확인하세요 (npm run dev 출력)\n` +
+        `   - 배포본을 보려면: npm run geo-check -- https://실제도메인`,
+    );
+  }
+  console.log("");
 
   if (fails) process.exitCode = 1;
 }
