@@ -249,6 +249,20 @@ async function checkPage(locale: string) {
   const hreflang = (html.match(/hreflang="/gi) ?? []).length;
   add(hreflang >= 4 ? "ok" : "warn", `/${locale} hreflang`, `${hreflang}개`);
 
+  // GA4 — 인용이 실제 방문으로 이어졌는지 세려면 측정이 붙어 있어야 한다.
+  // 환경변수를 안 넣으면 스크립트가 통째로 빠지므로, 배포본에서만 의미 있는 확인이다.
+  if (locale === "ko") {
+    const hasConfig = /gtag\('config'/.test(html);
+    const hasLib = /googletagmanager\.com\/gtag\/js/.test(html);
+    add(
+      hasConfig && hasLib ? "ok" : "warn",
+      "GA4",
+      hasConfig && hasLib
+        ? "설치됨 (config + gtag.js)"
+        : "없음 — NEXT_PUBLIC_GA_ID 미설정이거나 배포에 반영 안 됨",
+    );
+  }
+
   // FAQ — AI 는 답의 첫 문장을 인용한다. 질문을 되풀이하며 시작하면 인용 가치가 떨어진다.
   const faq = ld.find((x) => typesOf(x).includes("FAQPage"));
   if (faq) {

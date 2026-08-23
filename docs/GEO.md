@@ -19,7 +19,14 @@ npm run geo-check                          # 인자 없으면 SITE_URL 값 — �
 통과해도 배포 결과가 다를 수 있고(캐시·환경변수) AI 는 그 배포 결과로 판단하기 때문이다.
 
 확인 항목 — AI 검색 봇 허용 / llms.txt / sitemap / 언어별 JSON-LD·description·canonical·hreflang /
-FAQ 가 직답으로 시작하는지. `실패`가 하나라도 있으면 종료 코드 1 이라 CI 에도 걸 수 있다.
+FAQ 가 직답으로 시작하는지 / GA4 설치. `실패`가 하나라도 있으면 종료 코드 1 이라 CI 에도 걸 수 있다.
+
+### ⚠️ 환경변수가 환경마다 다르면 결과도 다르다
+
+`.env.local` 은 로컬 전용이라 Vercel 에 같은 변수를 넣지 않으면 **배포본은 기본값으로 동작한다.**
+실제로 `BUSINESS_TYPE` 이 로컬에만 있어 구조화 데이터 `@type` 이 로컬 `ProfessionalService` /
+프로덕션 `LocalBusiness` 로 갈렸다(둘 다 유효해서 조용히 지나갔다).
+**점검은 반드시 배포 주소로 한 번 돌려 본다** — 로컬 통과는 배포본을 보증하지 않는다.
 
 ## 되어 있는 것
 
