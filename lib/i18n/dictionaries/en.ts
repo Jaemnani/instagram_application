@@ -130,7 +130,7 @@ export const en: Dictionary = {
       },
       {
         q: "Is there parking?",
-        a: "There is a parking area inside the building, free for one car per booking. Additional cars can use the nearby public car parks.",
+        a: "Yes. There is a parking area inside the building, free for one car per booking, and additional cars can use the nearby public car parks.",
       },
       {
         q: "What are the opening hours?",
@@ -138,7 +138,7 @@ export const en: Dictionary = {
       },
       {
         q: "Is it easy to visit with a baby?",
-        a: "We have a high chair, and contactless payment is accepted.",
+        a: "Yes. We have a high chair, and contactless payment is accepted.",
       },
       {
         q: "Can we bring a pet?",

@@ -3,6 +3,7 @@ import { Noto_Sans_KR, Noto_Serif_KR, Poppins } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
 
+import { Analytics } from "@/components/Analytics";
 import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/SiteFooter";
 import { getDictionary, htmlLang, isLocale, locales, type Locale } from "@/lib/i18n";
@@ -84,6 +85,9 @@ export default async function LocaleLayout({ children, params }: Props) {
         <main className="flex-1">{children}</main>
 
         <SiteFooter lang={locale} dict={dict} profile={profile} />
+
+        {/* NEXT_PUBLIC_GA_ID 가 없으면 아무것도 렌더하지 않는다 */}
+        <Analytics />
       </body>
     </html>
   );

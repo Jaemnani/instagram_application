@@ -11,7 +11,8 @@
     "refresh-token": "tsx scripts/refresh-token.ts",
     "prebuild": "tsx scripts/sync.ts",
     "translate": "tsx scripts/translate.ts",
-    "indexnow": "tsx scripts/indexnow.ts"
+    "indexnow": "tsx scripts/indexnow.ts",
+    "geo-check": "tsx scripts/geo-check.ts"
   },
   "dependencies": {
     "image-size": "^2.0.2",
