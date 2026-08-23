@@ -10,7 +10,7 @@ import type { Dictionary } from "@/lib/i18n";
  */
 export function Faq({ dict }: { dict: Dictionary }) {
   return (
-    <div className="mt-8 divide-y divide-ivory-200 border-y border-ivory-200">
+    <div className="faq-list mt-8 divide-y divide-ivory-200 border-y border-ivory-200">
       {dict.faq.items.map((f) => (
         <details key={f.q} name="faq" className="group py-4">
           <summary className="flex cursor-pointer list-none items-start justify-between gap-6 text-left">

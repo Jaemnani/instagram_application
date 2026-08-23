@@ -58,7 +58,7 @@ function Section({
       } ${className}`}
     >
       {overlay}
-      <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20">{children}</div>
+      <div className="snap-inner mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 sm:py-20">{children}</div>
     </section>
   );
 }

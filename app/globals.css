@@ -66,13 +66,13 @@ html {
  * scroll-snap-stop: always — 세게 굴려도 장면을 건너뛰지 않고 한 칸씩 선다.
  * ⚠️ 스냅 대상에는 position:sticky 를 쓰지 말 것(스크롤이 그 지점에 갇힌다).
  *
- * min-height 조건이 핵심이다 — 장면이 화면보다 크면 mandatory 스냅이 안착점을
- * 잡지 못해 스크롤이 스르륵 흘러간다. 실측(1280 폭): 900·800 은 모든 장면이
- * 화면 안에 들어오지만, 720 이하에서는 갤러리(771)·FAQ(724)가 넘친다. FAQ 는
- * 문항 수로 높이가 정해져 화면을 따라 줄어들지 않으므로, 낮은 창에서는 스냅을
- * 아예 켜지 않고 평범한 스크롤로 둔다(장면 구성은 그대로 보인다).
+ * min-height 조건이 있는 이유 — 장면이 화면보다 크면 mandatory 스냅이 안착점을
+ * 잡지 못해 스크롤이 스르륵 흘러간다. 다만 이 값이 높으면 흔한 노트북(13" 맥북의
+ * 브라우저 뷰포트가 대략 750px)에서 스냅이 통째로 꺼져 "휠을 돌린 만큼만 움직이는"
+ * 평범한 스크롤이 된다. 그래서 아래 max-height 블록으로 낮은 화면의 여백을 줄여
+ * 장면을 화면 안에 넣고, 임계는 640 까지 내렸다.
  */
-@media (min-width: 1024px) and (min-height: 760px) and (pointer: fine) {
+@media (min-width: 1024px) and (min-height: 640px) and (pointer: fine) {
   html {
     scroll-snap-type: y mandatory;
     /*
@@ -90,6 +90,29 @@ html {
   /* 푸터는 바닥을 안착점으로 — 마지막 장면에서 휠을 더 굴리면 여기서 멈춘다 */
   .snap-tail {
     scroll-snap-align: end;
+  }
+}
+
+/**
+ * 낮은 화면에서 여백 줄이기 — 장면이 화면을 넘지 않게.
+ * 넘치는 장면이 하나라도 있으면 mandatory 스냅이 안착점을 못 잡아 스크롤이
+ * 흘러가므로, 스냅을 켤 화면에서는 모든 장면이 반드시 들어와야 한다.
+ * 실측(1280 폭, 압축 전): 720 에서 갤러리 771·FAQ 724 가 넘쳤다.
+ */
+@media (min-width: 1024px) and (max-height: 900px) and (pointer: fine) {
+  .snap-inner {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  /* FAQ 는 문항 수로 높이가 정해져 화면을 따라 줄지 않는다 — 문항 간격을 줄인다 */
+  .faq-list {
+    margin-top: 1.25rem;
+  }
+
+  .faq-list > details {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
   }
 }
 
