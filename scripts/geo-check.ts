@@ -46,6 +46,23 @@ function hasLocalBusiness(ld: Record<string, unknown>[]): boolean {
   return ld.some((x) => "address" in x && "openingHoursSpecification" in x);
 }
 
+/**
+ * schema.org 는 `@type` 을 문자열로도 배열로도 쓸 수 있다(`"FAQPage"` / `["FAQPage","WebPage"]`).
+ * 문자열로 단정하면 배열일 때 조용히 못 찾는다 — 보증 스크립트에서는 미탐이 된다.
+ */
+function typesOf(node: Record<string, unknown>): string[] {
+  const t = node["@type"];
+  if (typeof t === "string") return [t];
+  if (Array.isArray(t)) return t.filter((x): x is string => typeof x === "string");
+  return [];
+}
+
+/** 단일값·배열을 모두 배열로 (mainEntity 등) */
+function asArray<T>(v: unknown): T[] {
+  if (Array.isArray(v)) return v as T[];
+  return v == null ? [] : [v as T];
+}
+
 type Level = "ok" | "warn" | "fail";
 const rows: { level: Level; label: string; detail: string }[] = [];
 const add = (level: Level, label: string, detail: string) => rows.push({ level, label, detail });
@@ -110,11 +127,18 @@ async function checkRobots() {
       unlisted.push(bot);
       continue;
     }
-    if (own.some((r) => r === "disallow /")) blocked.push(bot);
+    /*
+     * `Disallow: /` 만 보면 `Disallow: /*` · `Disallow: /$` 같은 전체 차단을 놓친다(미탐).
+     * 반대로 같은 그룹에 Allow 가 함께 있으면 크롤러는 보통 허용 쪽을 따르므로 차단으로 보지 않는다.
+     */
+    const blocksAll = own.some((r) => /^disallow \/(\*|\$)?$/.test(r));
+    const allowsAny = own.some((r) => r.startsWith("allow "));
+    if (blocksAll && !allowsAny) blocked.push(bot);
   }
 
   const star = rules.get("*") ?? [];
-  const starBlocksAll = star.some((r) => r === "disallow /");
+  const starBlocksAll =
+    star.some((r) => /^disallow \/(\*|\$)?$/.test(r)) && !star.some((r) => r.startsWith("allow "));
 
   if (blocked.length) add("fail", "AI 검색 봇", `차단됨: ${blocked.join(", ")}`);
   else if (starBlocksAll && unlisted.length)
@@ -160,7 +184,9 @@ function extractJsonLd(html: string): Record<string, unknown>[] {
     const obj = node as Record<string, unknown>;
     if (Array.isArray(obj["@graph"])) {
       for (const n of obj["@graph"]) collect(n);
-      return;
+      // 래퍼가 자기 타입도 가진 경우가 있어(@graph + @type 공존) 그때는 본체도 남긴다.
+      // 순수 래퍼(@context + @graph 만)는 타입이 없으므로 건너뛴다.
+      if (typesOf(obj).length === 0) return;
     }
     out.push(obj);
   };
@@ -182,9 +208,9 @@ async function checkPage(locale: string) {
   if (status !== 200) return add("fail", `/${locale}`, `응답 ${status}`);
 
   const ld = extractJsonLd(html);
-  if (ld.some((x) => x["@type"] === "PARSE_ERROR")) add("fail", `/${locale} JSON-LD`, "파싱 실패한 블록 있음");
+  if (ld.some((x) => typesOf(x).includes("PARSE_ERROR"))) add("fail", `/${locale} JSON-LD`, "파싱 실패한 블록 있음");
 
-  const types = new Set(ld.map((x) => String(x["@type"] ?? "")));
+  const types = new Set(ld.flatMap(typesOf));
   const missing = REQUIRED_LD.filter((t) => !types.has(t));
   if (!hasLocalBusiness(ld)) missing.push("지역 업체 정보(주소·영업시간)");
   add(
@@ -208,9 +234,9 @@ async function checkPage(locale: string) {
   add(hreflang >= 4 ? "ok" : "warn", `/${locale} hreflang`, `${hreflang}개`);
 
   // FAQ — AI 는 답의 첫 문장을 인용한다. 질문을 되풀이하며 시작하면 인용 가치가 떨어진다.
-  const faq = ld.find((x) => x["@type"] === "FAQPage");
+  const faq = ld.find((x) => typesOf(x).includes("FAQPage"));
   if (faq) {
-    const items = (faq.mainEntity as { name?: string; acceptedAnswer?: { text?: string } }[]) ?? [];
+    const items = asArray<{ name?: string; acceptedAnswer?: { text?: string } }>(faq.mainEntity);
     const longOpeners = items.filter((it) => {
       const first = (it.acceptedAnswer?.text ?? "").split(/(?<=[.。!?！？])\s*/)[0] ?? "";
       return first.length > 90; // 첫 문장이 길면 직답이 아니라 설명으로 시작한 것
@@ -243,4 +269,8 @@ async function main() {
   if (fails) process.exitCode = 1;
 }
 
-void main();
+// 보증 스크립트가 예외로 죽으면 판정 자체가 사라진다 — 실패로 명확히 알린다
+void main().catch((err: unknown) => {
+  console.error("\n점검 중 오류:", err instanceof Error ? err.message : err);
+  process.exitCode = 1;
+});

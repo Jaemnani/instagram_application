@@ -43,6 +43,14 @@ const AI_HOSTS: Record<string, string> = {
   "cue.search.naver.com": "네이버 큐",
 };
 
+/**
+ * 이 이벤트는 "이번 방문이 어느 AI 답변에서 왔는가"를 세는 것이라 방문당 한 번이어야 한다.
+ * 언어 전환이 <Link>(클라이언트 이동)라 레이아웃이 다시 마운트되는데, 그때도
+ * document.referrer 는 그대로여서 가드가 없으면 같은 방문이 여러 번 집계된다.
+ * 모듈 스코프라 새로고침·새 탭이면 자연히 초기화된다(= 새 방문).
+ */
+let referralSent = false;
+
 declare global {
   interface Window {
     dataLayer?: unknown[];
@@ -89,8 +97,10 @@ export function Analytics() {
       gtag("config", gaId);
     }
 
+    if (referralSent) return;
     const source = matchAiSource(document.referrer);
     if (!source) return;
+    referralSent = true;
     window.gtag("event", "ai_referral", {
       ai_source: source,
       page_location: window.location.href,
