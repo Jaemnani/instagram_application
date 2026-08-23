@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { Faq } from "@/components/Faq";
 import { Hero } from "@/components/Hero";
 import { JsonLd } from "@/components/JsonLd";
-import { FadeTransition } from "@/components/FadeTransition";
 import { LocationCard } from "@/components/LocationCard";
 import { MarqueeRibbon } from "@/components/MarqueeRibbon";
 import { PostStrip } from "@/components/PostStrip";
@@ -218,9 +217,6 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           <LocationCard dict={dict} lang={locale} />
         </Reveal>
       </Section>
-
-      {/* 숨 고르기 한 장면 — 곰돌이와 카메라만 떠올랐다가, 다음 장면에서 예약으로 */}
-      {bookingUrl && hasLocalBusinessData() && b && <FadeTransition />}
 
       {/* 대형 예약 섹션 — 히어로와 짝을 이루는 다크 북엔드 */}
       {bookingUrl && hasLocalBusinessData() && b && (
