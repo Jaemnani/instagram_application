@@ -1,0 +1,107 @@
+# 인스타 새 게시물 → 사이트 자동 반영.
+#
+# 매일 인스타를 확인해 게시물이 바뀐 날에만 커밋한다. main 에 푸시되면 Vercel 이
+# 재배포하고, 빌드의 prebuild(sync)가 사진을 받아 페이지를 만든다.
+# 변경이 없는 날은 커밋·배포가 없으므로 Actions 몇 분 외엔 비용이 들지 않는다.
+#
+# 필요한 저장소 Secrets:
+#   IG_LONG_LIVED_TOKEN  (필수) Vercel 에 넣은 것과 같은 값
+#   IG_USER_ID           (선택)
+#   ANTHROPIC_API_KEY    (선택) 없으면 번역을 건너뛰고 사진만 반영 — 다국어 페이지는 원문 표시
+#   VERCEL_DEPLOY_HOOK   (선택) 봇 커밋으로 Vercel 배포가 안 뜰 때만 설정 (둘 다 되면 두 번 배포됨)
+# 선택 Variables: SITE_NAME, IG_SINCE, TRANSLATE_MODEL
+#
+# schedule 은 기본 브랜치(main)에 있는 이 파일만 실행된다.
+name: Instagram 동기화
+
+on:
+  schedule:
+    - cron: "7 18 * * *" # 매일 03:07 KST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # 토큰이 없으면 sync 가 데모 fixture 로 조용히 대체한다 — 그 결과를 커밋하면 안 된다.
+      # 선택 시크릿은 step 의 if 에서 직접 못 읽으므로 여기서 유무만 출력으로 넘긴다.
+      - name: 설정 확인
+        id: cfg
+        env:
+          IG_LONG_LIVED_TOKEN: ${{ secrets.IG_LONG_LIVED_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$IG_LONG_LIVED_TOKEN" ]; then
+            echo "::error::IG_LONG_LIVED_TOKEN 시크릿이 없습니다."
+            exit 1
+          fi
+          echo "translate=$([ -n "$ANTHROPIC_API_KEY" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "hook=$([ -n "$VERCEL_DEPLOY_HOOK" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: 인스타 동기화
+        env:
+          IG_LONG_LIVED_TOKEN: ${{ secrets.IG_LONG_LIVED_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_SINCE: ${{ vars.IG_SINCE }}
+          # 캡션 없는 게시물의 대체 제목에 들어간다 — 번역 입력이 Vercel 빌드와 같아야 한다.
+          SITE_NAME: ${{ vars.SITE_NAME || 'kidding seongsu' }}
+        run: npm run sync
+
+      # 번역이 일부 실패해도 사진 반영은 막지 않는다. 실패는 마지막 단계에서 알린다.
+      - name: 새 게시물 번역
+        id: translate
+        if: steps.cfg.outputs.translate == 'true'
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TRANSLATE_MODEL: ${{ vars.TRANSLATE_MODEL }}
+        run: npm run translate -- ${TRANSLATE_MODEL:+--model=$TRANSLATE_MODEL}
+
+      # 게시물 추가·삭제를 감지하는 기준. 번역이 없어도 목록이 바뀌면 배포된다.
+      - name: 게시물 목록 기록
+        run: jq -r '.posts[].id' data/instagram.json > data/post-ids.txt
+
+      - name: 변경분 커밋
+        id: commit
+        run: |
+          git add data/post-ids.txt data/translations.json
+          if git diff --cached --quiet; then
+            echo "변경 없음 — 배포 생략"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(sync): 인스타 게시물 반영"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Vercel 배포 훅
+        if: steps.commit.outputs.changed == 'true' && steps.cfg.outputs.hook == 'true'
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: curl -fsS -X POST "$VERCEL_DEPLOY_HOOK" > /dev/null
+
+      - name: 번역 실패 알림
+        if: steps.translate.outcome == 'failure'
+        run: |
+          echo "::error::일부 게시물 번역 실패 — 사진은 반영됐고, 다음 실행에서 다시 시도한다."
+          exit 1

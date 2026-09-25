@@ -52,7 +52,12 @@ Instagram Graph API ──(npm run sync / cron)──▶ data/instagram.json + p
 
 ## 주기 동기화 & 토큰 갱신
 
-- **콘텐츠 동기화**: `vercel.json` 의 cron(기본 6시간)이 `/api/sync` 호출 → 재검증.
+- **새 게시물 자동 반영**: `.github/workflows/instagram-sync.yml` 이 매일 03:07 KST 에
+  sync → 새 게시물 번역 → `data/post-ids.txt`·`data/translations.json` 이 바뀐 날에만 main 에 커밋.
+  푸시로 Vercel 이 재배포되고 빌드의 prebuild 가 사진을 받는다. 수동 실행은 Actions 탭 → Run workflow.
+  - Secrets: `IG_LONG_LIVED_TOKEN`(필수), `IG_USER_ID`, `ANTHROPIC_API_KEY`(없으면 번역 생략),
+    `VERCEL_DEPLOY_HOOK`(봇 커밋으로 배포가 안 뜰 때만).
+- **`/api/sync` cron**: `vercel.json` 의 cron 이 `/api/sync` 호출 → 재검증.
   - 보호: `SYNC_SECRET`(또는 Vercel `CRON_SECRET`).
   - 서버리스(읽기전용 FS)에서는 이미지 영구 저장 불가 → 영구 서버에서 실행하거나
     이미지를 Blob 스토리지로 보내거나 빌드 재배포(deploy hook) 방식 사용.
