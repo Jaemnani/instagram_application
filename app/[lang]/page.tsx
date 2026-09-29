@@ -11,9 +11,10 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { ServiceGrid } from "@/components/ServiceGrid";
 import { Statement } from "@/components/Statement";
 import Image from "next/image";
+import Link from "next/link";
 
 import { hasLocalBusinessData, siteConfig } from "@/lib/config";
-import { getDictionary, isLocale, locales, type Locale } from "@/lib/i18n";
+import { getDictionary, isLocale, localizedPath, locales, type Locale } from "@/lib/i18n";
 import { getInstagramData } from "@/lib/data";
 import { faqPageLd, imageGalleryLd, offerCatalogLd } from "@/lib/seo/jsonld";
 
@@ -253,14 +254,23 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
               {dict.book.title}
             </h2>
             <p className="mt-3 text-[15px] text-ivory-200/85">{dict.book.body}</p>
-            <a
-              href={bookingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-block rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium text-ink-900 transition-colors hover:bg-clay-500 hover:text-ivory-50"
-            >
-              {dict.ui.book}
-            </a>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              {/* 예약 페이지 — 모든 채널의 일정을 합친 빈 시간을 보여준다 */}
+              <Link
+                href={localizedPath(locale, "/book")}
+                className="inline-block rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium text-ink-900 transition-colors hover:bg-clay-500 hover:text-ivory-50"
+              >
+                {dict.booking.homeCta}
+              </Link>
+              <a
+                href={bookingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block rounded-full border border-ivory-200/40 px-8 py-4 text-sm font-medium text-ivory-50 transition-colors hover:bg-ivory-50 hover:text-ink-900"
+              >
+                {dict.ui.book}
+              </a>
+            </div>
           </div>
         </Section>
       )}
