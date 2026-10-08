@@ -5,7 +5,7 @@ import { Hero } from "@/components/Hero";
 import { JsonLd } from "@/components/JsonLd";
 import { LocationCard } from "@/components/LocationCard";
 import { MarqueeRibbon } from "@/components/MarqueeRibbon";
-import { PostStrip } from "@/components/PostStrip";
+import { PostStrip, STRIP_LIMIT } from "@/components/PostStrip";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ServiceGrid } from "@/components/ServiceGrid";
@@ -78,7 +78,12 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   return (
     <>
       <JsonLd
-        data={[imageGalleryLd(locale, posts), offerCatalogLd(locale), faqPageLd(locale)]}
+        data={[
+          // 홈에 실제로 보이는 만큼만 — 전체 목록은 /gallery 의 ImageGallery 가 맡는다
+          imageGalleryLd(locale, posts.slice(0, STRIP_LIMIT)),
+          offerCatalogLd(locale),
+          faqPageLd(locale),
+        ]}
       />
 
       <Hero posts={posts} profile={profile} dict={dict} lang={locale} />

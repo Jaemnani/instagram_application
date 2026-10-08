@@ -263,13 +263,18 @@ export function imageObjectLd(post: Post): Json | null {
 }
 
 /** 홈 — ImageGallery (게시물 이미지 모음) */
-export function imageGalleryLd(locale: Locale, posts: Post[]): Json {
+/** 홈(최근 촬영 일부)과 /gallery(전체)가 같이 쓴다 — 어느 페이지의 갤러리인지 path 로 구분 */
+export function imageGalleryLd(
+  locale: Locale,
+  posts: Post[],
+  { path = "/", name }: { path?: string; name?: string } = {},
+): Json {
   const d = getDictionary(locale);
   return {
     "@context": "https://schema.org",
     "@type": "ImageGallery",
-    name: `${siteConfig.name} — ${d.gallery.title}`,
-    url: absLocalized(locale),
+    name: `${siteConfig.name} — ${name ?? d.gallery.title}`,
+    url: absLocalized(locale, path),
     associatedMedia: posts
       .filter((p) => p.coverImage)
       .map((p) => ({

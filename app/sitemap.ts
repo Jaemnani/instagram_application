@@ -25,6 +25,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: alternates("/"),
     });
     entries.push({
+      url: `${siteConfig.url}${localizedPath(locale, "/gallery")}`,
+      lastModified,
+      changeFrequency: "daily",
+      priority: 0.9,
+      alternates: alternates("/gallery"),
+    });
+    entries.push({
       url: `${siteConfig.url}${localizedPath(locale, "/book")}`,
       lastModified,
       changeFrequency: "weekly",

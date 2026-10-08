@@ -106,6 +106,11 @@ export const zh: Dictionary = {
     scrollPrev: "查看上一组",
     scrollNext: "查看下一组",
     comments: "评论",
+    viewAll: "查看全部",
+    pageTitle: "作品集",
+    pageLead: "这里汇集了我们发布在 Instagram 上的全部拍摄记录，点开照片即可看到拍摄故事。",
+    metaDescription: "首尔圣水洞工作室拍摄的周岁照、全家福与宝宝写真作品集。",
+    countLabel: (n: number) => `共 ${n} 组拍摄记录`,
   },
 
   faq: {

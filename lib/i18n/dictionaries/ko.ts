@@ -118,6 +118,11 @@ export const ko = {
     scrollPrev: "이전 촬영 보기",
     scrollNext: "다음 촬영 보기",
     comments: "댓글",
+    viewAll: "전체 보기",
+    pageTitle: "촬영 갤러리",
+    pageLead: "인스타그램에 올라온 촬영 기록을 한곳에 모았습니다. 사진을 누르면 촬영 이야기를 볼 수 있습니다.",
+    metaDescription: "성수동 베이비 스튜디오의 돌사진·가족사진·아기 촬영 기록을 모아 보는 갤러리입니다.",
+    countLabel: (n: number) => `촬영 기록 ${n}개`,
   },
 
   /** 자주 묻는 질문 */

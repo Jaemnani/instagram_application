@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { HomeLink } from "@/components/HomeLink";
@@ -148,9 +149,17 @@ export default async function PostPage({ params }: Params) {
           aria-labelledby="related-heading"
           className="mt-20 border-t border-ivory-200 pt-14"
         >
-          <h2 id="related-heading" className="font-serif text-2xl font-bold text-ink-900">
-            {dict.gallery.related}
-          </h2>
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 id="related-heading" className="font-serif text-2xl font-bold text-ink-900">
+              {dict.gallery.related}
+            </h2>
+            <Link
+              href={localizedPath(locale, "/gallery")}
+              className="shrink-0 text-xs font-medium uppercase tracking-[0.2em] text-clay-600 transition-colors hover:text-ink-900"
+            >
+              {dict.gallery.viewAll} →
+            </Link>
+          </div>
           <div className="mt-8 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((p) => (
               <PostCard key={p.id} post={p} lang={locale} dict={dict} />

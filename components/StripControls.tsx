@@ -115,7 +115,8 @@ export function StripControls({
       : "flex h-10 w-10 items-center justify-center rounded-full border border-ivory-300 bg-ivory-50 text-ink-600 transition enabled:hover:border-clay-500 enabled:hover:text-clay-600 disabled:opacity-30";
 
   return (
-    <div className="mt-4 flex justify-end gap-2">
+    // 바깥 줄 배치(위 여백·정렬)는 PostStrip 이 맡는다 — 왼쪽에 "전체 보기" 링크가 같이 놓인다.
+    <div className="ml-auto flex gap-2">
       <button type="button" onClick={() => scroll(-1)} disabled={edge.start} aria-label={labels.prev} className={base}>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path d="M10 3 5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

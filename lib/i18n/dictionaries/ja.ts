@@ -109,6 +109,11 @@ export const ja: Dictionary = {
     scrollPrev: "前の撮影を見る",
     scrollNext: "次の撮影を見る",
     comments: "コメント",
+    viewAll: "すべて見る",
+    pageTitle: "撮影ギャラリー",
+    pageLead: "Instagram に投稿した撮影の記録をまとめました。写真を開くと撮影のエピソードが読めます。",
+    metaDescription: "ソウル・聖水洞のスタジオで撮影した1歳記念・家族写真・ベビーフォトのギャラリーです。",
+    countLabel: (n: number) => `撮影記録 ${n}件`,
   },
 
   faq: {

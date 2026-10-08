@@ -58,6 +58,11 @@ export function SiteFooter({
                 </Link>
               </li>
               <li>
+                <Link href={localizedPath(lang, "/gallery")} className="hover:text-ink-900">
+                  {dict.gallery.pageTitle}
+                </Link>
+              </li>
+              <li>
                 <Link href={localizedPath(lang, "/privacy")} className="hover:text-ink-900">
                   {dict.footer.privacy}
                 </Link>

@@ -109,6 +109,11 @@ export const en: Dictionary = {
     scrollPrev: "Previous sessions",
     scrollNext: "Next sessions",
     comments: "Comments",
+    viewAll: "View all",
+    pageTitle: "Gallery",
+    pageLead: "Every session we have shared on Instagram, in one place. Open a photo for the story behind it.",
+    metaDescription: "A gallery of first-birthday, family and baby portraits from our studio in Seongsu, Seoul.",
+    countLabel: (n: number) => `${n} sessions`,
   },
 
   faq: {
