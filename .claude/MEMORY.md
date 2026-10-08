@@ -76,7 +76,7 @@ UTC/KST/LA 세 타임존에서 검증함. 캘린더 하나가 죽으면 예약�
 - **홈 스트립 최근 12개**(`STRIP_LIMIT`) + 끝 칸 "+N 전체 보기" + 아래 줄 "전체 보기" 링크.
   끝 칸 높이 = 카드 사진 칸(`md:h-[27svh]`) — 더 크면 갤러리 장면이 화면을 넘는다.
 - **`/[lang]/gallery`** 전체 격자. 일반 스크롤 페이지(스냅 장면 없음).
-- **자동 반영**: cron → `/api/sync` → 토큰 확인 → `DEPLOY_HOOK_URL` 재배포 → prebuild(sync).
+- **자동 반영** (매주 월 03:00 KST): cron → `/api/sync` → 토큰 확인 → `DEPLOY_HOOK_URL` 재배포 → prebuild(sync).
   ⚠️ 2026-10 이전엔 Vercel 에 `CRON_SECRET` 이 없어 cron 이 매일 503 이었다(아무것도 안 함).
 - **측정 함정**: Playwright `mouse.wheel` 은 mandatory 스냅을 다음 장면으로 못 넘긴다(단순 스냅 페이지도
   120px → 2px 로 복귀). 스냅 완주 측정은 휠 한 칸을 `innerHeight*0.6` 으로.
