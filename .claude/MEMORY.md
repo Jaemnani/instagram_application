@@ -74,7 +74,11 @@ UTC/KST/LA 세 타임존에서 검증함. 캘린더 하나가 죽으면 예약�
 한가함 표시를 무시하고 막도록 수정. 회귀 테스트 `npm test`(lib/booking/sources.test.ts, 실제 피드 형식 픽스처,
 TZ KST/UTC/LA 통과, 옛 코드로 되돌리면 4개 실패 확인). 아워플레이스 피드의 일정 제목 = "성수동 50평대 자연광 호리존스튜디오",
 주소 끝 번호 38774(공간 번호로 추정 — 공개 페이지가 JS 렌더라 대조 불가).
-스페이스클라우드(`api.spacecloud.kr/partner/reservations/ical?product_id=60401…`, 피드 캘린더 이름 **"시도스튜디오(시도 스튜디오)"** — 같은 공간인지 사용자 확인 필요): **연동 확인(10-11)** — 종일 일정 즉시 반영, 한가함 표시 없음 → 정상으로 막힘. 시각에 시간대 표기가 없는데(floating) 서버 TZ UTC/KST/LA 모두 KST 하루로 동일하게 막힘(실측) — 피드 머리의 VTIMEZONE(Asia/Seoul) 덕분. VTIMEZONE 없는 피드면 Vercel(UTC)에서 9시간 밀린다. 네이버: CalDAV(아이디+앱 비밀번호), 미구현.
+스페이스클라우드(`api.spacecloud.kr/partner/reservations/ical?product_id=60401…`, 피드 캘린더 이름 **"시도스튜디오(시도 스튜디오)"** — 같은 공간인지 사용자 확인 필요): **연동 확인(10-11)** — 종일 일정 즉시 반영, 한가함 표시 없음 → 정상으로 막힘. 시각에 시간대 표기가 없는데(floating) 서버 TZ UTC/KST/LA 모두 KST 하루로 동일하게 막힘(실측) — 피드 머리의 VTIMEZONE(Asia/Seoul) 덕분. VTIMEZONE 없는 피드면 Vercel(UTC)에서 9시간 밀린다. 네이버: **CalDAV 연결 확인(10-11)** — `caldav.calendar.naver.com`, 아이디+앱 비밀번호(2단계 인증 켜야 메뉴 생김).
+캘린더 3개 중 **"네이버 예약"** 에 예약 71건(2021~2026-08, 미래 0건). 일정은 `TZID=Asia/Seoul` + VTIMEZONE, TRANSP·STATUS 없음.
+⚠️ 네이버 CalDAV 함정: **time-range 조회가 0건**(무시됨), **calendar-query 는 calendar-data 를 안 돌려줌** →
+목록(PROPFIND)으로 href 를 받고 **calendar-multiget** 으로 본문을 받아야 한다(71건 0.3초). 계정에 **해외 로그인 차단 ON** —
+Vercel 함수가 미국(iad1)이면 막힐 수 있음 → 함수 리전 icn1 필요. 예약 일정이 30분 단위(10:30~11:00)라 실제 촬영 길이와 같은지 확인 필요.
 
 ## 2026-10-09 갤러리 구조 정리 (C안)
 
