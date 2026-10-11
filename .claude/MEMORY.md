@@ -70,10 +70,11 @@ UTC/KST/LA 세 타임존에서 검증함. 캘린더 하나가 죽으면 예약�
 
 **2026-10-11 아워플레이스 연동 확인**: 내보내기 주소(`calendar-ics.hourplace.co.kr/.../hourplace.ics`)를
 읽어 일정 추가·삭제 모두 **즉시** 반영됨(응답 `no-store`). 지난 일정은 내보내지 않는다(9/4 예약 미포함).
-⚠️ **미해결 버그**: 아워플레이스는 모든 일정에 `TRANSP:TRANSPARENT`(한가함)를 붙이는데 `sources.ts busyFromIcs`
-가 한가함 일정을 건너뛰어 **시간이 안 막힌다**(10/20 10~22시 일정이 있어도 전 시간 예약 가능으로 나옴, 실측).
-추천 해결 = 한가함 표시를 전부 무시하고 막기(겹치기 예약 쪽으로 틀리지 않음). **고치기 전엔 /book 공개 금지.**
-스페이스클라우드(`api.spacecloud.kr/partner/reservations/ical?product_id=…`): **연동 확인(10-11)** — 종일 일정 즉시 반영, 한가함 표시 없음 → 정상으로 막힘. 시각에 시간대 표기가 없는데(floating) 서버 TZ UTC/KST/LA 모두 KST 하루로 동일하게 막힘(실측). 네이버: CalDAV(아이디+앱 비밀번호), 미구현.
+✅ **해결(10-11)**: 아워플레이스는 모든 일정에 `TRANSP:TRANSPARENT`(한가함)를 붙여 내보낸다 → `busyFromIcs` 가
+한가함 표시를 무시하고 막도록 수정. 회귀 테스트 `npm test`(lib/booking/sources.test.ts, 실제 피드 형식 픽스처,
+TZ KST/UTC/LA 통과, 옛 코드로 되돌리면 4개 실패 확인). 아워플레이스 피드의 일정 제목 = "성수동 50평대 자연광 호리존스튜디오",
+주소 끝 번호 38774(공간 번호로 추정 — 공개 페이지가 JS 렌더라 대조 불가).
+스페이스클라우드(`api.spacecloud.kr/partner/reservations/ical?product_id=60401…`, 피드 캘린더 이름 **"시도스튜디오(시도 스튜디오)"** — 같은 공간인지 사용자 확인 필요): **연동 확인(10-11)** — 종일 일정 즉시 반영, 한가함 표시 없음 → 정상으로 막힘. 시각에 시간대 표기가 없는데(floating) 서버 TZ UTC/KST/LA 모두 KST 하루로 동일하게 막힘(실측) — 피드 머리의 VTIMEZONE(Asia/Seoul) 덕분. VTIMEZONE 없는 피드면 Vercel(UTC)에서 9시간 밀린다. 네이버: CalDAV(아이디+앱 비밀번호), 미구현.
 
 ## 2026-10-09 갤러리 구조 정리 (C안)
 

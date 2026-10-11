@@ -39,9 +39,12 @@ export function busyFromIcs(body: string, range: Interval): Interval[] {
   for (const item of Object.values(parsed)) {
     if (!item || item.type !== "VEVENT") continue;
     const event = item as VEvent;
-    // 취소된 일정, '한가함'으로 표시된 일정은 시간을 막지 않는다
+    // 취소된 일정만 시간을 막지 않는다.
+    // '한가함(TRANSP:TRANSPARENT)' 표시는 일부러 무시한다 — 아워플레이스는 실제 예약·휴무를
+    // 포함한 모든 일정에 이 표시를 붙여 내보낸다(2026-10-11 실측). 이걸 믿으면 아워플레이스
+    // 예약이 하나도 안 막혀 겹치기 예약이 생긴다. 반대로 무시해서 생기는 손해는 "빈 시간이
+    // 조금 줄어드는 것"뿐이고 화면에서 바로 보인다 — 예약에서는 이쪽으로 틀리는 게 안전하다.
     if (event.status === "CANCELLED") continue;
-    if (event.transparency === "TRANSPARENT") continue;
 
     const instances = ical.expandRecurringEvent(event, { from, to, expandOngoing: true });
     for (const inst of instances) {
