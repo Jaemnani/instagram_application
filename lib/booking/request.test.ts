@@ -5,7 +5,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import ical from "node-ical";
+import ical, { type VEvent } from "node-ical";
 
 import { escapeText, foldLine } from "./ics";
 import { parseRequest, requestToIcs } from "./request";
@@ -76,12 +76,12 @@ test("왕복: 만든 신청 일정을 다시 읽으면 정확히 그 시간을 �
   assert.deepEqual(busy, [{ start, end: start + 2 * 3600_000 }]);
 });
 
-test("일정 내용: 제목에 [대기]·상품·이름, 본문에 연락처와 처리 안내", () => {
+test("일정 내용: 제목은 스튜디오 규칙(HJ …) + [대기]·상품·이름, 본문에 연락처와 처리 안내", () => {
   const r = parseRequest({ ...valid, memo: "돌 촬영" });
   assert.ok(r.ok);
   const ics = requestToIcs(r.request, { uid: "t@kidding.kr", now: Date.UTC(2026, 9, 12), degraded: true });
-  const ev = Object.values(ical.sync.parseICS(ics)).find((v) => v?.type === "VEVENT") as ical.VEvent;
-  assert.equal(ev.summary, "[대기] 2시간 촬영 · 홍길동");
+  const ev = Object.values(ical.sync.parseICS(ics)).find((v) => v?.type === "VEVENT") as VEvent;
+  assert.equal(ev.summary, "HJ 홈페이지 kidding [대기] 2시간 촬영 · 홍길동");
   const desc = String(ev.description);
   for (const part of ["010-1234-5678", "돌 촬영", "승인하면 제목의 [대기]를 지우고", "확인하지 못했습니다"]) {
     assert.ok(desc.includes(part), part);

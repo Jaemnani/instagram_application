@@ -71,12 +71,19 @@ export function requestInterval(r: Pick<BookingRequest, "date" | "time" | "produ
 
 const LANG_LABEL: Record<string, string> = { ko: "한국어", en: "영어", ja: "일본어", zh: "중국어" };
 
+/**
+ * 스튜디오 공유 캘린더의 제목 규칙 — "HJ <채널> <종류>" (예: "HJ 스클 대관", "HJ 네이버 kidding").
+ * 홈페이지 신청은 "HJ 홈페이지 kidding", 승인 전에는 뒤에 "[대기]"가 붙는다.
+ */
+export const TITLE_PREFIX = "HJ 홈페이지 kidding";
+export const PENDING_MARK = "[대기]";
+
 /** 사장님이 아이폰에서 보는 일정. 제목만 봐도 상태·상품·이름이 보이게 한다. */
 export function requestToIcs(r: BookingRequest, opts: { uid: string; now: number; degraded: boolean }): string {
   const { start, end } = requestInterval(r);
   const submitted = new Date(opts.now + 9 * 3600_000).toISOString().slice(0, 16).replace("T", " ");
   const lines = [
-    "⏳ 승인 대기 — 승인하면 제목의 [대기]를 지우고, 거절하면 이 일정을 삭제하세요.",
+    `⏳ 승인 대기 — 승인하면 제목의 ${PENDING_MARK}를 지우고, 거절하면 이 일정을 삭제하세요.`,
     "",
     `상품: ${r.product.name.ko}`,
     `이름: ${r.name}`,
@@ -92,7 +99,7 @@ export function requestToIcs(r: BookingRequest, opts: { uid: string; now: number
     uid: opts.uid,
     start,
     end,
-    summary: `[대기] ${r.product.name.ko} · ${r.name}`,
+    summary: `${TITLE_PREFIX} ${PENDING_MARK} ${r.product.name.ko} · ${r.name}`,
     description: lines.join("\n"),
     now: opts.now,
   });
