@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
+import { BookingRequestForm } from "@/components/BookingRequestForm";
 import type { Dictionary } from "@/lib/i18n";
 import { addDays, kstDateOf, kstWeekday } from "@/lib/booking/time";
 
@@ -15,6 +16,14 @@ type Props = {
   products: ProductOption[];
   /** 카카오톡 채널 등 문의 링크. 없으면 문구 복사만 보여준다. */
   inquiryUrl: string;
+  /**
+   * 홈페이지에서 직접 신청을 받을지 (서버에 애플 예약 캘린더가 설정돼 있을 때만 true).
+   * false 면 지금처럼 카카오톡 문의로 안내한다.
+   */
+  requestsEnabled: boolean;
+  /** 사이트 언어 코드 (ko/en/ja/zh) — 신청 일정에 손님 언어를 남긴다 */
+  lang: string;
+  privacyHref: string;
 };
 
 type Load =
@@ -73,7 +82,7 @@ function noopSubscribe() {
   return () => {};
 }
 
-function Picker({ htmlLang, strings: t, products, inquiryUrl, today }: Props & { today: string }) {
+function Picker({ htmlLang, strings: t, products, inquiryUrl, requestsEnabled, lang, privacyHref, today }: Props & { today: string }) {
   const [productId, setProductId] = useState(products[0]?.id ?? "");
   // 오늘은 리드타임 때문에 대개 막혀 있으므로 내일이 속한 달부터 연다 (말일에 빈 달이 먼저 보이지 않게)
   const [month, setMonth] = useState(() => monthStart(addDays(today, 1)));
@@ -334,8 +343,22 @@ function Picker({ htmlLang, strings: t, products, inquiryUrl, today }: Props & {
         )}
       </section>
 
-      {/* 4. 문의 — 다음 단계에서 사이트 안 신청서로 바뀐다 */}
-      {message && (
+      {/* 4. 신청 — 애플 예약 캘린더가 설정돼 있으면 사이트에서 바로, 아니면 카카오톡 문의 */}
+      {requestsEnabled && product && activeDate && time && (
+        <BookingRequestForm
+          // 일정을 바꾸면 새 신청서 — "완료" 화면이 다른 일정에 남지 않게
+          key={`${product.id}|${activeDate}|${time}`}
+          strings={t}
+          productId={product.id}
+          date={activeDate}
+          time={time}
+          summary={`${product.name} · ${formatDate(activeDate)} ${time}`}
+          lang={lang}
+          privacyHref={privacyHref}
+          onTaken={() => setReloadKey((k) => k + 1)}
+        />
+      )}
+      {!requestsEnabled && message && (
         <section aria-labelledby="book-summary" className="rounded-2xl bg-ink-900 p-6 text-ivory-50 sm:p-8">
           <h2 id="book-summary" className="text-xs font-medium uppercase tracking-[0.2em] text-clay-400">
             {t.summary}

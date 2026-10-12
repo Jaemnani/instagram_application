@@ -5,6 +5,7 @@ import { BookingPicker } from "@/components/BookingPicker";
 import { HomeLink } from "@/components/HomeLink";
 import { JsonLd } from "@/components/JsonLd";
 import { PRODUCTS } from "@/lib/booking/config";
+import { bookingRequestsEnabled } from "@/lib/booking/icloud";
 import { siteConfig } from "@/lib/config";
 import { getInstagramData } from "@/lib/data";
 import { getDictionary, htmlLang, isLocale, locales, localizedPath, type Locale } from "@/lib/i18n";
@@ -71,6 +72,9 @@ export default async function BookPage({ params }: { params: Promise<{ lang: str
         strings={dict.booking}
         products={PRODUCTS.map((p) => ({ id: p.id, minutes: p.minutes, name: p.name[locale] }))}
         inquiryUrl={inquiryUrl}
+        requestsEnabled={bookingRequestsEnabled()}
+        lang={locale}
+        privacyHref={localizedPath(locale, "/privacy")}
       />
     </div>
   );

@@ -5,6 +5,7 @@
 
 import { bookingHours, bookingRules, calendarSources, type Product } from "./config";
 import { type DayAvailability, rangeSlots } from "./slots";
+import { readAppleBusy } from "./icloud";
 import { readSource } from "./sources";
 import { addDays, type Interval, kstDateOf, kstMidnight } from "./time";
 
@@ -30,7 +31,11 @@ export async function getAvailability(opts: {
   const now = opts.now ?? Date.now();
   const range: Interval = { start: kstMidnight(opts.from), end: kstMidnight(addDays(opts.from, opts.days)) };
 
-  const results = await Promise.all(calendarSources().map((s) => readSource(s, range, { fresh: opts.fresh })));
+  // 외부 플랫폼(iCal 주소) + 애플 예약 캘린더(홈페이지 신청·사장님 수동 일정)를 함께 읽는다
+  const results = await Promise.all([
+    ...calendarSources().map((s) => readSource(s, range, { fresh: opts.fresh })),
+    readAppleBusy(range, { fresh: opts.fresh }),
+  ]);
   const busy = results.flatMap((r) => (r.ok ? r.busy : []));
 
   const days = rangeSlots({
