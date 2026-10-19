@@ -252,7 +252,9 @@ export const zh: Dictionary = {
   privacy: {
     title: "隐私政策",
     metaDescription: "关于本网站如何处理个人信息的说明。",
-    intro: " 不通过本网站收集用户的个人信息。以下是本网站处理哪些信息的说明。",
+    effective: "生效日期：2026年10月19日（修订分析工具说明）",
+    intro:
+      " 不会在本网站收集您的姓名、电话号码等个人信息。用于访问统计的 Cookie 说明请见下方第 3 条。",
     clauses: [
       {
         title: "1. 我们收集的个人信息",
@@ -270,7 +272,9 @@ export const zh: Dictionary = {
       {
         title: "3. Cookie 与分析工具",
         body: [
-          "本网站不使用广告或追踪用途的 Cookie。托管服务可能出于运营与安全目的临时记录访问日志（IP 地址、浏览器类型等），工作室不会单独查阅或保存这些记录。",
+          "本网站使用 Google Analytics 4 进行访问统计。该工具通过 Cookie 收集访问的页面、停留时间、来源渠道、设备与浏览器类型、大致地区等使用信息，不收集姓名、电话号码等可直接识别个人身份的信息。收集的数据在 Google LLC（美国）的服务器上处理，工作室仅将其用于了解访问趋势。",
+          "如不希望保存 Cookie，可在浏览器设置中屏蔽 Cookie，或使用 Google 提供的停用插件（https://tools.google.com/dlpage/gaoptout）。屏蔽 Cookie 不影响网站的使用。",
+          "此外，托管服务（Vercel，美国）可能出于运营与安全目的临时记录访问日志（IP 地址、浏览器类型等），工作室不会单独查阅或保存这些记录。",
         ],
       },
       {

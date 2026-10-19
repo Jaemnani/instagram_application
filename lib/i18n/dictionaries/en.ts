@@ -255,8 +255,9 @@ export const en: Dictionary = {
   privacy: {
     title: "Privacy policy",
     metaDescription: "How this website handles personal information.",
+    effective: "Effective: October 19, 2026 (analytics section revised)",
     intro:
-      " does not collect personal information through this website. Below is an explanation of what this site does handle.",
+      " does not ask for personal information such as your name or phone number on this website. Cookies used for visitor statistics are described in section 3 below.",
     clauses: [
       {
         title: "1. Personal information we collect",
@@ -274,7 +275,9 @@ export const en: Dictionary = {
       {
         title: "3. Cookies and analytics",
         body: [
-          "This site uses no advertising or tracking cookies. The hosting service may temporarily log access records (IP address, browser type) for operation and security; the studio does not read or retain these individually.",
+          "This site uses Google Analytics 4 for visitor statistics. Through cookies it collects usage information such as the pages you visit, time on page, how you arrived, device and browser type, and approximate region. It does not collect information that directly identifies you, such as your name or phone number. The data is processed on servers of Google LLC (United States), and the studio uses it only to understand visit trends.",
+          "If you prefer not to store cookies, you can block them in your browser settings or install Google's opt-out add-on (https://tools.google.com/dlpage/gaoptout). Blocking cookies does not affect your use of the site.",
+          "The hosting service (Vercel, United States) may also temporarily log access records (IP address, browser type) for operation and security; the studio does not read or retain these individually.",
         ],
       },
       {

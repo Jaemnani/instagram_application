@@ -61,6 +61,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ lang: 
       <HomeLink lang={locale} dict={dict} />
 
       <h1 className="mt-8 font-serif text-3xl font-bold text-ink-900">{dict.privacy.title}</h1>
+      <p className="mt-2 text-xs text-ink-400">{dict.privacy.effective}</p>
       <p className="mt-4 text-[15px] leading-[1.9] text-ink-600">
         <span className="wordmark text-ink-900">{siteConfig.name}</span>
         {dict.privacy.intro}

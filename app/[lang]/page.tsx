@@ -226,7 +226,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
       </Section>
 
       {/* 대형 예약 섹션 — 히어로와 짝을 이루는 다크 북엔드 */}
-      {bookingUrl && hasLocalBusinessData() && b && (
+      {/* 장면은 항상 둔다 — 외부 예약 링크가 비어도 예약 페이지(/book)로 가는 길은 남아야 한다 */}
+      {hasLocalBusinessData() && b && (
         <Section
           id="book"
           page
@@ -268,14 +269,16 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
               >
                 {dict.booking.homeCta}
               </Link>
-              <a
-                href={bookingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block rounded-full border border-ivory-200/40 px-8 py-4 text-sm font-medium text-ivory-50 transition-colors hover:bg-ivory-50 hover:text-ink-900"
-              >
-                {dict.ui.book}
-              </a>
+              {bookingUrl && (
+                <a
+                  href={bookingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-full border border-ivory-200/40 px-8 py-4 text-sm font-medium text-ivory-50 transition-colors hover:bg-ivory-50 hover:text-ink-900"
+                >
+                  {dict.ui.book}
+                </a>
+              )}
             </div>
           </div>
         </Section>
