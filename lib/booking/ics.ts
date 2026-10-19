@@ -38,7 +38,7 @@ export function foldLine(line: string): string {
   return out.join("\r\n ");
 }
 
-function utcStamp(ms: number): string {
+export function utcStamp(ms: number): string {
   return new Date(ms).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 }
 

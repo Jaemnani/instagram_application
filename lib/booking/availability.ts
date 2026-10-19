@@ -51,3 +51,30 @@ export async function getAvailability(opts: {
 
   return { ok: true, days, degraded: results.some((r) => !r.ok) };
 }
+
+/**
+ * 모든 캘린더의 바쁜 구간을 모은다 (막힌 시간 피드용).
+ * excludeHost 의 캘린더는 뺀다 — 피드를 가져가는 플랫폼 자신의 일정을 되돌려주면,
+ * 그 플랫폼이 가져온 일정을 다시 내보낼 때 취소된 예약이 영원히 막히는 순환이 생길 수 있다.
+ */
+export async function collectBusy(
+  range: Interval,
+  opts: { excludeHost?: string; fresh?: boolean } = {},
+): Promise<{ busy: Interval[]; failed: string[] }> {
+  const hostOf = (url: string) => {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return "";
+    }
+  };
+  const sources = calendarSources().filter((s) => !opts.excludeHost || hostOf(s.url) !== opts.excludeHost);
+  const results = await Promise.all([
+    ...sources.map((s) => readSource(s, range, { fresh: opts.fresh })),
+    readAppleBusy(range, { fresh: opts.fresh }),
+  ]);
+  return {
+    busy: results.flatMap((r) => (r.ok ? r.busy : [])),
+    failed: results.filter((r) => !r.ok).map((r) => r.label),
+  };
+}
