@@ -230,6 +230,11 @@ export const ja: Dictionary = {
     errorInvalid: "お名前と電話番号をご確認ください。",
     errorRate: "しばらくしてからもう一度お試しください。",
     errorGeneric: "送信できませんでした。しばらくしてから再度お試しいただくか、カカオトークでお問い合わせください。",
+    naverCta: "NAVERで予約する",
+    naverHint: "NAVERの予約画面で同じ日付と時間をお選びください。このページはすべての予約チャネルの日程をまとめて表示しています。",
+    naverGuideTitle: "NAVERでの予約方法",
+    naverGuideSteps: ["naver.com で無料のNAVERアカウントを作成してください。海外の電話番号やメールアドレスでも登録できます。", "予約の際に本人確認を求められる場合があります。韓国の電話番号がない方は、NAVERアプリでパスポートによる認証が利用できます。", "まずこのページで時間を選び、「NAVERで予約する」を押して同じ日付と時間を選択してください。"],
+    naverGuideHelp: "予約が難しい場合は、Instagram（@kidding.seongsu）のDMでお気軽にご連絡ください。",
   },
 
   footer: {

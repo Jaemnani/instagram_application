@@ -34,9 +34,14 @@ export function appleConfig(): AppleConfig | null {
   return username && password && calendarName ? { username, password, calendarName } : null;
 }
 
-/** 애플 캘린더가 설정돼 있을 때만 홈페이지에서 직접 신청을 받는다 */
+/**
+ * 홈페이지에서 직접 신청을 받을지.
+ * 2026-10-19 결정: 손님은 네이버에서 예약한다 → 신청서는 BOOKING_REQUESTS_ENABLED=true 로
+ * 명시적으로 켤 때만 연다. (애플 계정은 빈 시간 계산용으로 Vercel 에 이미 들어가 있어,
+ * 계정 존재만으로 켜지면 개인정보처리방침 개정 없이 이름·연락처를 받게 된다.)
+ */
 export function bookingRequestsEnabled(): boolean {
-  return appleConfig() !== null;
+  return process.env.BOOKING_REQUESTS_ENABLED?.trim() === "true" && appleConfig() !== null;
 }
 
 type Connection = {

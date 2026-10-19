@@ -11,6 +11,7 @@ import { getInstagramData } from "@/lib/data";
 import { getDictionary, htmlLang, isLocale, locales, localizedPath, type Locale } from "@/lib/i18n";
 import { breadcrumbLd } from "@/lib/seo/jsonld";
 import { languageAlternates } from "@/lib/seo/metadata";
+import { inquiryLink } from "@/lib/links";
 
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
@@ -50,7 +51,7 @@ export default async function BookPage({ params }: { params: Promise<{ lang: str
   const locale = lang as Locale;
   const dict = getDictionary(locale);
   const { profile } = await getInstagramData();
-  const inquiryUrl = siteConfig.bookingUrl || profile.website || "";
+  const inquiryUrl = inquiryLink(profile);
 
   return (
     <div className="mx-auto w-full max-w-3xl px-5 py-16 sm:px-8 sm:py-20">
@@ -67,11 +68,27 @@ export default async function BookPage({ params }: { params: Promise<{ lang: str
       <h1 className="mt-3 font-serif text-3xl font-bold text-ink-900">{dict.booking.title}</h1>
       <p className="mt-4 text-[15px] leading-[1.9] text-ink-600">{dict.booking.intro}</p>
 
+      {/* 외국인 손님용 — 네이버 예약 방법을 그 언어로 미리 알려준다. 한국어 페이지에는 필요 없다. */}
+      {siteConfig.naverBookingUrl && locale !== "ko" && (
+        <section aria-labelledby="naver-guide" className="mt-10 rounded-2xl border border-ivory-300 bg-ivory-100 p-6 sm:p-8">
+          <h2 id="naver-guide" className="font-serif text-lg font-bold text-ink-900">
+            {dict.booking.naverGuideTitle}
+          </h2>
+          <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-ink-800">
+            {dict.booking.naverGuideSteps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+          <p className="mt-4 text-xs leading-relaxed text-ink-600">{dict.booking.naverGuideHelp}</p>
+        </section>
+      )}
+
       <BookingPicker
         htmlLang={htmlLang[locale]}
         strings={dict.booking}
         products={PRODUCTS.map((p) => ({ id: p.id, minutes: p.minutes, name: p.name[locale] }))}
         inquiryUrl={inquiryUrl}
+        naverUrl={siteConfig.naverBookingUrl}
         requestsEnabled={bookingRequestsEnabled()}
         lang={locale}
         privacyHref={localizedPath(locale, "/privacy")}

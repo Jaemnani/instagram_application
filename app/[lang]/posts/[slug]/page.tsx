@@ -12,6 +12,7 @@ import { getDictionary, isLocale, locales, localizedPath, type Locale } from "@/
 import { getInstagramData, getPostBySlug, getPosts } from "@/lib/data";
 import { breadcrumbLd, imageObjectLd, postLd } from "@/lib/seo/jsonld";
 import { postMetadata } from "@/lib/seo/metadata";
+import { bookingLink } from "@/lib/links";
 
 type Params = { params: Promise<{ lang: string; slug: string }> };
 
@@ -38,7 +39,7 @@ export default async function PostPage({ params }: Params) {
 
   const { posts, profile } = await getInstagramData();
   const related = posts.filter((p) => p.id !== post.id).slice(0, 3);
-  const bookingUrl = siteConfig.bookingUrl || profile.website;
+  const bookingUrl = bookingLink(profile);
 
   // 번역이 없으면 원문(한국어)으로 폴백한다 — 빈 화면보다 낫다.
   const t = post.translations?.[locale];

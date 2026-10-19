@@ -230,6 +230,11 @@ export const en: Dictionary = {
     errorInvalid: "Please check your name and phone number.",
     errorRate: "Please try again in a moment.",
     errorGeneric: "We couldn't send your request. Please try again shortly or contact us on KakaoTalk.",
+    naverCta: "Book on Naver",
+    naverHint: "On Naver, choose the same date and time. This page combines the schedules of every booking channel we use.",
+    naverGuideTitle: "How to book on Naver",
+    naverGuideSteps: ["Create a free Naver account at naver.com — an overseas phone number or an email address works.", "Naver may ask you to verify your identity before booking. If you don't have a Korean phone number, passport verification is offered in the Naver app.", "Pick a time on this page first, then tap \"Book on Naver\" and choose the same date and time there."],
+    naverGuideHelp: "If you get stuck, send us a DM on Instagram (@kidding.seongsu) and we'll help you book.",
   },
 
   footer: {

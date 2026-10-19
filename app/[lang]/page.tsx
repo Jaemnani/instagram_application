@@ -17,6 +17,7 @@ import { hasLocalBusinessData, siteConfig } from "@/lib/config";
 import { getDictionary, isLocale, localizedPath, locales, type Locale } from "@/lib/i18n";
 import { getInstagramData } from "@/lib/data";
 import { faqPageLd, imageGalleryLd, offerCatalogLd } from "@/lib/seo/jsonld";
+import { bookingLink } from "@/lib/links";
 
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
@@ -72,7 +73,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   const locale = lang as Locale;
   const dict = getDictionary(locale);
   const { profile, posts } = await getInstagramData();
-  const bookingUrl = siteConfig.bookingUrl || profile.website;
+  const bookingUrl = bookingLink(profile);
   const b = siteConfig.business;
 
   return (

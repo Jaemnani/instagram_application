@@ -17,6 +17,11 @@ type Props = {
   /** 카카오톡 채널 등 문의 링크. 없으면 문구 복사만 보여준다. */
   inquiryUrl: string;
   /**
+   * 네이버 예약 페이지. 있으면 시간을 고른 뒤 "네이버에서 예약하기"로 보낸다 — 손님은 네이버에서
+   * 직접 예약하고, 이 화면은 모든 채널을 합친 빈 시간을 미리 보여주는 역할을 한다.
+   */
+  naverUrl: string;
+  /**
    * 홈페이지에서 직접 신청을 받을지 (서버에 애플 예약 캘린더가 설정돼 있을 때만 true).
    * false 면 지금처럼 카카오톡 문의로 안내한다.
    */
@@ -82,7 +87,7 @@ function noopSubscribe() {
   return () => {};
 }
 
-function Picker({ htmlLang, strings: t, products, inquiryUrl, requestsEnabled, lang, privacyHref, today }: Props & { today: string }) {
+function Picker({ htmlLang, strings: t, products, inquiryUrl, naverUrl, requestsEnabled, lang, privacyHref, today }: Props & { today: string }) {
   const [productId, setProductId] = useState(products[0]?.id ?? "");
   // 오늘은 리드타임 때문에 대개 막혀 있으므로 내일이 속한 달부터 연다 (말일에 빈 달이 먼저 보이지 않게)
   const [month, setMonth] = useState(() => monthStart(addDays(today, 1)));
@@ -364,8 +369,18 @@ function Picker({ htmlLang, strings: t, products, inquiryUrl, requestsEnabled, l
             {t.summary}
           </h2>
           <p className="mt-3 font-serif text-lg font-bold">{message}</p>
-          <p className="mt-3 text-sm text-ivory-200/85">{t.inquireHint}</p>
+          <p className="mt-3 text-sm text-ivory-200/85">{naverUrl ? t.naverHint : t.inquireHint}</p>
           <div className="mt-6 flex flex-wrap gap-3">
+            {naverUrl && (
+              <a
+                href={naverUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full bg-ivory-50 px-6 py-3 text-sm font-medium text-ink-900 transition-colors hover:bg-clay-500 hover:text-ivory-50"
+              >
+                {t.naverCta}
+              </a>
+            )}
             <button
               type="button"
               onClick={copyMessage}
@@ -379,7 +394,11 @@ function Picker({ htmlLang, strings: t, products, inquiryUrl, requestsEnabled, l
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={copyMessage}
-                className="rounded-full bg-ivory-50 px-6 py-3 text-sm font-medium text-ink-900 transition-colors hover:bg-clay-500 hover:text-ivory-50"
+                className={
+                  naverUrl
+                    ? "rounded-full border border-ivory-200/40 px-6 py-3 text-sm font-medium transition-colors hover:bg-ivory-50 hover:text-ink-900"
+                    : "rounded-full bg-ivory-50 px-6 py-3 text-sm font-medium text-ink-900 transition-colors hover:bg-clay-500 hover:text-ivory-50"
+                }
               >
                 {t.inquireCta}
               </a>

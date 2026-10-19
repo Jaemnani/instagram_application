@@ -227,6 +227,11 @@ export const zh: Dictionary = {
     errorInvalid: "请检查姓名和联系电话。",
     errorRate: "请稍后再试。",
     errorGeneric: "未能提交申请。请稍后再试，或通过 KakaoTalk 联系我们。",
+    naverCta: "在 Naver 预约",
+    naverHint: "请在 Naver 预约页面选择相同的日期和时间。本页面汇总了我们所有预约渠道的档期。",
+    naverGuideTitle: "如何在 Naver 预约",
+    naverGuideSteps: ["在 naver.com 免费注册 Naver 账号，海外手机号或电子邮箱均可注册。", "预约时可能需要进行身份验证。没有韩国手机号的用户可在 Naver 应用中使用护照验证。", "请先在本页面选好时间，再点击“在 Naver 预约”，在 Naver 上选择相同的日期和时间。"],
+    naverGuideHelp: "如预约遇到困难，请通过 Instagram（@kidding.seongsu）私信联系我们。",
   },
 
   footer: {

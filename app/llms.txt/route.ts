@@ -1,6 +1,7 @@
 import { siteConfig, instagramUrl } from "@/lib/config";
 import { getDictionary, localizedPath, locales, localeLabels } from "@/lib/i18n";
 import { getInstagramData } from "@/lib/data";
+import { bookingLink } from "@/lib/links";
 
 /**
  * /llms.txt — AI 생성형 엔진(GEO)용 사이트 요약.
@@ -15,7 +16,7 @@ export async function GET() {
   const { profile, posts } = await getInstagramData();
   const d = getDictionary("ko");
   const b = siteConfig.business;
-  const booking = siteConfig.bookingUrl || profile.website;
+  const booking = bookingLink(profile);
 
   const lines: string[] = [
     `# ${siteConfig.name} — ${d.meta.siteTagline}`,
