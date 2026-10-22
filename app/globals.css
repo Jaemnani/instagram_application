@@ -59,7 +59,12 @@ html {
  * 장면을 화면 안에 넣고, 임계는 640 까지 내렸다.
  */
 @media (min-width: 900px) and (min-height: 640px) and (pointer: fine) {
-  html {
+  /*
+   * :has(.snap-page) — 장면이 있는 페이지(홈)에서만 스냅을 켠다.
+   * 게시물·예약·개인정보 페이지처럼 장면이 없는 긴 페이지에 걸리면, 안착점이 푸터(.snap-tail)
+   * 하나뿐이라 휠 한 번에 바닥으로 빨려 내려간다(실측: 게시물 상세 y 0 → 2227).
+   */
+  html:has(.snap-page) {
     scroll-snap-type: y mandatory;
     /*
      * ⚠️ 여기서 scroll-behavior: smooth 를 쓰면 휠이 통째로 먹통이 된다.

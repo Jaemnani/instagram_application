@@ -3,6 +3,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { cache } from "react";
 
+import { isHidden, loadHiddenKeys } from "@/lib/curation";
 import { locales, type Locale } from "@/lib/i18n/config";
 import { deriveExcerpt } from "@/lib/instagram/normalize";
 import type { InstagramData, Post, PostTranslation } from "@/lib/instagram/types";
@@ -72,12 +73,20 @@ function attachTranslations(
   });
 }
 
-/** 동기화된 데이터를 읽는다 (요청당 1회 캐시). 파일이 없으면 빈 데이터. */
+/**
+ * 동기화된 데이터를 읽는다 (요청당 1회 캐시). 파일이 없으면 빈 데이터.
+ * 숨김 목록(data/curation.json)에 있는 게시물은 여기서 빠진다 — 사이트의 모든 화면이
+ * 이 함수를 거치므로 한 곳에서 거르면 상세 페이지·사이트맵·llms.txt 까지 같이 빠진다.
+ */
 export const getInstagramData = cache(async (): Promise<InstagramData> => {
+  // 숨김 목록은 try 밖에서 읽는다. 형식이 깨졌을 때 아래 catch 가 삼키면
+  // 사이트 전체가 "게시물 0개"로 조용히 바뀐다.
+  const hidden = await loadHiddenKeys();
   try {
     const raw = await fs.readFile(DATA_FILE, "utf8");
     const data = JSON.parse(raw) as InstagramData;
-    return { ...data, posts: attachTranslations(data.posts, await readTranslations()) };
+    const posts = data.posts.filter((p) => !isHidden(p, hidden));
+    return { ...data, posts: attachTranslations(posts, await readTranslations()) };
   } catch {
     return EMPTY;
   }

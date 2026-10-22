@@ -109,6 +109,11 @@ export const en: Dictionary = {
     scrollPrev: "Previous sessions",
     scrollNext: "Next sessions",
     comments: "Comments",
+    viewAll: "View all",
+    pageTitle: "Gallery",
+    pageLead: "Every session we have shared on Instagram, in one place. Open a photo for the story behind it.",
+    metaDescription: "A gallery of first-birthday, family and baby portraits from our studio in Seongsu, Seoul.",
+    countLabel: (n: number) => `${n} sessions`,
   },
 
   faq: {
@@ -123,6 +128,8 @@ export const en: Dictionary = {
       {
         q: "How do I book or ask a question?",
         a: "Bookings and enquiries go through our KakaoTalk channel. You can also reach it from the link in the Instagram bio at @kidding.seongsu. Messages in English are welcome.",
+        // NAVER_BOOKING_URL 이 있을 때 쓰는 답 — 예약 버튼이 네이버로 가므로 안내도 맞춘다 (lib/links.ts faqAnswer)
+        aNaver: "Book directly on Naver by choosing your date and time. For questions, message us on KakaoTalk or on Instagram at @kidding.seongsu. Messages in English are welcome.",
       },
       {
         q: "How do I get there?",
@@ -181,6 +188,57 @@ export const en: Dictionary = {
     body: "Tell us your preferred dates and your child's age in months, and we will share the available slots.",
   },
 
+  booking: {
+    title: "Book a session",
+    metaDescription: "Pick a session and a date to see the times you can book right now.",
+    intro: "Pick a session and a date to see the times you can book right now. We combine the schedules of every booking channel.",
+    homeCta: "See available times",
+    stepProduct: "Session",
+    stepDate: "Date",
+    stepTime: "Start time",
+    prevMonth: "Previous month",
+    nextMonth: "Next month",
+    weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    loading: "Checking available times…",
+    error: "We couldn't load the available times.",
+    retry: "Try again",
+    unavailable: "Online booking is not available right now. Please contact us on KakaoTalk.",
+    pickDate: "Pick a date on the calendar.",
+    noSlotsDay: "No times are available on this day.",
+    noSlotsMonth: "No dates are available this month. Please check the next month.",
+    degraded: "We couldn't check some booking channels just now. The studio will double-check after you send your request.",
+    rulesNote: "We keep {buffer} minutes between sessions to prepare, and bookings open {lead} hours ahead. All times are Korea Standard Time.",
+    summary: "Your selection",
+    inquireHint: "Send the message below to our KakaoTalk channel and the studio will confirm your booking.",
+    message: "I'd like to book: {product} · {date} {time}.",
+    copy: "Copy message",
+    copied: "Copied",
+    inquireCta: "Ask about this time on KakaoTalk",
+    stepRequest: "Request",
+    nameLabel: "Name",
+    phoneLabel: "Phone",
+    phonePlaceholder: "+82 10-1234-5678",
+    memoLabel: "Notes (optional)",
+    memoPlaceholder: "Your child's age, number of people, the look you'd like, etc.",
+    consentLabel: "I agree to the collection and use of my name and phone number to confirm this booking.",
+    consentLink: "Privacy policy",
+    requestNote: "Your booking is confirmed once the studio checks the schedule and contacts you. Until then it is a request.",
+    submit: "Send booking request",
+    sending: "Sending…",
+    doneEyebrow: "Request sent",
+    doneTitle: "We've received your request.",
+    doneBody: "The studio will check the schedule and contact you at the number you left. Your booking is complete once we confirm.",
+    errorTaken: "Someone just booked this time. Please choose another time.",
+    errorInvalid: "Please check your name and phone number.",
+    errorRate: "Please try again in a moment.",
+    errorGeneric: "We couldn't send your request. Please try again shortly or contact us on KakaoTalk.",
+    naverCta: "Book on Naver",
+    naverHint: "On Naver, choose the same date and time. This page combines the schedules of every booking channel we use.",
+    naverGuideTitle: "How to book on Naver",
+    naverGuideSteps: ["Create a free Naver account at naver.com — an overseas phone number or an email address works.", "Naver may ask you to verify your identity before booking. If you don't have a Korean phone number, passport verification is offered in the Naver app.", "Pick a time on this page first, then tap \"Book on Naver\" and choose the same date and time there."],
+    naverGuideHelp: "If you get stuck, send us a DM on Instagram (@kidding.seongsu) and we'll help you book.",
+  },
+
   footer: {
     studio: "Studio",
     links: "Links",
@@ -199,8 +257,9 @@ export const en: Dictionary = {
   privacy: {
     title: "Privacy policy",
     metaDescription: "How this website handles personal information.",
+    effective: "Effective: October 19, 2026 (analytics section revised)",
     intro:
-      " does not collect personal information through this website. Below is an explanation of what this site does handle.",
+      " does not ask for personal information such as your name or phone number on this website. Cookies used for visitor statistics are described in section 3 below.",
     clauses: [
       {
         title: "1. Personal information we collect",
@@ -218,7 +277,9 @@ export const en: Dictionary = {
       {
         title: "3. Cookies and analytics",
         body: [
-          "This site uses no advertising or tracking cookies. The hosting service may temporarily log access records (IP address, browser type) for operation and security; the studio does not read or retain these individually.",
+          "This site uses Google Analytics 4 for visitor statistics. Through cookies it collects usage information such as the pages you visit, time on page, how you arrived, device and browser type, and approximate region. It does not collect information that directly identifies you, such as your name or phone number. The data is processed on servers of Google LLC (United States), and the studio uses it only to understand visit trends.",
+          "If you prefer not to store cookies, you can block them in your browser settings or install Google's opt-out add-on (https://tools.google.com/dlpage/gaoptout). Blocking cookies does not affect your use of the site.",
+          "The hosting service (Vercel, United States) may also temporarily log access records (IP address, browser type) for operation and security; the studio does not read or retain these individually.",
         ],
       },
       {

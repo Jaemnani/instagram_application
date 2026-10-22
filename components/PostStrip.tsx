@@ -1,9 +1,22 @@
+import Link from "next/link";
+
 import { PostCard } from "@/components/PostCard";
 import { StripControls } from "@/components/StripControls";
-import type { Dictionary, Locale } from "@/lib/i18n";
+import { localizedPath, type Dictionary, type Locale } from "@/lib/i18n";
 import type { Post } from "@/lib/instagram/types";
 
 const STRIP_ID = "gallery-strip";
+
+/** 홈 스트립에 싣는 최대 개수. 나머지는 /gallery 에서 본다 — 가로로 끝없이 넘기지 않게. */
+export const STRIP_LIMIT = 12;
+
+function ArrowIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 /**
  * 최근 촬영 가로 스크롤 스트립.
@@ -29,6 +42,9 @@ export function PostStrip({
 }) {
   if (!posts.length) return null;
   const dark = tone === "dark";
+  const shown = posts.slice(0, STRIP_LIMIT);
+  const rest = posts.length - shown.length;
+  const galleryHref = localizedPath(lang, "/gallery");
 
   return (
     <div className={`border-t pt-10 ${dark ? "border-ivory-50/10" : "border-ivory-200"}`}>
@@ -50,7 +66,7 @@ export function PostStrip({
            */
           className="no-scrollbar -mx-5 flex snap-x snap-mandatory scroll-pl-5 gap-6 overflow-x-auto px-5 pb-2 sm:-mx-8 sm:scroll-pl-8 sm:px-8"
         >
-          {posts.map((post) => (
+          {shown.map((post) => (
             <li
               key={post.id}
               // 다음 카드가 살짝 잘려 보이도록 100% 보다 작게 — 스크롤 가능함을 즉시 알린다.
@@ -60,6 +76,26 @@ export function PostStrip({
               <PostCard post={post} lang={lang} dict={dict} tone={tone} compact />
             </li>
           ))}
+          {/* 다 넘겨 본 사람에게 "더 있다"를 알리는 마지막 칸. 높이는 카드 사진 칸과 같게 —
+              카드보다 커지면 갤러리 장면이 화면을 넘어 스냅이 어긋난다. */}
+          {rest > 0 && (
+            <li className="w-[76%] shrink-0 snap-start sm:w-[46%] md:w-[38%] lg:w-[30%] xl:w-[23%]">
+              <Link
+                href={galleryHref}
+                className={`flex aspect-[4/5] flex-col items-center justify-center gap-3 rounded-sm border border-dashed text-sm transition-colors md:aspect-auto md:h-[27svh] ${
+                  dark
+                    ? "border-ivory-50/25 text-ivory-200 hover:border-clay-400 hover:text-clay-400"
+                    : "border-ivory-300 text-ink-600 hover:border-clay-500 hover:text-clay-600"
+                }`}
+              >
+                <span className="font-serif text-3xl font-bold tabular-nums">+{rest}</span>
+                <span className="flex items-center gap-1.5">
+                  {dict.gallery.viewAll}
+                  <ArrowIcon />
+                </span>
+              </Link>
+            </li>
+          )}
         </ul>
 
         {/* 오른쪽 끝이 배경으로 사라지며 "이어진다"는 인상을 준다. 클릭은 통과시킨다. */}
@@ -69,11 +105,23 @@ export function PostStrip({
         />
       </div>
 
-      <StripControls
-        targetId={STRIP_ID}
-        labels={{ prev: dict.gallery.scrollPrev, next: dict.gallery.scrollNext }}
-        tone={tone}
-      />
+      <div className="mt-4 flex items-center gap-4">
+        {/* 개수와 상관없이 늘 둔다 — 전체 모음 페이지로 가는 크롤 경로이기도 하다 */}
+        <Link
+          href={galleryHref}
+          className={`inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.2em] transition-colors ${
+            dark ? "text-clay-400 hover:text-ivory-50" : "text-clay-600 hover:text-ink-900"
+          }`}
+        >
+          {dict.gallery.viewAll}
+          <ArrowIcon />
+        </Link>
+        <StripControls
+          targetId={STRIP_ID}
+          labels={{ prev: dict.gallery.scrollPrev, next: dict.gallery.scrollNext }}
+          tone={tone}
+        />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { googleMapsUrl, hasLocalBusinessData, instagramUrl, siteConfig } from "@/lib/config";
 import { getDictionary, htmlLang, localizedPath, locales, type Locale } from "@/lib/i18n";
 import type { Post, Profile } from "@/lib/instagram/types";
+import { bookingLink, faqAnswer, inquiryLink } from "@/lib/links";
 
 /** 절대 URL 생성 */
 export function abs(pathname: string): string {
@@ -98,8 +99,10 @@ export function localBusinessLd(locale: Locale, profile: Profile): Json | null {
   if (b.postalCode) address.postalCode = b.postalCode;
 
   const sameAs = [instagramUrl(profile.username || siteConfig.instagramHandle)];
-  const booking = siteConfig.bookingUrl || profile.website;
-  if (booking) sameAs.push(booking);
+  // sameAs 는 같은 업체의 공식 프로필 — 카카오톡 채널(문의 링크)을 넣는다. 네이버 "예약 페이지"는 프로필이 아니다.
+  // 공통 함수를 거쳐야 인스타 링크가 홈페이지 자신일 때 걸러진다(lib/links.ts).
+  const inquiry = inquiryLink(profile);
+  if (inquiry) sameAs.push(inquiry);
 
   const ld: Json = {
     "@context": "https://schema.org",
@@ -135,6 +138,8 @@ export function localBusinessLd(locale: Locale, profile: Profile): Json | null {
   // 좌표가 아니라 주소로 링크한다 — 이유는 googleMapsUrl 주석 참고.
   const mapUrl = googleMapsUrl();
   if (mapUrl) ld.hasMap = mapUrl;
+  // 예약 동작은 실제 예약 창구(네이버 예약 → 없으면 문의 링크)로
+  const booking = bookingLink(profile);
   if (booking) ld.potentialAction = { "@type": "ReserveAction", target: booking };
   if (b.telephone) ld.telephone = b.telephone;
   if (b.priceRange) ld.priceRange = b.priceRange;
@@ -184,7 +189,7 @@ export function faqPageLd(locale: Locale): Json | null {
     mainEntity: d.faq.items.map((f) => ({
       "@type": "Question",
       name: f.q,
-      acceptedAnswer: { "@type": "Answer", text: f.a },
+      acceptedAnswer: { "@type": "Answer", text: faqAnswer(f) },
     })),
   };
 }
@@ -263,13 +268,18 @@ export function imageObjectLd(post: Post): Json | null {
 }
 
 /** 홈 — ImageGallery (게시물 이미지 모음) */
-export function imageGalleryLd(locale: Locale, posts: Post[]): Json {
+/** 홈(최근 촬영 일부)과 /gallery(전체)가 같이 쓴다 — 어느 페이지의 갤러리인지 path 로 구분 */
+export function imageGalleryLd(
+  locale: Locale,
+  posts: Post[],
+  { path = "/", name }: { path?: string; name?: string } = {},
+): Json {
   const d = getDictionary(locale);
   return {
     "@context": "https://schema.org",
     "@type": "ImageGallery",
-    name: `${siteConfig.name} — ${d.gallery.title}`,
-    url: absLocalized(locale),
+    name: `${siteConfig.name} — ${name ?? d.gallery.title}`,
+    url: absLocalized(locale, path),
     associatedMedia: posts
       .filter((p) => p.coverImage)
       .map((p) => ({

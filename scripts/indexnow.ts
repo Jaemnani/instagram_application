@@ -3,6 +3,7 @@ import path from "node:path";
 
 import "./load-env";
 import { siteConfig } from "@/lib/config";
+import { isHidden, loadHiddenKeys } from "@/lib/curation";
 import { locales, localizedPath } from "@/lib/i18n/config";
 import { KEY_PATH, indexNowKey, submitToIndexNow } from "@/lib/seo/indexnow";
 
@@ -16,16 +17,22 @@ import { KEY_PATH, indexNowKey, submitToIndexNow } from "@/lib/seo/indexnow";
  */
 
 interface Post {
+  id: string;
   slug: string;
+  permalink: string;
 }
 
 async function collectUrls(): Promise<string[]> {
   const raw = await readFile(path.join(process.cwd(), "data", "instagram.json"), "utf8");
-  const { posts } = JSON.parse(raw) as { posts: Post[] };
+  const hidden = await loadHiddenKeys();
+  // 사이트에서 숨긴 게시물은 404 라 제출하지 않는다.
+  const posts = (JSON.parse(raw) as { posts: Post[] }).posts.filter((p) => !isHidden(p, hidden));
 
   const urls: string[] = [];
   for (const locale of locales) {
     urls.push(`${siteConfig.url}${localizedPath(locale)}`);
+    urls.push(`${siteConfig.url}${localizedPath(locale, "/gallery")}`);
+    urls.push(`${siteConfig.url}${localizedPath(locale, "/book")}`);
     urls.push(`${siteConfig.url}${localizedPath(locale, "/privacy")}`);
     for (const p of posts) {
       // 한글 슬러그는 인코딩해야 한다 — 엔진이 비ASCII 원문 URL 을 거절할 수 있다.

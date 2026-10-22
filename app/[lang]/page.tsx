@@ -5,17 +5,19 @@ import { Hero } from "@/components/Hero";
 import { JsonLd } from "@/components/JsonLd";
 import { LocationCard } from "@/components/LocationCard";
 import { MarqueeRibbon } from "@/components/MarqueeRibbon";
-import { PostStrip } from "@/components/PostStrip";
+import { PostStrip, STRIP_LIMIT } from "@/components/PostStrip";
 import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ServiceGrid } from "@/components/ServiceGrid";
 import { Statement } from "@/components/Statement";
 import Image from "next/image";
+import Link from "next/link";
 
 import { hasLocalBusinessData, siteConfig } from "@/lib/config";
-import { getDictionary, isLocale, locales, type Locale } from "@/lib/i18n";
+import { getDictionary, isLocale, localizedPath, locales, type Locale } from "@/lib/i18n";
 import { getInstagramData } from "@/lib/data";
 import { faqPageLd, imageGalleryLd, offerCatalogLd } from "@/lib/seo/jsonld";
+import { bookingLink } from "@/lib/links";
 
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
@@ -71,13 +73,18 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   const locale = lang as Locale;
   const dict = getDictionary(locale);
   const { profile, posts } = await getInstagramData();
-  const bookingUrl = siteConfig.bookingUrl || profile.website;
+  const bookingUrl = bookingLink(profile);
   const b = siteConfig.business;
 
   return (
     <>
       <JsonLd
-        data={[imageGalleryLd(locale, posts), offerCatalogLd(locale), faqPageLd(locale)]}
+        data={[
+          // 홈에 실제로 보이는 만큼만 — 전체 목록은 /gallery 의 ImageGallery 가 맡는다
+          imageGalleryLd(locale, posts.slice(0, STRIP_LIMIT)),
+          offerCatalogLd(locale),
+          faqPageLd(locale),
+        ]}
       />
 
       <Hero posts={posts} profile={profile} dict={dict} lang={locale} />
@@ -219,7 +226,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
       </Section>
 
       {/* 대형 예약 섹션 — 히어로와 짝을 이루는 다크 북엔드 */}
-      {bookingUrl && hasLocalBusinessData() && b && (
+      {/* 장면은 항상 둔다 — 외부 예약 링크가 비어도 예약 페이지(/book)로 가는 길은 남아야 한다 */}
+      {hasLocalBusinessData() && b && (
         <Section
           id="book"
           page
@@ -253,14 +261,25 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
               {dict.book.title}
             </h2>
             <p className="mt-3 text-[15px] text-ivory-200/85">{dict.book.body}</p>
-            <a
-              href={bookingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-block rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium text-ink-900 transition-colors hover:bg-clay-500 hover:text-ivory-50"
-            >
-              {dict.ui.book}
-            </a>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              {/* 예약 페이지 — 모든 채널의 일정을 합친 빈 시간을 보여준다 */}
+              <Link
+                href={localizedPath(locale, "/book")}
+                className="inline-block rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium text-ink-900 transition-colors hover:bg-clay-500 hover:text-ivory-50"
+              >
+                {dict.booking.homeCta}
+              </Link>
+              {bookingUrl && (
+                <a
+                  href={bookingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-full border border-ivory-200/40 px-8 py-4 text-sm font-medium text-ivory-50 transition-colors hover:bg-ivory-50 hover:text-ink-900"
+                >
+                  {dict.ui.book}
+                </a>
+              )}
+            </div>
           </div>
         </Section>
       )}

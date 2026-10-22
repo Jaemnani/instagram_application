@@ -106,6 +106,11 @@ export const zh: Dictionary = {
     scrollPrev: "查看上一组",
     scrollNext: "查看下一组",
     comments: "评论",
+    viewAll: "查看全部",
+    pageTitle: "作品集",
+    pageLead: "这里汇集了我们发布在 Instagram 上的全部拍摄记录，点开照片即可看到拍摄故事。",
+    metaDescription: "首尔圣水洞工作室拍摄的周岁照、全家福与宝宝写真作品集。",
+    countLabel: (n: number) => `共 ${n} 组拍摄记录`,
   },
 
   faq: {
@@ -120,6 +125,8 @@ export const zh: Dictionary = {
       {
         q: "怎么预约和咨询？",
         a: "通过 KakaoTalk 频道接受预约与咨询，也可以从 Instagram @kidding.seongsu 主页下方的链接进入。欢迎用中文联系。",
+        // NAVER_BOOKING_URL 이 있을 때 쓰는 답 — 예약 버튼이 네이버로 가므로 안내도 맞춘다 (lib/links.ts faqAnswer)
+        aNaver: "可在 Naver 预约上选择日期和时间直接预约。如有疑问，请通过 KakaoTalk 频道或 Instagram @kidding.seongsu 联系我们。欢迎用中文联系。",
       },
       {
         q: "怎么过去？",
@@ -178,6 +185,57 @@ export const zh: Dictionary = {
     body: "告诉我们希望的日期和孩子的月龄，我们会回复可预约的时段。",
   },
 
+  booking: {
+    title: "预约拍摄",
+    metaDescription: "选择套餐和日期，即可查看现在可以预约的时间。",
+    intro: "选择套餐和日期，即可看到现在可以预约的时间。我们会合并所有预约渠道的日程来计算。",
+    homeCta: "查看可预约时间",
+    stepProduct: "套餐",
+    stepDate: "日期",
+    stepTime: "开始时间",
+    prevMonth: "上个月",
+    nextMonth: "下个月",
+    weekdays: ["日", "一", "二", "三", "四", "五", "六"],
+    loading: "正在确认可预约时间…",
+    error: "无法加载可预约时间。",
+    retry: "重试",
+    unavailable: "目前无法在线预约，请通过KakaoTalk咨询。",
+    pickDate: "请在日历中选择日期。",
+    noSlotsDay: "这一天没有可预约的时间。",
+    noSlotsMonth: "本月没有可预约的日期，请查看下个月。",
+    degraded: "暂时无法确认部分预约渠道的日程。提交申请后，工作室会再次确认。",
+    rulesNote: "两次拍摄之间会留出{buffer}分钟准备时间，预约需提前{lead}小时申请。所有时间均为韩国时间。",
+    summary: "已选日程",
+    inquireHint: "将下面的内容发送到我们的KakaoTalk频道，工作室确认后会为您确定预约。",
+    message: "我想预约：{product} · {date} {time}。",
+    copy: "复制内容",
+    copied: "已复制",
+    inquireCta: "通过KakaoTalk咨询这个时间",
+    stepRequest: "提交申请",
+    nameLabel: "姓名",
+    phoneLabel: "联系电话",
+    phonePlaceholder: "+82 10-1234-5678",
+    memoLabel: "备注（选填）",
+    memoPlaceholder: "请填写孩子年龄、人数、想要的风格等。",
+    consentLabel: "我同意为确认预约而收集和使用我的姓名与联系电话。",
+    consentLink: "隐私政策",
+    requestNote: "提交后，工作室确认档期并与您联系，预约即告确定。在此之前为申请状态。",
+    submit: "提交预约申请",
+    sending: "提交中…",
+    doneEyebrow: "申请已提交",
+    doneTitle: "我们已收到您的预约申请。",
+    doneBody: "工作室确认档期后，会通过您留下的电话与您联系。收到确认后预约即完成。",
+    errorTaken: "这个时间刚刚被预约了，请选择其他时间。",
+    errorInvalid: "请检查姓名和联系电话。",
+    errorRate: "请稍后再试。",
+    errorGeneric: "未能提交申请。请稍后再试，或通过 KakaoTalk 联系我们。",
+    naverCta: "在 Naver 预约",
+    naverHint: "请在 Naver 预约页面选择相同的日期和时间。本页面汇总了我们所有预约渠道的档期。",
+    naverGuideTitle: "如何在 Naver 预约",
+    naverGuideSteps: ["在 naver.com 免费注册 Naver 账号，海外手机号或电子邮箱均可注册。", "预约时可能需要进行身份验证。没有韩国手机号的用户可在 Naver 应用中使用护照验证。", "请先在本页面选好时间，再点击“在 Naver 预约”，在 Naver 上选择相同的日期和时间。"],
+    naverGuideHelp: "如预约遇到困难，请通过 Instagram（@kidding.seongsu）私信联系我们。",
+  },
+
   footer: {
     studio: "工作室",
     links: "快速链接",
@@ -196,7 +254,9 @@ export const zh: Dictionary = {
   privacy: {
     title: "隐私政策",
     metaDescription: "关于本网站如何处理个人信息的说明。",
-    intro: " 不通过本网站收集用户的个人信息。以下是本网站处理哪些信息的说明。",
+    effective: "生效日期：2026年10月19日（修订分析工具说明）",
+    intro:
+      " 不会在本网站收集您的姓名、电话号码等个人信息。用于访问统计的 Cookie 说明请见下方第 3 条。",
     clauses: [
       {
         title: "1. 我们收集的个人信息",
@@ -214,7 +274,9 @@ export const zh: Dictionary = {
       {
         title: "3. Cookie 与分析工具",
         body: [
-          "本网站不使用广告或追踪用途的 Cookie。托管服务可能出于运营与安全目的临时记录访问日志（IP 地址、浏览器类型等），工作室不会单独查阅或保存这些记录。",
+          "本网站使用 Google Analytics 4 进行访问统计。该工具通过 Cookie 收集访问的页面、停留时间、来源渠道、设备与浏览器类型、大致地区等使用信息，不收集姓名、电话号码等可直接识别个人身份的信息。收集的数据在 Google LLC（美国）的服务器上处理，工作室仅将其用于了解访问趋势。",
+          "如不希望保存 Cookie，可在浏览器设置中屏蔽 Cookie，或使用 Google 提供的停用插件（https://tools.google.com/dlpage/gaoptout）。屏蔽 Cookie 不影响网站的使用。",
+          "此外，托管服务（Vercel，美国）可能出于运营与安全目的临时记录访问日志（IP 地址、浏览器类型等），工作室不会单独查阅或保存这些记录。",
         ],
       },
       {

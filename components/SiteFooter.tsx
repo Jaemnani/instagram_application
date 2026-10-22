@@ -4,6 +4,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { instagramUrl, siteConfig } from "@/lib/config";
 import { localizedPath, type Dictionary, type Locale } from "@/lib/i18n";
 import type { Profile } from "@/lib/instagram/types";
+import { inquiryLink } from "@/lib/links";
 
 export function SiteFooter({
   lang,
@@ -17,7 +18,8 @@ export function SiteFooter({
   const b = siteConfig.business;
   // 주소는 번역하지 않는다 — 지도·내비게이션에 그대로 쓸 수 있어야 한다.
   const address = [b.addressRegion, b.addressLocality, b.streetAddress].filter(Boolean).join(" ");
-  const bookingUrl = siteConfig.bookingUrl || profile.website;
+  // 푸터 문구가 "카카오톡 예약 문의"라 예약 링크(네이버)가 아니라 문의 링크를 쓴다
+  const bookingUrl = inquiryLink(profile);
 
   return (
     <footer className="snap-tail border-t border-ivory-200 bg-ivory-100">
@@ -55,6 +57,11 @@ export function SiteFooter({
               <li>
                 <Link href={`${localizedPath(lang)}#story`} className="hover:text-ink-900">
                   {dict.footer.about}
+                </Link>
+              </li>
+              <li>
+                <Link href={localizedPath(lang, "/gallery")} className="hover:text-ink-900">
+                  {dict.gallery.pageTitle}
                 </Link>
               </li>
               <li>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { HomeLink } from "@/components/HomeLink";
@@ -11,6 +12,7 @@ import { getDictionary, isLocale, locales, localizedPath, type Locale } from "@/
 import { getInstagramData, getPostBySlug, getPosts } from "@/lib/data";
 import { breadcrumbLd, imageObjectLd, postLd } from "@/lib/seo/jsonld";
 import { postMetadata } from "@/lib/seo/metadata";
+import { bookingLink } from "@/lib/links";
 
 type Params = { params: Promise<{ lang: string; slug: string }> };
 
@@ -37,7 +39,7 @@ export default async function PostPage({ params }: Params) {
 
   const { posts, profile } = await getInstagramData();
   const related = posts.filter((p) => p.id !== post.id).slice(0, 3);
-  const bookingUrl = siteConfig.bookingUrl || profile.website;
+  const bookingUrl = bookingLink(profile);
 
   // 번역이 없으면 원문(한국어)으로 폴백한다 — 빈 화면보다 낫다.
   const t = post.translations?.[locale];
@@ -148,9 +150,17 @@ export default async function PostPage({ params }: Params) {
           aria-labelledby="related-heading"
           className="mt-20 border-t border-ivory-200 pt-14"
         >
-          <h2 id="related-heading" className="font-serif text-2xl font-bold text-ink-900">
-            {dict.gallery.related}
-          </h2>
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 id="related-heading" className="font-serif text-2xl font-bold text-ink-900">
+              {dict.gallery.related}
+            </h2>
+            <Link
+              href={localizedPath(locale, "/gallery")}
+              className="shrink-0 text-xs font-medium uppercase tracking-[0.2em] text-clay-600 transition-colors hover:text-ink-900"
+            >
+              {dict.gallery.viewAll} →
+            </Link>
+          </div>
           <div className="mt-8 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((p) => (
               <PostCard key={p.id} post={p} lang={locale} dict={dict} />

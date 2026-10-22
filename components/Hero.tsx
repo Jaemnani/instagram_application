@@ -4,6 +4,7 @@ import { LanguageBadge } from "@/components/LanguageBadge";
 import { siteConfig } from "@/lib/config";
 import type { Dictionary, Locale } from "@/lib/i18n";
 import type { Post, Profile } from "@/lib/instagram/types";
+import { bookingLink } from "@/lib/links";
 
 /**
  * 첫 화면 — 사진이 화면을 가득 채우고 가운데 워드마크만 놓는다.
@@ -21,7 +22,7 @@ export function Hero({
   dict: Dictionary;
   lang: Locale;
 }) {
-  const bookingUrl = siteConfig.bookingUrl || profile.website;
+  const bookingUrl = bookingLink(profile);
 
   // 최신 게시물을 그냥 쓰면 이벤트 포스터가 걸릴 수 있어 반응이 가장 좋았던 사진을 기본값으로.
   const usable = posts.filter((p) => p.coverImage && !p.coverImage.src.endsWith(".svg"));

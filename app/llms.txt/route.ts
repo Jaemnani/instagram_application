@@ -1,6 +1,7 @@
 import { siteConfig, instagramUrl } from "@/lib/config";
 import { getDictionary, localizedPath, locales, localeLabels } from "@/lib/i18n";
 import { getInstagramData } from "@/lib/data";
+import { bookingLinkInfo, faqAnswer, inquiryLinkInfo } from "@/lib/links";
 
 /**
  * /llms.txt — AI 생성형 엔진(GEO)용 사이트 요약.
@@ -15,7 +16,8 @@ export async function GET() {
   const { profile, posts } = await getInstagramData();
   const d = getDictionary("ko");
   const b = siteConfig.business;
-  const booking = siteConfig.bookingUrl || profile.website;
+  const booking = bookingLinkInfo(profile);
+  const inquiry = inquiryLinkInfo(profile);
 
   const lines: string[] = [
     `# ${siteConfig.name} — ${d.meta.siteTagline}`,
@@ -29,7 +31,10 @@ export async function GET() {
   ];
 
   if (siteConfig.nameKo) lines.push(`- 한국어 상호: ${siteConfig.nameKo}`);
-  if (booking) lines.push(`- 예약·문의: ${booking} (카카오톡 채널)`);
+  // 링크가 실제로 어디로 가는지 그대로 적는다 — 네이버 주소에 "카카오톡"이라 붙이면 AI 가 틀린 안내를 한다
+  const CHANNEL = { naver: " (네이버 예약)", kakao: " (카카오톡 채널)", profile: "", none: "" } as const;
+  if (booking.url) lines.push(`- 예약: ${booking.url}${CHANNEL[booking.source]}`);
+  if (inquiry.url && inquiry.url !== booking.url) lines.push(`- 문의: ${inquiry.url}${CHANNEL[inquiry.source]}`);
   if (b.streetAddress || b.addressLocality) {
     lines.push(
       `- 주소: ${[b.addressRegion, b.addressLocality, b.streetAddress].filter(Boolean).join(" ")}`,
@@ -54,7 +59,7 @@ export async function GET() {
   for (const x of d.location.directionsItems) lines.push(`- ${x}`);
 
   lines.push("", "## 자주 묻는 질문", "");
-  for (const f of d.faq.items) lines.push(`### ${f.q}`, "", f.a, "");
+  for (const f of d.faq.items) lines.push(`### ${f.q}`, "", faqAnswer(f), "");
 
   lines.push("## 촬영 기록 (인스타그램 동기화)", "");
   for (const p of posts) {
