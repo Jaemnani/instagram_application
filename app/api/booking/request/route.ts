@@ -70,8 +70,9 @@ export async function POST(req: NextRequest) {
 
     const uid = `${randomUUID()}@kidding.kr`;
     // 파일 이름 = 시작 시각 → 같은 시각 동시 신청은 애플이 원자적으로 하나만 받는다 (icloud.ts 주석)
-    const filename = `slot-${requestInterval(r).start}.ics`;
-    await createAppleEvent(filename, requestToIcs(r, { uid, now, degraded: availability.degraded }));
+    const interval = requestInterval(r);
+    const filename = `slot-${interval.start}.ics`;
+    await createAppleEvent(filename, requestToIcs(r, { uid, now, degraded: availability.degraded }), interval);
 
     console.info(`[booking] 신청 저장: ${r.date} ${r.time} ${r.product.id}${availability.degraded ? " (일부 채널 미확인)" : ""}`);
     return NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });

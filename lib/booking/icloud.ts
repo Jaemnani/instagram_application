@@ -1,4 +1,6 @@
 // ⚠️ 서버 전용 — 애플 앱 암호를 다룬다. 클라이언트 컴포넌트('use client')에서 import 하지 말 것.
+import { randomUUID } from "node:crypto";
+
 import { createDAVClient, type DAVCalendar } from "tsdav";
 
 import type { SourceResult } from "./sources";
@@ -132,12 +134,37 @@ export class SlotTakenError extends Error {}
  * 시작 시각은 다르지만 겹치는 동시 신청(10:00 vs 10:30)은 여기서 못 막는다 — 확률이 낮고,
  * 둘 다 "[대기]"로 들어가 사장님 승인 단계에서 걸러진다.
  */
-export async function createAppleEvent(filename: string, ics: string): Promise<void> {
+/**
+ * 같은 이름의 파일이 이미 있을 때, 그게 **지금도 이 시간을 차지하는지** 판단한다.
+ * 직원이 아이폰에서 일정을 다른 시간으로 옮기면 파일 이름(원래 시각)은 그대로 남는다 —
+ * 그 남은 파일을 "마감"으로 보면 원래 시각은 화면엔 비었는데 신청은 영원히 거절된다(Codex P2).
+ * 내용을 못 읽으면(null) 안전하게 "차지함"으로 본다.
+ */
+export function lockStillHolds(existingIcs: string | null, interval: Interval): boolean {
+  if (existingIcs === null) return true;
+  return busyFromIcs(existingIcs, interval).some((b) => b.start < interval.end && b.end > interval.start);
+}
+
+export async function createAppleEvent(filename: string, ics: string, interval: Interval): Promise<void> {
   const cfg = appleConfig();
   if (!cfg) throw new Error("애플 캘린더가 설정되지 않음");
   const { client, calendar } = await getConnection(cfg);
-  const res = await client.createCalendarObject({ calendar, iCalString: ics, filename });
-  if (res.status === 412) throw new SlotTakenError("같은 시작 시각의 일정이 이미 있음");
+  let res = await client.createCalendarObject({ calendar, iCalString: ics, filename });
+  if (res.status === 412) {
+    // 같은 이름이 있다 — 그 일정이 아직 이 시간에 있으면 마감, 옮겨진 뒤 남은 파일이면 다른 이름으로 저장
+    const url = new URL(filename, calendar.url).href;
+    const existing = await client
+      .fetchCalendarObjects({ calendar, objectUrls: [url] })
+      .then((objs) => (typeof objs[0]?.data === "string" ? objs[0].data : null))
+      .catch(() => null);
+    if (lockStillHolds(existing, interval)) throw new SlotTakenError("같은 시작 시각의 일정이 이미 있음");
+    // 옮겨진 일정의 남은 이름 — 고유한 이름으로 한 번만 다시 시도한다. 이 드문 경우에만 원자성이 빠진다.
+    res = await client.createCalendarObject({
+      calendar,
+      iCalString: ics,
+      filename: filename.replace(/\.ics$/, `-${randomUUID().slice(0, 8)}.ics`),
+    });
+  }
   if (!res.ok) {
     connection = null;
     throw new Error(`애플 캘린더 저장 실패 HTTP ${res.status}`);

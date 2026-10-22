@@ -87,3 +87,18 @@ test("일정 내용: 제목은 스튜디오 규칙(HJ …) + [대기]·상품·�
     assert.ok(desc.includes(part), part);
   }
 });
+
+test("신청 잠금: 같은 이름 파일이 지금도 그 시간을 차지할 때만 마감 — 옮겨진 일정은 마감 아님 (Codex P2)", async () => {
+  const { lockStillHolds } = await import("./icloud");
+  const r = parseRequest(valid); // 10/20 14:00, 2시간
+  assert.ok(r.ok);
+  const { requestInterval } = await import("./request");
+  const interval = requestInterval(r.request);
+  const here = requestToIcs(r.request, { uid: "a@kidding.kr", now: Date.UTC(2026, 9, 12), degraded: false });
+  assert.equal(lockStillHolds(here, interval), true, "그대로 있으면 마감");
+  const moved = parseRequest({ ...valid, date: "2026-10-22", time: "11:00" });
+  assert.ok(moved.ok);
+  const movedIcs = requestToIcs(moved.request, { uid: "a@kidding.kr", now: Date.UTC(2026, 9, 12), degraded: false });
+  assert.equal(lockStillHolds(movedIcs, interval), false, "다른 날로 옮겨졌으면 이 시간은 비어 있다");
+  assert.equal(lockStillHolds(null, interval), true, "못 읽으면 안전하게 마감으로 본다");
+});
