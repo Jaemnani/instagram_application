@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { BookingPicker } from "@/components/BookingPicker";
 import { HomeLink } from "@/components/HomeLink";
 import { JsonLd } from "@/components/JsonLd";
-import { PRODUCTS } from "@/lib/booking/config";
+import { bookingRules, PRODUCTS } from "@/lib/booking/config";
 import { bookingRequestsEnabled } from "@/lib/booking/icloud";
 import { siteConfig } from "@/lib/config";
 import { getInstagramData } from "@/lib/data";
@@ -92,6 +92,7 @@ export default async function BookPage({ params }: { params: Promise<{ lang: str
         requestsEnabled={bookingRequestsEnabled()}
         lang={locale}
         privacyHref={localizedPath(locale, "/privacy")}
+        maxDaysAhead={bookingRules.maxDaysAhead}
       />
     </div>
   );

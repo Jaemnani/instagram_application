@@ -3,6 +3,8 @@ import { randomUUID } from "node:crypto";
 
 import { createDAVClient, type DAVCalendar } from "tsdav";
 
+import { siteConfig } from "@/lib/config";
+
 import type { SourceResult } from "./sources";
 import { busyFromIcs } from "./sources";
 import type { Interval } from "./time";
@@ -44,6 +46,15 @@ export function appleConfig(): AppleConfig | null {
  */
 export function bookingRequestsEnabled(): boolean {
   return process.env.BOOKING_REQUESTS_ENABLED?.trim() === "true" && appleConfig() !== null;
+}
+
+/**
+ * 손님이 이 화면의 빈 시간을 보고 **네이버에서 곧바로 예약**하는 모드인가.
+ * 신청서가 꺼졌다고 다 이 모드가 아니다 — 네이버 주소가 없으면 카카오 문의로 끝나고 사람이 확정한다
+ * (Codex P2). 이 모드에서만 "캘린더 하나라도 못 읽으면 닫기"가 필요하다.
+ */
+export function directBookingMode(): boolean {
+  return !bookingRequestsEnabled() && Boolean(siteConfig.naverBookingUrl);
 }
 
 type Connection = {

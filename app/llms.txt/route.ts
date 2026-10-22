@@ -1,7 +1,7 @@
 import { siteConfig, instagramUrl } from "@/lib/config";
 import { getDictionary, localizedPath, locales, localeLabels } from "@/lib/i18n";
 import { getInstagramData } from "@/lib/data";
-import { bookingLinkInfo, inquiryLinkInfo } from "@/lib/links";
+import { bookingLinkInfo, faqAnswer, inquiryLinkInfo } from "@/lib/links";
 
 /**
  * /llms.txt — AI 생성형 엔진(GEO)용 사이트 요약.
@@ -59,7 +59,7 @@ export async function GET() {
   for (const x of d.location.directionsItems) lines.push(`- ${x}`);
 
   lines.push("", "## 자주 묻는 질문", "");
-  for (const f of d.faq.items) lines.push(`### ${f.q}`, "", f.a, "");
+  for (const f of d.faq.items) lines.push(`### ${f.q}`, "", faqAnswer(f), "");
 
   lines.push("## 촬영 기록 (인스타그램 동기화)", "");
   for (const p of posts) {

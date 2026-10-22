@@ -29,6 +29,8 @@ type Props = {
   /** 사이트 언어 코드 (ko/en/ja/zh) — 신청 일정에 손님 언어를 남긴다 */
   lang: string;
   privacyHref: string;
+  /** 며칠 앞까지 예약을 받는지 (서버 bookingRules 와 같은 값) */
+  maxDaysAhead: number;
 };
 
 type Load =
@@ -87,7 +89,7 @@ function noopSubscribe() {
   return () => {};
 }
 
-function Picker({ htmlLang, strings: t, products, inquiryUrl, naverUrl, requestsEnabled, lang, privacyHref, today }: Props & { today: string }) {
+function Picker({ htmlLang, strings: t, products, inquiryUrl, naverUrl, requestsEnabled, lang, privacyHref, maxDaysAhead, today }: Props & { today: string }) {
   const [productId, setProductId] = useState(products[0]?.id ?? "");
   // 오늘은 리드타임 때문에 대개 막혀 있으므로 내일이 속한 달부터 연다 (말일에 빈 달이 먼저 보이지 않게)
   const [month, setMonth] = useState(() => monthStart(addDays(today, 1)));
@@ -138,7 +140,14 @@ function Picker({ htmlLang, strings: t, products, inquiryUrl, naverUrl, requests
 
   // 상품을 바꿔 고른 날짜가 막혔으면 선택을 없는 것으로 본다(로딩 중엔 유지)
   const activeDate = date && (load.state !== "ready" || (byDate.get(date)?.length ?? 0) > 0) ? date : null;
-  const time = activeDate && picked?.key === `${productId}|${activeDate}` ? picked.time : null;
+  // 고른 시간이 최신 빈 시간 목록에 아직 있어야 한다 — "방금 마감"으로 목록을 다시 받았는데 선택이
+  // 남아 있으면 마감된 시간으로 신청서가 그대로 보인다(Codex P2). 로딩 중엔 선택을 유지한다.
+  const time =
+    activeDate &&
+    picked?.key === `${productId}|${activeDate}` &&
+    (load.state !== "ready" || (byDate.get(activeDate) ?? []).includes(picked.time))
+      ? picked.time
+      : null;
   const setTime = (t: string) => activeDate && setPicked({ key: `${productId}|${activeDate}`, time: t });
 
   const monthLabel = useMemo(
@@ -167,6 +176,8 @@ function Picker({ htmlLang, strings: t, products, inquiryUrl, naverUrl, requests
   }, [month]);
 
   const canGoBack = month > monthStart(today);
+  // 예약을 받는 마지막 날이 든 달까지만 넘긴다 — 그 뒤는 서버가 받지 않는다(Codex P3)
+  const canGoForward = month < monthStart(addDays(today, maxDaysAhead));
   const message =
     product && activeDate && time
       ? fill(t.message, { product: product.name, date: formatDate(activeDate), time })
@@ -242,8 +253,9 @@ function Picker({ htmlLang, strings: t, products, inquiryUrl, naverUrl, requests
                 setMonth(shiftMonth(month, 1));
                 setDate(null);
               }}
+              disabled={!canGoForward}
               aria-label={t.nextMonth}
-              className="rounded-full px-3 py-1 text-lg text-ink-800 transition-colors hover:bg-ivory-200"
+              className="rounded-full px-3 py-1 text-lg text-ink-800 transition-colors hover:bg-ivory-200 disabled:opacity-30 disabled:hover:bg-transparent"
             >
               ›
             </button>
