@@ -108,7 +108,9 @@ export function forgetBusyCache(): void {
 /** 예약 캘린더의 일정 → 바쁜 구간. 다른 캘린더(아워플레이스 등)와 같은 형식으로 돌려준다. */
 export async function readAppleBusy(range: Interval, opts: { fresh?: boolean } = {}): Promise<SourceResult> {
   const cfg = appleConfig();
-  if (!cfg) return { label: BOOKING_CALENDAR_LABEL, ok: true, busy: [] };
+  // 설정이 없으면 "일정 없음"이 아니라 "읽지 못함"이다. SIDO 는 모든 예약이 모이는 중심 캘린더라
+  // 빈 성공으로 넘기면 마감 피드가 비어 아워플레이스가 시간을 다시 열고, 네이버 직접 예약도 겹친다(Codex P1).
+  if (!cfg) return { label: BOOKING_CALENDAR_LABEL, ok: false, error: "애플 캘린더 설정 없음 (APPLE_CALDAV_*)" };
 
   const hit = busyCache;
   if (!opts.fresh && hit && Date.now() - hit.at < BUSY_TTL_MS && hit.range.start <= range.start && hit.range.end >= range.end) {

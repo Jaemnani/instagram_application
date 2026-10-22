@@ -108,22 +108,36 @@ export type CalendarSource = {
  * (구글 캘린더 앱의 'URL로 구독'이 12~24시간 늦는 것과는 다른 경로다.)
  * 주소에는 비밀 토큰이 들어 있으므로 env 로만 주입하고 화면·응답에 노출하지 않는다.
  */
+/**
+ * BOOKING_ICS_SOURCES 해석. 형식이 틀린 항목은 **버리지 않고 invalid 로 돌려준다** —
+ * 조용히 빼면 그 채널 예약이 빠진 "빈 시간"이 실패 없이 나간다(Codex P1 과 같은 원인).
+ * 호출부는 invalid 를 "읽기 실패"로 다룬다.
+ */
+export function parseCalendarSources(raw: string | undefined): { sources: CalendarSource[]; invalid: string[] } {
+  const sources: CalendarSource[] = [];
+  const invalid: string[] = [];
+  for (const entry of (raw ?? "").split(/[\n,]/).map((s) => s.trim()).filter(Boolean)) {
+    const eq = entry.indexOf("=");
+    // 주소의 쿼리스트링에도 = 가 있으므로 첫 번째 = 만 구분자로 본다
+    const label = eq > 0 ? entry.slice(0, eq).trim() : "";
+    const url = (eq > 0 ? entry.slice(eq + 1) : entry).trim().replace(/^webcal:\/\//i, "https://");
+    try {
+      if (!/^https?:\/\//i.test(url)) throw new Error("주소 형식 아님");
+      const parsed = new URL(url); // 이름이 있어도 주소는 항상 검증한다 (공백 등 깨진 주소는 여기서 걸린다)
+      sources.push({ label: label || parsed.hostname, url });
+    } catch {
+      console.warn(`[booking] BOOKING_ICS_SOURCES 항목을 읽지 못함 (주소 형식 아님): ${label || "(이름 없음)"}`);
+      invalid.push(label || "(이름 없는 캘린더)");
+    }
+  }
+  return { sources, invalid };
+}
+
 export function calendarSources(): CalendarSource[] {
-  const raw = process.env.BOOKING_ICS_SOURCES?.trim();
-  if (!raw) return [];
-  return raw
-    .split(/[\n,]/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .flatMap((entry) => {
-      const eq = entry.indexOf("=");
-      // 주소의 쿼리스트링에도 = 가 있으므로 첫 번째 = 만 구분자로 본다
-      const label = eq > 0 ? entry.slice(0, eq).trim() : "";
-      const url = (eq > 0 ? entry.slice(eq + 1) : entry).trim().replace(/^webcal:\/\//i, "https://");
-      if (!/^https?:\/\//i.test(url)) {
-        console.warn(`[booking] BOOKING_ICS_SOURCES 항목을 건너뜀 (주소 형식 아님): ${label || "(이름 없음)"}`);
-        return [];
-      }
-      return [{ label: label || new URL(url).hostname, url }];
-    });
+  return parseCalendarSources(process.env.BOOKING_ICS_SOURCES).sources;
+}
+
+/** 형식이 틀려 읽을 수 없는 캘린더 항목 — 빈 시간 계산에서 "실패한 캘린더"로 센다 */
+export function invalidCalendarSources(): string[] {
+  return parseCalendarSources(process.env.BOOKING_ICS_SOURCES).invalid;
 }

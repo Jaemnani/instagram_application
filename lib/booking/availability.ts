@@ -3,10 +3,10 @@
  * 예약 페이지 API 와 (다음 단계의) 신청 확정 직전 재확인이 같은 함수를 쓴다.
  */
 
-import { bookingHours, bookingRules, calendarSources, type Product } from "./config";
+import { bookingHours, bookingRules, calendarSources, invalidCalendarSources, type Product } from "./config";
 import { type DayAvailability, rangeSlots } from "./slots";
 import { readAppleBusy } from "./icloud";
-import { readSource } from "./sources";
+import { readSource, type SourceResult } from "./sources";
 import { addDays, type Interval, kstDateOf, kstMidnight } from "./time";
 
 export type AvailabilityResult =
@@ -36,10 +36,13 @@ export async function getAvailability(opts: {
   // 반복 일정을 수천 년치 펼치고 CalDAV 에 거대한 조회를 보내게 된다(Codex P1). 창 밖 날짜는 어차피 빈 결과.
   const readRange = clampToBookingWindow(range, kstDateOf(now), bookingRules.maxDaysAhead);
   const results = readRange
-    ? await Promise.all([
-        ...calendarSources().map((s) => readSource(s, readRange, { fresh: opts.fresh })),
-        readAppleBusy(readRange, { fresh: opts.fresh }),
-      ])
+    ? [
+        ...(await Promise.all([
+          ...calendarSources().map((s) => readSource(s, readRange, { fresh: opts.fresh })),
+          readAppleBusy(readRange, { fresh: opts.fresh }),
+        ])),
+        ...invalidAsFailed(),
+      ]
     : [];
   const busy = results.flatMap((r) => (r.ok ? r.busy : []));
 
@@ -74,10 +77,13 @@ export async function collectBusy(
     }
   };
   const sources = calendarSources().filter((s) => !opts.excludeHost || hostOf(s.url) !== opts.excludeHost);
-  const results = await Promise.all([
-    ...sources.map((s) => readSource(s, range, { fresh: opts.fresh })),
-    readAppleBusy(range, { fresh: opts.fresh }),
-  ]);
+  const results = [
+    ...(await Promise.all([
+      ...sources.map((s) => readSource(s, range, { fresh: opts.fresh })),
+      readAppleBusy(range, { fresh: opts.fresh }),
+    ])),
+    ...invalidAsFailed(),
+  ];
   return {
     busy: results.flatMap((r) => (r.ok ? r.busy : [])),
     failed: results.filter((r) => !r.ok).map((r) => r.label),
@@ -89,4 +95,9 @@ export function clampToBookingWindow(range: Interval, today: string, maxDaysAhea
   const start = Math.max(range.start, kstMidnight(addDays(today, -1)));
   const end = Math.min(range.end, kstMidnight(addDays(today, maxDaysAhead + 1)));
   return end > start ? { start, end } : null;
+}
+
+/** 형식이 틀린 캘린더 항목을 "읽기 실패"로 — 조용히 빠지면 그 채널 예약이 없는 빈 시간이 나간다 */
+function invalidAsFailed(): SourceResult[] {
+  return invalidCalendarSources().map((label) => ({ label, ok: false, error: "주소 형식 아님" }));
 }
