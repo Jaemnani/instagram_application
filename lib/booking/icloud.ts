@@ -120,12 +120,24 @@ export async function readAppleBusy(range: Interval, opts: { fresh?: boolean } =
   }
 }
 
-/** 신청 일정을 예약 캘린더에 만든다. 실패하면 던진다 — 호출부가 손님에게 실패를 알린다. */
-export async function createAppleEvent(uid: string, ics: string): Promise<void> {
+/** 같은 시작 시각에 이미 신청 일정이 있다 — 손님에게 "방금 마감"으로 안내한다 */
+export class SlotTakenError extends Error {}
+
+/**
+ * 신청 일정을 예약 캘린더에 만든다. 실패하면 던진다 — 호출부가 손님에게 실패를 알린다.
+ *
+ * 파일 이름을 **시작 시각**으로 고정한다(`slot-<epoch>.ics`). tsdav 는 만들 때 `If-None-Match: *` 를
+ * 보내므로, 같은 시작 시각의 신청이 동시에 두 건 와도 애플 서버가 두 번째를 412 로 거절한다 —
+ * "빈 시간 확인 → 저장" 사이의 경쟁을 서버 인스턴스와 무관하게 막는 원자적 예약이다(Codex P2).
+ * 시작 시각은 다르지만 겹치는 동시 신청(10:00 vs 10:30)은 여기서 못 막는다 — 확률이 낮고,
+ * 둘 다 "[대기]"로 들어가 사장님 승인 단계에서 걸러진다.
+ */
+export async function createAppleEvent(filename: string, ics: string): Promise<void> {
   const cfg = appleConfig();
   if (!cfg) throw new Error("애플 캘린더가 설정되지 않음");
   const { client, calendar } = await getConnection(cfg);
-  const res = await client.createCalendarObject({ calendar, iCalString: ics, filename: `${uid}.ics` });
+  const res = await client.createCalendarObject({ calendar, iCalString: ics, filename });
+  if (res.status === 412) throw new SlotTakenError("같은 시작 시각의 일정이 이미 있음");
   if (!res.ok) {
     connection = null;
     throw new Error(`애플 캘린더 저장 실패 HTTP ${res.status}`);

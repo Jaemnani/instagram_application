@@ -20,12 +20,25 @@ function isOwnSite(url: string): boolean {
   }
 }
 
-export function inquiryLink(profile: Pick<Profile, "website">): string {
-  if (siteConfig.bookingUrl) return siteConfig.bookingUrl;
+/** 링크가 어디서 왔는지 — 화면·llms.txt 에서 "네이버 예약"인지 "카카오톡"인지 정확히 적기 위해 */
+export type LinkSource = "naver" | "kakao" | "profile" | "none";
+
+export function inquiryLinkInfo(profile: Pick<Profile, "website">): { url: string; source: LinkSource } {
+  // BOOKING_URL 은 카카오톡 채널 문의 링크로 쓰기로 했다(.env.example)
+  if (siteConfig.bookingUrl) return { url: siteConfig.bookingUrl, source: "kakao" };
   const site = profile.website?.trim();
-  return site && !isOwnSite(site) ? site : "";
+  return site && !isOwnSite(site) ? { url: site, source: "profile" } : { url: "", source: "none" };
+}
+
+export function bookingLinkInfo(profile: Pick<Profile, "website">): { url: string; source: LinkSource } {
+  if (siteConfig.naverBookingUrl) return { url: siteConfig.naverBookingUrl, source: "naver" };
+  return inquiryLinkInfo(profile);
+}
+
+export function inquiryLink(profile: Pick<Profile, "website">): string {
+  return inquiryLinkInfo(profile).url;
 }
 
 export function bookingLink(profile: Pick<Profile, "website">): string {
-  return siteConfig.naverBookingUrl || inquiryLink(profile);
+  return bookingLinkInfo(profile).url;
 }

@@ -125,3 +125,31 @@ test("예약 화면: 아워플레이스 시간 일정 앞뒤로 30분 텀이 붙
   }
   assert.ok(day.starts.includes("14:30"));
 });
+
+test("캐시는 담은 기간을 다 덮을 때만 재사용 — 짧은 조회 뒤 긴 조회는 다시 읽는다 (Codex P2)", async () => {
+  const { readSource } = await import("./sources");
+  const now = Date.now();
+  const far = now + 150 * 86_400_000; // 120일 캐시 창 밖
+  const stamp = (ms: number) => new Date(ms).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const body = calendar(
+    ["BEGIN:VEVENT", "UID:far", `DTSTART:${stamp(far)}`, `DTEND:${stamp(far + 3_600_000)}`, "END:VEVENT"].join("\r\n"),
+  );
+  let calls = 0;
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async () => {
+    calls++;
+    return new Response(body, { status: 200 });
+  }) as typeof fetch;
+  try {
+    const source = { label: "test", url: "https://example.test/cache-coverage.ics" };
+    const short = await readSource(source, { start: now, end: now + 30 * 86_400_000 });
+    assert.ok(short.ok && short.busy.length === 0);
+    const long = await readSource(source, { start: now, end: now + 180 * 86_400_000 });
+    assert.equal(calls, 2, "120일 캐시로 180일 요청을 답하면 안 된다");
+    assert.ok(long.ok && long.busy.length === 1, "150일 뒤 예약이 보여야 한다");
+    await readSource(source, { start: now, end: now + 20 * 86_400_000 });
+    assert.equal(calls, 2, "덮는 기간이면 캐시를 쓴다");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});

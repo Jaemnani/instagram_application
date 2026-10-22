@@ -18,7 +18,8 @@ export type SourceResult =
   | { label: string; ok: true; busy: Interval[] }
   | { label: string; ok: false; error: string };
 
-const cache = new Map<string, { at: number; busy: Interval[] }>();
+/** range = 이 캐시가 실제로 담고 있는 기간. 요청 기간을 다 덮을 때만 재사용한다. */
+const cache = new Map<string, { at: number; range: Interval; busy: Interval[] }>();
 
 /**
  * 종일 일정의 날짜. node-ical 은 DATE 값을 서버 로컬 시간의 0시로 만든다
@@ -93,7 +94,10 @@ export async function readSource(
   opts: { fresh?: boolean } = {},
 ): Promise<SourceResult> {
   const hit = cache.get(source.url);
-  if (!opts.fresh && hit && Date.now() - hit.at < CACHE_TTL_MS) {
+  // 담은 기간 밖을 물으면 다시 읽는다 — 예약 화면이 만든 120일 캐시를 180일 피드가 그대로 쓰면
+  // 120~180일 사이 예약이 피드에서 빠져, 가져가는 플랫폼이 이미 예약된 시간을 다시 연다(Codex P2).
+  const covers = hit && hit.range.start <= range.start && hit.range.end >= range.end;
+  if (!opts.fresh && hit && covers && Date.now() - hit.at < CACHE_TTL_MS) {
     return { label: source.label, ok: true, busy: hit.busy.filter((b) => b.end > range.start && b.start < range.end) };
   }
   try {
@@ -101,7 +105,7 @@ export async function readSource(
     // 캐시는 넉넉한 창으로 만들어 달 이동 시에도 재사용되게 한다
     const wide = { start: Math.min(range.start, Date.now() - DAY_MS), end: Math.max(range.end, Date.now() + 120 * DAY_MS) };
     const busy = busyFromIcs(body, wide);
-    cache.set(source.url, { at: Date.now(), busy });
+    cache.set(source.url, { at: Date.now(), range: wide, busy });
     return { label: source.label, ok: true, busy: busy.filter((b) => b.end > range.start && b.start < range.end) };
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);

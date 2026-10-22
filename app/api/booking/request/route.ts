@@ -3,8 +3,8 @@ import { randomUUID } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getAvailability } from "@/lib/booking/availability";
-import { bookingRequestsEnabled, createAppleEvent } from "@/lib/booking/icloud";
-import { parseRequest, requestToIcs } from "@/lib/booking/request";
+import { bookingRequestsEnabled, createAppleEvent, SlotTakenError } from "@/lib/booking/icloud";
+import { parseRequest, requestInterval, requestToIcs } from "@/lib/booking/request";
 
 export const dynamic = "force-dynamic";
 
@@ -69,11 +69,14 @@ export async function POST(req: NextRequest) {
     }
 
     const uid = `${randomUUID()}@kidding.kr`;
-    await createAppleEvent(uid, requestToIcs(r, { uid, now, degraded: availability.degraded }));
+    // 파일 이름 = 시작 시각 → 같은 시각 동시 신청은 애플이 원자적으로 하나만 받는다 (icloud.ts 주석)
+    const filename = `slot-${requestInterval(r).start}.ics`;
+    await createAppleEvent(filename, requestToIcs(r, { uid, now, degraded: availability.degraded }));
 
     console.info(`[booking] 신청 저장: ${r.date} ${r.time} ${r.product.id}${availability.degraded ? " (일부 채널 미확인)" : ""}`);
     return NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
+    if (err instanceof SlotTakenError) return NextResponse.json({ error: "taken" }, { status: 409 });
     console.error("[booking] 신청 저장 실패", (err as Error).message);
     return NextResponse.json({ error: "save-failed" }, { status: 502 });
   }
