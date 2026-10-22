@@ -1,7 +1,7 @@
 import { googleMapsUrl, hasLocalBusinessData, instagramUrl, siteConfig } from "@/lib/config";
 import { getDictionary, htmlLang, localizedPath, locales, type Locale } from "@/lib/i18n";
 import type { Post, Profile } from "@/lib/instagram/types";
-import { bookingLink, inquiryLink } from "@/lib/links";
+import { bookingLink, faqAnswer, inquiryLink } from "@/lib/links";
 
 /** 절대 URL 생성 */
 export function abs(pathname: string): string {
@@ -189,7 +189,7 @@ export function faqPageLd(locale: Locale): Json | null {
     mainEntity: d.faq.items.map((f) => ({
       "@type": "Question",
       name: f.q,
-      acceptedAnswer: { "@type": "Answer", text: f.a },
+      acceptedAnswer: { "@type": "Answer", text: faqAnswer(f) },
     })),
   };
 }

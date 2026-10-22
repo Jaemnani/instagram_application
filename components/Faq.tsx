@@ -1,4 +1,5 @@
 import type { Dictionary } from "@/lib/i18n";
+import { faqAnswer } from "@/lib/links";
 
 /**
  * 자주 묻는 질문. <details>/<summary> 라 JS 없이 접힘이 동작하고,
@@ -22,7 +23,7 @@ export function Faq({ dict }: { dict: Dictionary }) {
               ＋
             </span>
           </summary>
-          <p className="mt-3 max-w-3xl pr-10 text-sm leading-[1.85] text-ink-600">{f.a}</p>
+          <p className="mt-3 max-w-3xl pr-10 text-sm leading-[1.85] text-ink-600">{faqAnswer(f)}</p>
         </details>
       ))}
     </div>

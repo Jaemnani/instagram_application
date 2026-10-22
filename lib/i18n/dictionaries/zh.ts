@@ -125,6 +125,8 @@ export const zh: Dictionary = {
       {
         q: "怎么预约和咨询？",
         a: "通过 KakaoTalk 频道接受预约与咨询，也可以从 Instagram @kidding.seongsu 主页下方的链接进入。欢迎用中文联系。",
+        // NAVER_BOOKING_URL 이 있을 때 쓰는 답 — 예약 버튼이 네이버로 가므로 안내도 맞춘다 (lib/links.ts faqAnswer)
+        aNaver: "可在 Naver 预约上选择日期和时间直接预约。如有疑问，请通过 KakaoTalk 频道或 Instagram @kidding.seongsu 联系我们。欢迎用中文联系。",
       },
       {
         q: "怎么过去？",

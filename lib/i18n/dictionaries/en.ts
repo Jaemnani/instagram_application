@@ -128,6 +128,8 @@ export const en: Dictionary = {
       {
         q: "How do I book or ask a question?",
         a: "Bookings and enquiries go through our KakaoTalk channel. You can also reach it from the link in the Instagram bio at @kidding.seongsu. Messages in English are welcome.",
+        // NAVER_BOOKING_URL 이 있을 때 쓰는 답 — 예약 버튼이 네이버로 가므로 안내도 맞춘다 (lib/links.ts faqAnswer)
+        aNaver: "Book directly on Naver by choosing your date and time. For questions, message us on KakaoTalk or on Instagram at @kidding.seongsu. Messages in English are welcome.",
       },
       {
         q: "How do I get there?",

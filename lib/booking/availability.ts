@@ -32,10 +32,15 @@ export async function getAvailability(opts: {
   const range: Interval = { start: kstMidnight(opts.from), end: kstMidnight(addDays(opts.from, opts.days)) };
 
   // 외부 플랫폼(iCal 주소) + 애플 예약 캘린더(홈페이지 신청·사장님 수동 일정)를 함께 읽는다
-  const results = await Promise.all([
-    ...calendarSources().map((s) => readSource(s, range, { fresh: opts.fresh })),
-    readAppleBusy(range, { fresh: opts.fresh }),
-  ]);
+  // 예약 창(오늘 ~ maxDaysAhead) 밖은 캘린더를 읽지 않는다 — 공개 API 에 9999년 같은 날짜를 넣으면
+  // 반복 일정을 수천 년치 펼치고 CalDAV 에 거대한 조회를 보내게 된다(Codex P1). 창 밖 날짜는 어차피 빈 결과.
+  const readRange = clampToBookingWindow(range, kstDateOf(now), bookingRules.maxDaysAhead);
+  const results = readRange
+    ? await Promise.all([
+        ...calendarSources().map((s) => readSource(s, readRange, { fresh: opts.fresh })),
+        readAppleBusy(readRange, { fresh: opts.fresh }),
+      ])
+    : [];
   const busy = results.flatMap((r) => (r.ok ? r.busy : []));
 
   const days = rangeSlots({
@@ -77,4 +82,11 @@ export async function collectBusy(
     busy: results.flatMap((r) => (r.ok ? r.busy : [])),
     failed: results.filter((r) => !r.ok).map((r) => r.label),
   };
+}
+
+/** 조회 구간을 예약 창(어제 ~ 오늘+maxDaysAhead+1일)으로 자른다. 겹치지 않으면 null — 읽을 것이 없다. */
+export function clampToBookingWindow(range: Interval, today: string, maxDaysAhead: number): Interval | null {
+  const start = Math.max(range.start, kstMidnight(addDays(today, -1)));
+  const end = Math.min(range.end, kstMidnight(addDays(today, maxDaysAhead + 1)));
+  return end > start ? { start, end } : null;
 }

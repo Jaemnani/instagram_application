@@ -32,6 +32,7 @@ async function collectUrls(): Promise<string[]> {
   for (const locale of locales) {
     urls.push(`${siteConfig.url}${localizedPath(locale)}`);
     urls.push(`${siteConfig.url}${localizedPath(locale, "/gallery")}`);
+    urls.push(`${siteConfig.url}${localizedPath(locale, "/book")}`);
     urls.push(`${siteConfig.url}${localizedPath(locale, "/privacy")}`);
     for (const p of posts) {
       // 한글 슬러그는 인코딩해야 한다 — 엔진이 비ASCII 원문 URL 을 거절할 수 있다.

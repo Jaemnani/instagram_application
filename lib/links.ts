@@ -42,3 +42,12 @@ export function inquiryLink(profile: Pick<Profile, "website">): string {
 export function bookingLink(profile: Pick<Profile, "website">): string {
   return bookingLinkInfo(profile).url;
 }
+
+/**
+ * FAQ 답변 — 네이버 예약이 켜져 있으면 예약 안내 문항은 네이버용 답(aNaver)을 쓴다.
+ * 버튼은 네이버로 가는데 FAQ 는 "카카오톡으로 예약"이라 하면 손님과 AI 모두 헷갈린다(Codex P2).
+ * 화면(Faq)과 검색엔진용 FAQPage JSON-LD 가 같은 함수를 써서 어긋나지 않게 한다.
+ */
+export function faqAnswer(item: { a: string; aNaver?: string }): string {
+  return siteConfig.naverBookingUrl && item.aNaver ? item.aNaver : item.a;
+}

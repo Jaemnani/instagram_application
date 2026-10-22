@@ -128,6 +128,8 @@ export const ja: Dictionary = {
       {
         q: "予約や問い合わせはどうすればいいですか？",
         a: "カカオトークチャンネルでご予約・お問い合わせを受け付けています。Instagram @kidding.seongsu のプロフィール下のリンクからもつながります。日本語でのご連絡も歓迎です。",
+        // NAVER_BOOKING_URL 이 있을 때 쓰는 답 — 예약 버튼이 네이버로 가므로 안내도 맞춘다 (lib/links.ts faqAnswer)
+        aNaver: "NAVER予約で日付と時間を選んで直接ご予約いただけます。お問い合わせはカカオトークチャンネルまたはInstagram @kidding.seongsu へ。日本語でのご連絡も歓迎です。",
       },
       {
         q: "行き方を教えてください。",
