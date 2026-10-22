@@ -19,15 +19,21 @@ export function shortcodeOf(permalink: string): string | undefined {
   return permalink.match(/\/(?:p|reel|tv)\/([^/?#]+)/)?.[1];
 }
 
-function parse(raw: string): HiddenEntry[] {
+/**
+ * 형식이 틀리면 **던진다** — "숨길 것 없음"으로 넘기면 숨겨둔 게시물이 갤러리·상세·사이트맵·llms.txt 에
+ * 조용히 다시 나온다(Codex P2). `hidden` 오타·배열 아님·알 수 없는 항목 모두 빌드를 멈춘다.
+ */
+export function parseCuration(raw: string): HiddenEntry[] {
   const data = JSON.parse(raw) as { hidden?: unknown };
-  if (!Array.isArray(data.hidden)) return [];
-  return data.hidden.flatMap((item): HiddenEntry[] => {
-    if (typeof item === "string" && item.trim()) return [{ key: item.trim() }];
-    if (item && typeof item === "object" && "key" in item && typeof item.key === "string") {
-      return [{ key: item.key.trim(), note: (item as { note?: string }).note }];
+  if (!Array.isArray(data.hidden)) {
+    throw new Error('data/curation.json: "hidden" 배열이 없습니다 (오타 또는 형식 오류)');
+  }
+  return data.hidden.map((item, i): HiddenEntry => {
+    if (typeof item === "string" && item.trim()) return { key: item.trim() };
+    if (item && typeof item === "object" && "key" in item && typeof item.key === "string" && item.key.trim()) {
+      return { key: item.key.trim(), note: (item as { note?: string }).note };
     }
-    return [];
+    throw new Error(`data/curation.json: hidden[${i}] 형식이 틀렸습니다 — 문자열 또는 { "key": "..." } 이어야 합니다`);
   });
 }
 
@@ -48,7 +54,7 @@ async function readFileOrEmpty(): Promise<string | null> {
 
 export async function loadHiddenKeys(): Promise<Set<string>> {
   const raw = await readFileOrEmpty();
-  return raw === null ? new Set() : toKeySet(parse(raw));
+  return raw === null ? new Set() : toKeySet(parseCuration(raw));
 }
 
 export function isHidden(post: Pick<Post, "id" | "permalink">, keys: Set<string>): boolean {

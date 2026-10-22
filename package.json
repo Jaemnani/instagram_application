@@ -13,7 +13,7 @@
     "translate": "tsx scripts/translate.ts",
     "indexnow": "tsx scripts/indexnow.ts",
     "geo-check": "tsx scripts/geo-check.ts",
-    "test": "tsx --test lib/**/*.test.ts"
+    "test": "tsx --test \"lib/**/*.test.ts\""
   },
   "dependencies": {
     "image-size": "^2.0.2",
